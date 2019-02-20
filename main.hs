@@ -1,23 +1,25 @@
-module Main(main) where
+module Main where
 import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
 import System.Random
 
 -- Preliminary, subject to change
 data Game = GameState
-  { sprites :: [Sprite]
+  { objects :: [Object]
   } deriving Show
 
 -- Preliminary, subject to change
-data Sprite = Sprite
+data Object = Object
   { position :: (Float, Float),
+    direction :: (Float, Float),
+    velocity :: (Float, Float),
     boundingBox :: BoundingBox,
     graphic :: Picture
   } deriving Show
 
 -- Preliminary, subject to change
 data Ship = Ship
-  { sprite :: Sprite,
+  { object :: Object,
     health :: Int,
     speed  :: Float
   } deriving Show
@@ -71,16 +73,16 @@ Constructs a drawable picture out of a given game state.
    EXAMPLES: 
 -}
 draw :: Game -> Picture
-draw (GameState {sprites=sprites}) = pictures $ map makeDrawable sprites
+draw (GameState {objects=objects}) = pictures $ map makeDrawable objects
 
 {- makeDrawable
-Converts a sprite into a picture that can be drawn on the screen.
+Converts a game object into a picture that can be drawn on the screen.
    PRE: 
    RETURNS: 
    EXAMPLES: 
 -}
-makeDrawable :: Sprite -> Picture
-makeDrawable (Sprite {graphic=g}) = g
+makeDrawable :: Object -> Picture
+makeDrawable (Object {graphic=g}) = g
 
 {- update
 desc
@@ -92,8 +94,10 @@ update :: Float -> Game -> Game
 update _ gameState = gameState
 
 testGraphic = translate (-25) 25 $ circle 30
-testSprite =
-  Sprite { position = (-25,25),
+testObject =
+  Object { position = (-25,25),
+           direction = (0, 0),
+           velocity = (0, 0),
            boundingBox = ((-55, 55), (5, -5)),
            graphic = testGraphic
          }
@@ -107,8 +111,9 @@ desc
 handleEvent :: Event -> Game -> Game
 handleEvent (EventKey (key) Down modifier _ ) gameState =
   case key of
-    (SpecialKey KeyUp)    -> GameState { sprites = [testSprite] }
-    (SpecialKey KeyDown)  -> GameState { sprites = [] }
-    (SpecialKey KeyLeft)  -> GameState { sprites = [] }
-    (SpecialKey KeyRight) -> GameState { sprites = [] }
+    (SpecialKey KeyUp)    -> GameState { objects = [testObject] }
+    (SpecialKey KeyDown)  -> GameState { objects = [] }
+    (SpecialKey KeyLeft)  -> GameState { objects = [] }
+    (SpecialKey KeyRight) -> GameState { objects = [] }
+    _                     -> gameState
 handleEvent _ gameState = gameState
