@@ -1,4 +1,4 @@
-module Main where
+module Main(main) where
 import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
 import System.Random
@@ -73,7 +73,7 @@ Constructs a drawable picture out of a given game state.
    EXAMPLES: 
 -}
 draw :: Game -> Picture
-draw (GameState {objects=objects}) = pictures $ map makeDrawable objects
+draw (GameState {objects=objs}) = pictures $ map makeDrawable objs
 
 {- makeDrawable
 Converts a game object into a picture that can be drawn on the screen.
