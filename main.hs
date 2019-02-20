@@ -5,7 +5,8 @@ import System.Random
 
 -- Preliminary, subject to change
 data Game = GameState
-  { objects :: [Object]
+  { objects :: [Object],
+    player :: Object
   } deriving Show
 
 -- Preliminary, subject to change
@@ -48,9 +49,20 @@ targetFramerate = 60
 window :: Display
 window = InWindow win_title win_size win_offset
 
-initGameState :: Game
-initGameState = GameState []
+-- CHANGE THIS
+playerObj :: Object
+playerObj = Object { position = (0, 0),
+                     direction = (0, 0),
+                     velocity = (0, 0),
+                     boundingBox = ((0, 0), (0, 0)),
+                     graphic = rectangleSolid 50.0 50.0
+                   }
 
+initGameState :: Game
+initGameState = GameState {
+  objects = [],
+  player = playerObj
+  }
 
 {- main
 desc.
@@ -62,9 +74,10 @@ EXAMPLES:
 main :: IO()
 main = do
   let sampleCircle1 = translate 50 50 $ (circle 69)
-      sampleCircle2 = translate (-15) 20 $ (circle 25)
+      sampleCircle2 = (circle 69)
       toDraw = pictures [sampleCircle1, sampleCircle2]
-  play window win_background targetFramerate initGameState draw handleEvent update
+  display window win_background $ pictures [(color red $ makeRectangle (0,0) 50.0 50.0), (color black $ circle 10)]
+  --play window win_background targetFramerate initGameState draw handleEvent update
 
 {- draw gameState
 Constructs a drawable picture out of a given game state.
@@ -82,7 +95,7 @@ Converts a game object into a picture that can be drawn on the screen.
    EXAMPLES: 
 -}
 makeDrawable :: Object -> Picture
-makeDrawable (Object {graphic=g}) = g
+makeDrawable (Object {position = pos, graphic=g}) = g
 
 {- update
 desc
@@ -91,7 +104,7 @@ desc
    EXAMPLES:
 -}
 update :: Float -> Game -> Game
-update _ gameState = gameState
+update dt gameState = gameState
 
 testGraphic = translate (-25) 25 $ circle 30
 testObject =
@@ -111,9 +124,25 @@ desc
 handleEvent :: Event -> Game -> Game
 handleEvent (EventKey (key) Down modifier _ ) gameState =
   case key of
-    (SpecialKey KeyUp)    -> GameState { objects = [testObject] }
-    (SpecialKey KeyDown)  -> GameState { objects = [] }
-    (SpecialKey KeyLeft)  -> GameState { objects = [] }
-    (SpecialKey KeyRight) -> GameState { objects = [] }
+    (SpecialKey KeyUp)    -> moveObject 10.0 gameState (0, 1)
+    (SpecialKey KeyDown)  -> gameState
+    (SpecialKey KeyLeft)  -> gameState 
+    (SpecialKey KeyRight) -> gameState 
     _                     -> gameState
 handleEvent _ gameState = gameState
+
+moveObject :: Float -> Game -> (Float, Float) -> Game
+moveObject deltaTime gameState@(GameState { player = pObject }) direction = gameState { player = newPlayer }
+  where
+    (x, y) = position pObject
+    (nx, ny) = (x, (y+5*deltaTime))
+    newPlayer = pObject { position = (nx, ny) }
+
+
+makeRectangle :: (Float, Float) -> Float -> Float -> Picture
+makeRectangle point@(x, y) width height = polygon [upperLeft, upperRight, lowerRight, lowerLeft]
+  where
+    upperLeft = (x-(width/2), y+(height/2))
+    upperRight = (x+(width/2), y+(height/2))
+    lowerRight = (x+(width/2), y-(height/2))
+    lowerLeft = (x-(width/2), y-(height/2))
