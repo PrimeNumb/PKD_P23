@@ -2,28 +2,31 @@ module Main(main) where
 import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
 import System.Random
+import Debug.Trace
+--import Control.Lens -- PLAN B: SOLVES NESTED RECORD FIELD HELL
 
 -- Preliminary, subject to change
 data Game = GameState
   { objects :: [Object],
     player :: Object
+    --pressedKeys :: [Key]
   } deriving Show
 
 -- Preliminary, subject to change
 data Object = Object
   { position :: (Float, Float),
     direction :: (Float, Float),
-    velocity :: (Float, Float),
+    speed :: Float,
     boundingBox :: BoundingBox,
     graphic :: Picture
   } deriving Show
 
 -- Preliminary, subject to change
-data Ship = Ship
-  { object :: Object,
-    health :: Int,
-    speed  :: Float
-  } deriving Show
+--data Ship = Ship
+--  { object :: Object,
+--    health :: Int,
+--    speed  :: Float
+--  } deriving Show
 
 {- BoundingBox
    Represents a rectangle. The first element of the tuple is the 2D coordinate of the upper left corner of the rectangle. The second element of the tuple is the 2D coordinate of the lower right corner of the rectangle.
@@ -53,7 +56,7 @@ window = InWindow win_title win_size win_offset
 playerObj :: Object
 playerObj = Object { position = (0, 0),
                      direction = (0, 0),
-                     velocity = (0, 0),
+                     speed = 200,
                      boundingBox = ((0, 0), (0, 0)),
                      graphic = rectangleSolid 50.0 50.0
                    }
@@ -62,6 +65,7 @@ initGameState :: Game
 initGameState = GameState {
   objects = [],
   player = playerObj
+ -- pressedKeys = []
   }
 
 {- main
@@ -76,8 +80,8 @@ main = do
   let sampleCircle1 = translate 50 50 $ (circle 69)
       sampleCircle2 = (circle 69)
       toDraw = pictures [sampleCircle1, sampleCircle2]
-  display window win_background $ pictures [(color red $ makeRectangle (0,0) 50.0 50.0), (color black $ circle 10)]
-  --play window win_background targetFramerate initGameState draw handleEvent update
+  --display window win_background $ pictures [(color red $ makeRectangle (0,0) 50.0 50.0), (color black $ circle 10)]
+  play window win_background targetFramerate initGameState draw handleEvent update
 
 {- draw gameState
 Constructs a drawable picture out of a given game state.
@@ -86,16 +90,20 @@ Constructs a drawable picture out of a given game state.
    EXAMPLES: 
 -}
 draw :: Game -> Picture
-draw (GameState {objects=objs}) = pictures $ map makeDrawable objs
+draw gameState@(GameState {objects=objs, player=playerObj}) = pictures $ (map makeDrawable objs) ++ [player]
+  where
+    player = makeDrawable playerObj
+    
+    
 
 {- makeDrawable
-Converts a game object into a picture that can be drawn on the screen.
+Converts a game object into a picture ready to be drawn on the screen.
    PRE: 
    RETURNS: 
    EXAMPLES: 
 -}
 makeDrawable :: Object -> Picture
-makeDrawable (Object {position = pos, graphic=g}) = g
+makeDrawable (Object {position = pos, graphic=g}) = uncurry translate pos $ g
 
 {- update
 desc
@@ -104,13 +112,23 @@ desc
    EXAMPLES:
 -}
 update :: Float -> Game -> Game
-update dt gameState = gameState
+update dt gameState = updatePlayer dt gameState
+
+updatePlayer dt gameState@(GameState {player=ply}) = movePlayer gameState v
+  where
+    (dx,dy) = direction ply
+    plySpeed = speed ply
+    v = (dx*plySpeed*dt,dy*plySpeed*dt)
+
+
+-- TODO: COLLISION DETECTION
+checkCollision = undefined
 
 testGraphic = translate (-25) 25 $ circle 30
 testObject =
   Object { position = (-25,25),
            direction = (0, 0),
-           velocity = (0, 0),
+           speed = 0,
            boundingBox = ((-55, 55), (5, -5)),
            graphic = testGraphic
          }
@@ -122,23 +140,49 @@ desc
    EXAMPLES:
 -}
 handleEvent :: Event -> Game -> Game
-handleEvent (EventKey (key) Down modifier _ ) gameState =
+handleEvent (EventKey key Down mod _) gameState =
   case key of
-    (SpecialKey KeyUp)    -> moveObject 10.0 gameState (0, 1)
-    (SpecialKey KeyDown)  -> gameState
-    (SpecialKey KeyLeft)  -> gameState 
-    (SpecialKey KeyRight) -> gameState 
-    _                     -> gameState
+    (SpecialKey KeyUp) -> modPlyDirection gameState (0,1)
+    (SpecialKey KeyDown) -> modPlyDirection gameState (0,-1)
+    (SpecialKey KeyLeft) -> modPlyDirection gameState (-1,0)
+    (SpecialKey KeyRight) -> modPlyDirection gameState (1,0)
+    _ -> gameState
+handleEvent (EventKey key Up _ _) gameState=
+  case key of
+    (SpecialKey KeyUp) -> modPlyDirection gameState (0,-1)
+    (SpecialKey KeyDown) -> modPlyDirection gameState (0,1)
+    (SpecialKey KeyLeft) -> modPlyDirection gameState (1,0)
+    (SpecialKey KeyRight) -> modPlyDirection gameState (-1,0)
+    _ -> gameState
 handleEvent _ gameState = gameState
 
-moveObject :: Float -> Game -> (Float, Float) -> Game
-moveObject deltaTime gameState@(GameState { player = pObject }) direction = gameState { player = newPlayer }
+modPlyDirection :: Game -> (Float, Float) -> Game
+modPlyDirection gameState (x,y) = newGameState
   where
-    (x, y) = position pObject
-    (nx, ny) = (x, (y+5*deltaTime))
-    newPlayer = pObject { position = (nx, ny) }
+    (px,py) = direction (player gameState)
+    (nx,ny) = (x+px,y+py)
+    newGameState = gameState {player = (player gameState) { direction = (nx,ny)}}
+
+{- movePlayer object gameState deltaVector
+   desc
+   PRE: 
+   RETURNS: 
+   EXAMPLES: 
+-}
+movePlayer :: Game -> (Float, Float) -> Game
+movePlayer gameState@(GameState {player=ply}) (dx, dy) = gameState { player = newPly}
+  where
+    (x, y) = position ply
+    (nx, ny) = (x+dx, y+dy)
+    newPly = ply { position = (nx, ny) }
 
 
+{- makeRectangle position width height
+   desc
+   PRE: 
+   RETURNS: 
+   EXAMPLES: 
+-}
 makeRectangle :: (Float, Float) -> Float -> Float -> Picture
 makeRectangle point@(x, y) width height = polygon [upperLeft, upperRight, lowerRight, lowerLeft]
   where
