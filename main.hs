@@ -51,10 +51,9 @@ EXAMPLES:
 -}
 main :: IO()
 main = do
-  Projectile.projGreet
-  --let sampleCircle1 = translate 50 50 $ (circle 69)
-  --    sampleCircle2 = (circle 69)
-  --    toDraw = pictures [sampleCircle1, sampleCircle2]
+--  let sampleCircle1 = translate 50 50 $ (circle 69)
+--      sampleCircle2 = (circle 69)
+--      toDraw = pictures [sampleCircle1, sampleCircle2]
   --display window win_background $ pictures [(color red $ makeRectangle (0,0) 50.0 50.0), (color black $ circle 10)]
   --play window win_background targetFramerate initGameState draw handleEvent update
 
