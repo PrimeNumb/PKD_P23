@@ -40,7 +40,7 @@ initGameState :: Game
 initGameState = GameState {
   objects = [],
   player = playerObj
-  enemy = enermyObj1
+ -- enemy = enermyObj1
  -- pressedKeys = []
   }
 
