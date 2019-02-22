@@ -3,6 +3,7 @@ import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
 import System.Random
 import Debug.Trace
+import Enemies
 import Projectile
 import DataTypes
 import Globals
@@ -26,6 +27,7 @@ initGameState :: Game
 initGameState = GameState {
   objects = [],
   player = playerObj
+ -- enemy = enermyObj1
  -- pressedKeys = []
   }
 
