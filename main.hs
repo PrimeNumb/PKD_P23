@@ -5,23 +5,10 @@ import System.Random
 import Debug.Trace
 import Projectile
 import DataTypes
+import Globals
+import Rendering
 --import Control.Lens -- PLAN B: SOLVES NESTED RECORD FIELD HELL
 
--- INIT
-win_title :: String
-win_title = "Space Shooter"
-
-win_size :: (Int, Int)
-win_size = (640, 480)
-
-win_offset :: (Int, Int)
-win_offset = (0, 0)
-
-win_background :: Color
-win_background = white
-
-targetFramerate :: Int
-targetFramerate = 60
 
 window :: Display
 window = InWindow win_title win_size win_offset
@@ -55,7 +42,7 @@ main = do
 --      sampleCircle2 = (circle 69)
 --      toDraw = pictures [sampleCircle1, sampleCircle2]
   --display window win_background $ pictures [(color red $ makeRectangle (0,0) 50.0 50.0), (color black $ circle 10)]
-  --play window win_background targetFramerate initGameState draw handleEvent update
+  play window win_background targetFramerate initGameState draw handleEvent update
 
 {- draw gameState
 Constructs a drawable picture out of a given game state.
@@ -67,17 +54,6 @@ draw :: Game -> Picture
 draw gameState@(GameState {objects=objs, player=playerObj}) = pictures $ (map makeDrawable objs) ++ [player]
   where
     player = makeDrawable playerObj
-    
-    
-
-{- makeDrawable
-Converts a game object into a picture ready to be drawn on the screen.
-   PRE: 
-   RETURNS: 
-   EXAMPLES: 
--}
-makeDrawable :: Object -> Picture
-makeDrawable (Object {position = pos, graphic=g}) = uncurry translate pos $ g
 
 {- update
 desc
@@ -151,18 +127,3 @@ movePlayer gameState@(GameState {player=ply}) (dx, dy) = gameState { player = ne
     (x, y) = position ply
     (nx, ny) = (x+dx, y+dy)
     newPly = ply { position = (nx, ny) }
-
-
-{- makeRectangle position width height
-   desc
-   PRE: 
-   RETURNS: 
-   EXAMPLES: 
--}
-makeRectangle :: (Float, Float) -> Float -> Float -> Picture
-makeRectangle point@(x, y) width height = polygon [upperLeft, upperRight, lowerRight, lowerLeft]
-  where
-    upperLeft = (x-(width/2), y+(height/2))
-    upperRight = (x+(width/2), y+(height/2))
-    lowerRight = (x+(width/2), y-(height/2))
-    lowerLeft = (x-(width/2), y-(height/2))
