@@ -7,7 +7,8 @@ import Debug.Trace
 -- Preliminary, subject to change
 data Game = GameState
   { objects :: [Object],
-    player :: Object
+    player :: Object,
+    enemy :: Object
     --pressedKeys :: [Key]
   } deriving Show
 

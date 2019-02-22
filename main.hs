@@ -26,8 +26,8 @@ playerObj = Object { position = (0, 0),
 initGameState :: Game
 initGameState = GameState {
   objects = [],
-  player = playerObj
- -- enemy = enermyObj1
+  player = playerObj,
+  enemy = enemyObj1
  -- pressedKeys = []
   }
 
@@ -53,9 +53,10 @@ Constructs a drawable picture out of a given game state.
    EXAMPLES: 
 -}
 draw :: Game -> Picture
-draw gameState@(GameState {objects=objs, player=playerObj}) = pictures $ (map makeDrawable objs) ++ [player]
+draw gameState@(GameState {objects=objs, player=playerObj, enemy = enemyObj1}) = pictures $ (map makeDrawable objs) ++ [player] ++ [enemy]
   where
     player = makeDrawable playerObj
+    enemy = makeDrawable enemyObj1
 
 {- update
 desc

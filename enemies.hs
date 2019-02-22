@@ -3,7 +3,8 @@ import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
 import System.Random
 import Debug.Trace
-import Main(makeRectangle)
+import Rendering
+import DataTypes
 
 enemyObj1 :: Object
 enemyObj1 = Object { position = (0, 0),
