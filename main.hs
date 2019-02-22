@@ -1,14 +1,16 @@
-module Main(main) where
+module Main where
 import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
 import System.Random
 import Debug.Trace
+import Enemies
 --import Control.Lens -- PLAN B: SOLVES NESTED RECORD FIELD HELL
 
 -- Preliminary, subject to change
 data Game = GameState
   { objects :: [Object],
     player :: Object
+    enemy :: Object
     --pressedKeys :: [Key]
   } deriving Show
 
@@ -65,6 +67,7 @@ initGameState :: Game
 initGameState = GameState {
   objects = [],
   player = playerObj
+  enemy = enermyObj1
  -- pressedKeys = []
   }
 
