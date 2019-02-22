@@ -1,37 +1,11 @@
-module Main(main) where
+module Main where
 import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
 import System.Random
 import Debug.Trace
+import Projectile
+import DataTypes
 --import Control.Lens -- PLAN B: SOLVES NESTED RECORD FIELD HELL
-
--- Preliminary, subject to change
-data Game = GameState
-  { objects :: [Object],
-    player :: Object
-    --pressedKeys :: [Key]
-  } deriving Show
-
--- Preliminary, subject to change
-data Object = Object
-  { position :: (Float, Float),
-    direction :: (Float, Float),
-    speed :: Float,
-    boundingBox :: BoundingBox,
-    graphic :: Picture
-  } deriving Show
-
--- Preliminary, subject to change
---data Ship = Ship
---  { object :: Object,
---    health :: Int,
---    speed  :: Float
---  } deriving Show
-
-{- BoundingBox
-   Represents a rectangle. The first element of the tuple is the 2D coordinate of the upper left corner of the rectangle. The second element of the tuple is the 2D coordinate of the lower right corner of the rectangle.
--}
-type BoundingBox = ((Float, Float), (Float, Float))
 
 -- INIT
 win_title :: String
@@ -77,11 +51,12 @@ EXAMPLES:
 -}
 main :: IO()
 main = do
-  let sampleCircle1 = translate 50 50 $ (circle 69)
-      sampleCircle2 = (circle 69)
-      toDraw = pictures [sampleCircle1, sampleCircle2]
+  Projectile.projGreet
+  --let sampleCircle1 = translate 50 50 $ (circle 69)
+  --    sampleCircle2 = (circle 69)
+  --    toDraw = pictures [sampleCircle1, sampleCircle2]
   --display window win_background $ pictures [(color red $ makeRectangle (0,0) 50.0 50.0), (color black $ circle 10)]
-  play window win_background targetFramerate initGameState draw handleEvent update
+  --play window win_background targetFramerate initGameState draw handleEvent update
 
 {- draw gameState
 Constructs a drawable picture out of a given game state.
@@ -134,7 +109,7 @@ testObject =
          }
 
 {- handleEvent gameState
-desc
+Calls a specific
    PRE:
    RETURNS:
    EXAMPLES:
@@ -142,17 +117,19 @@ desc
 handleEvent :: Event -> Game -> Game
 handleEvent (EventKey key Down mod _) gameState =
   case key of
-    (SpecialKey KeyUp) -> modPlyDirection gameState (0,1)
-    (SpecialKey KeyDown) -> modPlyDirection gameState (0,-1)
-    (SpecialKey KeyLeft) -> modPlyDirection gameState (-1,0)
+    (SpecialKey KeyUp)    -> modPlyDirection gameState (0,1)
+    (SpecialKey KeyDown)  -> modPlyDirection gameState (0,-1)
+    (SpecialKey KeyLeft)  -> modPlyDirection gameState (-1,0)
     (SpecialKey KeyRight) -> modPlyDirection gameState (1,0)
+    (SpecialKey KeySpace) -> undefined
     _ -> gameState
 handleEvent (EventKey key Up _ _) gameState=
   case key of
-    (SpecialKey KeyUp) -> modPlyDirection gameState (0,-1)
-    (SpecialKey KeyDown) -> modPlyDirection gameState (0,1)
-    (SpecialKey KeyLeft) -> modPlyDirection gameState (1,0)
+    (SpecialKey KeyUp)    -> modPlyDirection gameState (0,-1)
+    (SpecialKey KeyDown)  -> modPlyDirection gameState (0,1)
+    (SpecialKey KeyLeft)  -> modPlyDirection gameState (1,0)
     (SpecialKey KeyRight) -> modPlyDirection gameState (-1,0)
+    (SpecialKey KeySpace) -> undefined
     _ -> gameState
 handleEvent _ gameState = gameState
 
