@@ -8,8 +8,8 @@ import Debug.Trace
 data Game = GameState
   { objects :: [Object],
     player :: Object,
-    enemy :: Object
-    --pressedKeys :: [Key]
+    enemy :: Object,
+    projectiles :: [Projectile]
   } deriving Show
 
 -- Preliminary, subject to change
@@ -30,9 +30,9 @@ data Ship = Ship
 data Projectile = Projectile
   { proj_obj :: Object,
     effect :: Effect
-    }
+    } deriving Show
 
-data Effect = Damage Int | NoEffect
+data Effect = Damage Int | NoEffect deriving Show
 
 {- BoundingBox
    Represents a rectangle. The first element of the tuple is the 2D coordinate of the upper left corner of the rectangle. The second element of the tuple is the 2D coordinate of the lower right corner of the rectangle.

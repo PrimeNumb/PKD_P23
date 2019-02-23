@@ -3,14 +3,15 @@ import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
 import System.Random
 import Debug.Trace
-import Enemies
+--import Enemies
 import Projectile
 import DataTypes
 import Globals
 import Rendering
+import Helpers
 --import Control.Lens -- PLAN B: SOLVES NESTED RECORD FIELD HELL
 
-
+-- The game window
 window :: Display
 window = InWindow win_title win_size win_offset
 
@@ -22,12 +23,13 @@ playerObj = Object { position = (0, 0),
                      boundingBox = ((0, 0), (0, 0)),
                      graphic = rectangleSolid 50.0 50.0
                    }
-
+-- The initial game state
 initGameState :: Game
 initGameState = GameState {
   objects = [],
   player = playerObj,
   enemy = enemyObj1
+
  -- pressedKeys = []
   }
 
@@ -43,7 +45,7 @@ main = do
 --  let sampleCircle1 = translate 50 50 $ (circle 69)
 --      sampleCircle2 = (circle 69)
 --      toDraw = pictures [sampleCircle1, sampleCircle2]
-  --display window win_background $ pictures [(color red $ makeRectangle (0,0) 50.0 50.0), (color black $ circle 10)]
+  --display window win_background $ testProjGraphic
   play window win_background targetFramerate initGameState draw handleEvent update
 
 {- draw gameState
@@ -53,10 +55,17 @@ Constructs a drawable picture out of a given game state.
    EXAMPLES: 
 -}
 draw :: Game -> Picture
+<<<<<<< HEAD
 draw gameState@(GameState {objects=objs, player=playerObj, enemy = enemyObj1}) = pictures $ (map makeDrawable objs) ++ [player] ++ [enemy]
   where
     player = makeDrawable playerObj
     enemy = makeDrawable enemyObj1
+=======
+draw gameState@(GameState {objects=objs, player=playerObj, projectiles=projs}) = pictures $ (map makeDrawable objs) ++ [player] ++ projectiles
+  where
+    player = makeDrawable playerObj
+    projectiles = map makeDrawable $ map proj_obj projs
+>>>>>>> e99387f681925d2547dd53d75155a0e41f9aa49b
 
 {- update
 desc
@@ -65,7 +74,11 @@ desc
    EXAMPLES:
 -}
 update :: Float -> Game -> Game
-update dt gameState = updatePlayer dt gameState
+update dt gameState = updatePlayer dt $ gameState { projectiles = updateProjectiles}
+  where
+    projList = projectiles gameState
+    updateProjectiles = map (updateProjectile dt) projList
+    
 
 updatePlayer dt gameState@(GameState {player=ply}) = movePlayer gameState v
   where
@@ -99,7 +112,7 @@ handleEvent (EventKey key Down mod _) gameState =
     (SpecialKey KeyDown)  -> modPlyDirection gameState (0,-1)
     (SpecialKey KeyLeft)  -> modPlyDirection gameState (-1,0)
     (SpecialKey KeyRight) -> modPlyDirection gameState (1,0)
-    (SpecialKey KeySpace) -> undefined
+    (SpecialKey KeySpace) -> testSpawnProjectile gameState
     _ -> gameState
 handleEvent (EventKey key Up _ _) gameState=
   case key of
@@ -107,9 +120,15 @@ handleEvent (EventKey key Up _ _) gameState=
     (SpecialKey KeyDown)  -> modPlyDirection gameState (0,1)
     (SpecialKey KeyLeft)  -> modPlyDirection gameState (1,0)
     (SpecialKey KeyRight) -> modPlyDirection gameState (-1,0)
-    (SpecialKey KeySpace) -> undefined
+    (SpecialKey KeySpace) -> gameState
     _ -> gameState
 handleEvent _ gameState = gameState
+
+testSpawnProjectile :: Game -> Game
+testSpawnProjectile gameState = gameState { projectiles = newProjList }
+  where
+    projList = projectiles gameState
+    newProjList = testProj:projList
 
 modPlyDirection :: Game -> (Float, Float) -> Game
 modPlyDirection gameState (x,y) = newGameState
@@ -130,3 +149,5 @@ movePlayer gameState@(GameState {player=ply}) (dx, dy) = gameState { player = ne
     (x, y) = position ply
     (nx, ny) = (x+dx, y+dy)
     newPly = ply { position = (nx, ny) }
+
+
