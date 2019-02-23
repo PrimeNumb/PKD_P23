@@ -82,7 +82,7 @@ draw gameState@(GameState {objects=objs, player=playerObj, projectiles=projs, en
    EXAMPLES:
 -}
 update :: Float -> Game -> Game
-update dt gameState = updatePlayer dt $ gameState { projectiles = updateProjectiles}
+update dt gameState = updatePlayer dt $ gameState { projectiles = updateProjectiles}{- enemy = updateEnemy-} 
   where
     projList = projectiles gameState
     updateProjectiles = map (updateProjectile dt) projList
@@ -183,7 +183,6 @@ movePlayer gameState@(GameState {player=ply}) (dx, dy) = gameState { player = ne
     (x, y) = position ply
     (nx, ny) = (x+dx, y+dy)
     newPly = ply { position = (nx, ny) }
-
 
 -- Test cases and test related functions go here for now
 testGameState = initGameState -- this will change to more advanced test gamestates in the future
