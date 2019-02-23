@@ -20,7 +20,7 @@ playerObj :: Object
 playerObj = Object { position = (0, 0),
                      direction = (0, 0),
                      speed = 300,
-                     boundingBox = ((0, 0), (0, 0)),
+                     boundingBox = ((25, 25), (-25, -25)),
                      graphic = color green $ rectangleSolid 50.0 50.0
                    }
 
@@ -41,7 +41,9 @@ projObjDefault_gfx = color red $ circleSolid 5
 -- The initial game state
 initGameState :: Game
 initGameState = GameState {
-  objects = [],
+  objects = [o1
+            ,o2
+            ],
   player = playerObj,
   projectiles = [],
   enemy = enemyObj1
@@ -88,7 +90,8 @@ update dt gameState = updatePlayer dt $ gameState { projectiles = updateProjecti
     updateProjectiles = map (updateProjectile dt) projList
     
 
-updatePlayer dt gameState@(GameState {player=ply}) = movePlayer gameState v
+updatePlayer dt gameState@(GameState {player=ply, objects = obj}) =
+  if (not $ (checkRectCollision ply obj)) then movePlayer gameState v else gameState
   where
     (dx,dy) = direction ply
     plySpeed = speed ply
@@ -130,14 +133,36 @@ handleEvent _ gameState = gameState
 --  where
 --    obj_bbox = boundingBox obj
 --    partialCollision = 
-
-
 isInBounds :: Point -> BoundingBox -> Bool
 isInBounds (x, y) ((tx, ty), (bx, by)) = xIsInBounds && yIsInBounds
   where
     xIsInBounds = (tx <= x) && (x >= bx)
     yIsInBounds = (ty >= y) && (y >= by)
 
+
+{- checkRectCollision
+Checks is two objects overlap (collide).
+PRE: The object's bounding boxes have their top left corner listed as the first 2-tuple. 
+RETURNS:
+EXAMPLES: 
+-}
+
+
+checkRectCollision :: Object -> [Object] -> Bool
+checkRectCollision _ [] = False
+checkRectCollision obj1@(Object {position=p1@(x1, y1), boundingBox=box1@((box1x1, box1y1), (box1x2, box1y2))}) obj2@(Object {position=p2@(x2, y2), boundingBox=box2@((box2x1, box2y1), (box2x2, box2y2))}:xs) =
+  if (r1x1 > r2x2 && r1x2 < r2x1  && r1y1 > r2y2 && r1y2 < r2y1) then True else checkRectCollision obj1 xs
+  where
+    r1x1 = box1x1 + x1
+    r1x2 = box1x2 + x1
+    r2x1 = box2x1 + x2
+    r2x2 = box2x2 + x2
+    r1y1 = box1y1 + y1
+    r1y2 = box1y2 + y1
+    r2y1 = box2y1 + y2
+    r2y2 = box2y2 + y2
+    
+  
 {- boundingBoxPoints bbox
 Constructs a list out of all points (corners) in a bounding box.
 PRE: 
@@ -200,3 +225,20 @@ testObject =
            boundingBox = ((-55, 55), (5, -5)),
            graphic = testGraphic
          }
+
+-- Collisiontests
+o1 :: Object
+o1 = Object { position = (200, 200),
+              direction = (0, 0),
+              speed = 300,
+              boundingBox = ((25, 25), (-25, -25)),
+              graphic = color green $ rectangleSolid 50.0 50.0
+            }
+o2 :: Object
+o2 = Object { position = (-200, -200),
+              direction = (0, 0),
+              speed = 300,
+              boundingBox = ((25, 25), (-25, -25)),
+              graphic = color green $ rectangleSolid 50.0 50.0
+            }
+     
