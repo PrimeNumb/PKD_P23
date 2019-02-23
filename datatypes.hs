@@ -34,6 +34,8 @@ data Projectile = Projectile
 data Effect = Damage Int | NoEffect deriving Show
 
 {- BoundingBox
-   Represents a rectangle. The first element of the tuple is the 2D coordinate of the upper left corner of the rectangle. The second element of the tuple is the 2D coordinate of the lower right corner of the rectangle.
+   Represents a rectangle.
+   The first element of the tuple is the 2D coordinate of the upper left corner of the rectangle.
+   The second element of the tuple is the 2D coordinate of the lower right corner of the rectangle.
 -}
 type BoundingBox = ((Float, Float), (Float, Float))
