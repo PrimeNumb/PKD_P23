@@ -14,7 +14,7 @@ testProjObj =
   Object { position = (0,0),
            direction = (1,0),
            speed = 100,
-           boundingBox = ((0,0), (0,0)),
+           boundingBox = (0,0),
            graphic = testProjGraphic
          }
 
