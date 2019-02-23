@@ -55,17 +55,11 @@ Constructs a drawable picture out of a given game state.
    EXAMPLES: 
 -}
 draw :: Game -> Picture
-<<<<<<< HEAD
-draw gameState@(GameState {objects=objs, player=playerObj, enemy = enemyObj1}) = pictures $ (map makeDrawable objs) ++ [player] ++ [enemy]
+draw gameState@(GameState {objects=objs, player=playerObj, enemy = enemyObj1, projectiles=projs}) = pictures $ (map makeDrawable objs) ++ [player] ++ [enemy] ++ projectiles
   where
     player = makeDrawable playerObj
     enemy = makeDrawable enemyObj1
-=======
-draw gameState@(GameState {objects=objs, player=playerObj, projectiles=projs}) = pictures $ (map makeDrawable objs) ++ [player] ++ projectiles
-  where
-    player = makeDrawable playerObj
     projectiles = map makeDrawable $ map proj_obj projs
->>>>>>> e99387f681925d2547dd53d75155a0e41f9aa49b
 
 {- update
 desc
