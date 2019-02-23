@@ -3,7 +3,7 @@ import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
 import System.Random
 import Debug.Trace
---import Enemies
+import Enemies
 import Projectile
 import DataTypes
 import Globals
@@ -43,9 +43,8 @@ initGameState :: Game
 initGameState = GameState {
   objects = [],
   player = playerObj,
-  projectiles = []
- -- enemy = enermyObj1
- -- pressedKeys = []
+  projectiles = [],
+  enemy = enemyObj1
   }
 
 {- main
@@ -70,9 +69,10 @@ main = do
    EXAMPLES: 
 -}
 draw :: Game -> Picture
-draw gameState@(GameState {objects=objs, player=playerObj, projectiles=projs}) = pictures $ player:projectiles ++ (map makeDrawable objs)
+draw gameState@(GameState {objects=objs, player=playerObj, projectiles=projs, enemy = enemyObj1}) = pictures $ player:enemy:projectiles ++ (map makeDrawable objs)
   where
     player = makeDrawable playerObj
+    enemy = makeDrawable enemyObj1
     projectiles = map makeDrawable $ map proj_obj projs
 
 {- update

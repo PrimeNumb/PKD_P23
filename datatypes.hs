@@ -6,8 +6,9 @@ import Debug.Trace
 
 -- Preliminary, subject to change
 data Game = GameState
-  { objects     :: [Object],
-    player      :: Object,
+  { objects :: [Object],
+    player :: Object,
+    enemy :: Object,
     projectiles :: [Projectile]
   } deriving Show
 
