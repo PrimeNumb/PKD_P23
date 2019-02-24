@@ -10,6 +10,7 @@ import DataTypes
 import Globals
 import Rendering
 import Helpers
+import Collision
 --import Control.Lens -- PLAN B: SOLVES NESTED RECORD FIELD HELL
 
 -- The game window
@@ -21,7 +22,7 @@ playerObj :: Object
 playerObj = Object { position = (0, 0),
                      direction = (0, 0),
                      speed = 300,
-                     boundingBox = (0, 0),
+                     boundingBox = ((25, 25), (-25, -25)),
                      graphic = color green $ rectangleSolid 50.0 50.0
                    }
 
@@ -38,7 +39,9 @@ projObjDefault_gfx = color red $ circleSolid 5
 -- The initial game state
 initGameState :: Game
 initGameState = GameState {
-  objects = [],
+  objects = [o1
+            ,o2
+            ],
   player = playerObj,
   projectiles = [],
   ticker = 0,
@@ -81,15 +84,20 @@ draw gameState@(GameState {objects=objs, player=playerObj, projectiles=projs, en
    EXAMPLES:
 -}
 update :: Float -> Game -> Game
-<<<<<<< HEAD
-update dt gameState = updatePlayer dt $ gameState { projectiles = updateProjectiles}{- enemy = updateEnemy-} 
-=======
 update dt gameState = updatePlayer dt $ tickedGameState { projectiles = updateProjectiles}
->>>>>>> 112d024bdedd32eea9b94434331070e5242250bb
   where
     projList = projectiles gameState
     updateProjectiles = map (updateProjectile dt) projList
     tickedGameState = gameState {ticker = (ticker gameState)+dt}
+    
+
+updatePlayer dt gameState@(GameState {player=ply, objects = obj}) =
+  if (not $ (checkRectCollision ply obj)) then movePlayer gameState v else gameState
+  where
+    (dx,dy) = direction ply
+    plySpeed = speed ply
+    v = (dx*plySpeed*dt,dy*plySpeed*dt)
+
 
 {- handleEvent gameState
 Calls a specific
@@ -129,7 +137,6 @@ handleEvent _ gameState = gameState
 --    obj_bbox = boundingBox obj
 --    partialCollision = 
 
-
 isInBounds :: Point -> BoundingBox -> Point -> Bool
 isInBounds (x, y) (width, height) (px, py) = xIsInBounds && yIsInBounds
   where
@@ -137,6 +144,14 @@ isInBounds (x, y) (width, height) (px, py) = xIsInBounds && yIsInBounds
     (bx, by) = (px+(width/2),py-(height/2))
     xIsInBounds = (tx <= x) && (x >= bx)
     yIsInBounds = (ty >= y) && (y >= by)
+
+
+{- checkRectCollision
+Checks is two objects overlap (collide).
+PRE: The object's bounding boxes have their top left corner listed as the first 2-tuple. 
+RETURNS:
+EXAMPLES: 
+-}
 
 {- boundingBoxPoints bbox
 Constructs a list out of all points (corners) in a bounding box, givens its position.
@@ -198,3 +213,4 @@ testObject =
            boundingBox = (0,0),
            graphic = testGraphic
          }
+
