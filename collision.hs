@@ -23,7 +23,8 @@ EXAMPLES:
 checkRectCollision :: Object -> [Object] -> Bool
 checkRectCollision _ [] = False
 checkRectCollision obj1@(Object {position=p1@(x1, y1), boundingBox=box1@(r1x, r1y)}) obj2@(Object {position=p2@(x2, y2), boundingBox=box2@(r2x, r2y)}:xs) =
-  if (r1x1 > r2x2 && r1x2 < r2x1  && r1y1 > r2y2 && r1y2 < r2y1) then True else checkRectCollision obj1 xs
+  if (r1x1 > r2x2 && r1x2 < r2x1  && r1y1 > r2y2 && r1y2 < r2y1) then True
+  else checkRectCollision obj1 xs
   where
     r1x1 = x1 + r1x
     r1x2 = x1 - r1x
@@ -46,13 +47,14 @@ playerCollideShip gameState@(Game {player=ply, enemy=enemies}) = checkRectCollis
 
 playerCollideBullet :: Game -> Bool
 playerCollideBullet = gameState@(Game {player=ply, npc_projectiles=proj}) = checkRectCollision ply proj
-
 -}
-colPlyProj :: Game -> [Projectile]  -> [Projectile]
-colPlyProj _ [] = []
-colPlyProj gameState@(Game {player=ply}) (x@(Projectile {proj_obj=obj}):xs) = if checkRectCollision ply [obj] then colPlyProj gameState xs else x : colPlyProj gameState xs
+--TODO: Fixa så att den bara behöver game
+colEnemProj :: Game -> [Projectile] -> [Projectile]
+colEnemProj _ [] = []
+colEnemProj gameState@(GameState {player=ply}) (x@(Projectile {proj_obj=obj}):xs) = if checkRectCollision ply [obj] then colEnemProj gameState xs else x : colEnemProj gameState xs
 
-
+colPlyProj Game -> [Projectile] -> [Projectile]
+colPlyProj gameState@(GameState {
 
 
 {-
@@ -64,18 +66,18 @@ outOfBounds
 -- Collisiontests
 
 o1 :: Object
-o1 = Object { position = (200, 200),
+o1 = Object { position = (0, 0),
               direction = (0, 0),
               speed = 300,
-              boundingBox = (25, 25),
-              graphic = color green $ rectangleSolid 50.0 50.0
+              boundingBox = (10, 10),
+              graphic = color green $ rectangleSolid 20.0 20.0
             }
 o2 :: Object
-o2 = Object { position = (-200, -200),
+o2 = Object { position = (-16, 0),
               direction = (0, 0),
               speed = 300,
-              boundingBox = (25, 25),
-              graphic = color green $ rectangleSolid 50.0 50.0
+              boundingBox = (5, 5),
+              graphic = color green $ rectangleSolid 10.0 10.0
             }
      
 o3 :: Object
