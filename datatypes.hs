@@ -6,13 +6,14 @@ import Debug.Trace
 
 -- Preliminary, subject to change
 data Game = GameState
-  { objects :: [Object],
-    player :: Object,
+  { objects :: [Object], --use this for objects that aren't ships
+    enemies :: [Ship],
+    player :: Ship,
     ply_projectiles :: [Projectile],
     npc_projectiles :: [Projectile],
     enemy :: Object,
     ticker :: Float,
-    playerIsFiring :: Bool
+    playerIsFiring :: Bool -- move to Ship datatype?
   } deriving Show
 
 -- Preliminary, subject to change
@@ -25,10 +26,11 @@ data Object = Object
   } deriving Show
 
 -- Preliminary, subject to change
--- MOVE THIS
 data Ship = Ship
   { ship_obj :: Object,
-    health :: Int
+    ship_health :: Int,
+    wep_cooldown :: Float,
+    projectile :: Projectile
   } deriving Show
 
 data Projectile = Projectile

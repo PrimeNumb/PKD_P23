@@ -4,19 +4,21 @@ import Helpers
 
 -- Get the player position from a given game state
 getPlayerPos :: Game -> Position
-getPlayerPos gameState = position $ player gameState
+getPlayerPos gameState = position $ ship_obj $ player gameState
 
 -- Get the player direction from a given game state
 getPlayerDir :: Game -> Direction
-getPlayerDir gameState = direction $ player gameState
+getPlayerDir gameState = direction $ ship_obj $ player gameState
 
 -- Returns a new game state where the player direction has been modified
 modPlyDirection :: Game -> (Float, Float) -> Game
-modPlyDirection gameState (x,y) = newGameState
+modPlyDirection gameState@(GameState {player=ply}) (x,y) = newGameState
   where
-    (px,py) = direction (player gameState)
+    plyObj = ship_obj (player gameState)
+    (px,py) = direction plyObj
     (nx,ny) = (x+px,y+py)
-    newGameState = gameState {player = (player gameState) { direction = (nx,ny)}}
+    newPlyObj = plyObj {direction = (nx,ny)}
+    newGameState = gameState {player = ply {ship_obj = newPlyObj}}
 
 {- movePlayer object gameState deltaVector
    desc
@@ -33,11 +35,12 @@ modPlyDirection gameState (x,y) = newGameState
 
 player_fire gameState = undefined
 
-updatePlayer :: Float -> Game -> Object
+updatePlayer :: Float -> Game -> Ship
 updatePlayer dt gameState@(GameState {player=ply}) = newPlayer
   where
-    (dx,dy) = direction ply
-    plySpeed = speed ply
+    plyObj = ship_obj ply
+    (dx,dy) = direction plyObj
+    plySpeed = speed plyObj
     v = (dx*plySpeed*dt,dy*plySpeed*dt) --rename this
-    newPlayer = moveObject ply v
+    newPlayer = ply {ship_obj = (moveObject plyObj v)}
 

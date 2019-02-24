@@ -25,7 +25,23 @@ playerObj = Object { position = (0, 0),
                      boundingBox = (25, -25),
                      graphic = color green $ rectangleSolid 50.0 50.0
                    }
+playerShip :: Ship
+playerShip = Ship { ship_obj = playerObj,
+                    ship_health = 100,
+                    wep_cooldown = 0.25,
+                    projectile = playerDefaultProj
+                  }
 
+
+playerDefaultProjObj =
+  Object { position = (0,0),
+           direction = (1,0),
+           speed = projObjDefault_spd,
+           boundingBox = (0,0),
+           graphic = projObjDefault_gfx
+         }
+playerDefaultProj = Projectile playerDefaultProjObj NoEffect
+                  
 -- Projectile templates
 projObjDefault_spd :: Float
 projObjDefault_spd = 400
@@ -40,12 +56,13 @@ projObjDefault_gfx = color red $ circleSolid 5
 initGameState :: Game
 initGameState = GameState {
   objects = [],
-  player = playerObj,
+  enemies = [],
+  player = playerShip,
   ply_projectiles = [],
   npc_projectiles = [],
+  enemy = enemyObj1,
   ticker = 0,
-  playerIsFiring = False,
-  enemy = enemyObj1
+  playerIsFiring = False
   }
 
 {- main
@@ -70,11 +87,14 @@ main = do
    EXAMPLES: 
 -}
 draw :: Game -> Picture
-draw gameState@(GameState {objects=objs, player=playerObj, ply_projectiles=plyProjs, enemy = enemyObj1}) = pictures $ player:enemy:plyProjectiles ++ (map makeDrawable objs)
+draw gameState@(GameState {objects=objs, player=playerShip, ply_projectiles=plyProjs, enemy = enemyObj1}) = newFrame
   where
-    player = makeDrawable playerObj
+    -- Everything that needs to be drawn goes here
+    playerObj = makeDrawable (ship_obj playerShip)
     enemy = makeDrawable enemyObj1
     plyProjectiles = map makeDrawable $ map proj_obj plyProjs
+    -- The final picture frame
+    newFrame = pictures $ playerObj:enemy:plyProjectiles ++ (map makeDrawable objs)
 
 {- update
    Updates a given game state one iteration.
