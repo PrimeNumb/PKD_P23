@@ -12,16 +12,19 @@ enemyColor = blue
 
 enemyObj1 :: Object
 enemyObj1 = Object { position = (400, 250),
+<<<<<<< HEAD
                      direction = (-1.0, -1.0),
                      speed = 50,
-                     boundingBox = (0,0),
+                     boundingBox = (35,10),
                      graphic = color enemyColor $ rectangleSolid (70.0) (20.0)
                    }
 enemyShipTemplate :: Ship
 enemyShipTemplate = Ship { ship_obj = enemyObj1,
                            ship_health = 100,
                            wep_cooldown = 1.0,
-                           projectile = testProj
+                           projectile = testProj,
+                           last_fired_tick = 0,
+                           isPlayer = False
                          }
 
 --getEnemyPos :: Game -> (Float, Float)

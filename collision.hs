@@ -19,12 +19,11 @@ RETURNS:
 EXAMPLES: 
 -}
 
-checkRectCollision :: Object -> [Object] -> Bool
-checkRectCollision _ [] = False
-checkRectCollision obj1@(Object {position=p1@(x1, y1), boundingBox=box1@(r1x, r1y)}) obj2@(Object {position=p2@(x2, y2), boundingBox=box2@(r2x, r2y)}:xs) =
+checkRectCollision :: Object -> Object -> Bool
+checkRectCollision obj1@(Object {position=p1@(x1, y1), boundingBox=box1@(r1x, r1y)}) obj2@(Object {position=p2@(x2, y2), boundingBox=box2@(r2x, r2y)}) =
   if (r1x1 > r2x2 && r1x2 < r2x1  && r1y1 > r2y2 && r1y2 < r2y1)
   then True
-  else checkRectCollision obj1 xs
+  else False
   where
     r1x1 = x1 + r1x
     r1x2 = x1 - r1x
@@ -47,11 +46,33 @@ playerCollideShip gameState@(Game {player=ply, enemy=enemies}) = checkRectCollis
 
 playerCollideBullet :: Game -> Bool
 playerCollideBullet = gameState@(Game {player=ply, npc_projectiles=proj}) = checkRectCollision ply proj
-
 -}
+
+outOfBounds :: Object -> Bool
+outOfBounds obj = not (checkRectCollision obj border)
+
+
+colEnemProj :: Game -> [Projectile] -> [Projectile]
+colEnemProj _ [] = []
+colEnemProj gameState@(GameState {player=ply@(Ship {ship_obj=ship_obj})}) (x@(Projectile {proj_obj=proj_obj}):xs) =
+  if checkRectCollision ship_obj proj_obj || outOfBounds proj_obj then colEnemProj gameState xs else x : colEnemProj gameState xs
+
 colPlyProj :: Game -> [Projectile] -> [Projectile]
 colPlyProj _ [] = []
-colPlyProj gameState@(GameState {player=ply}) (x@(Projectile {proj_obj=obj}):xs) = if checkRectCollision (ship_obj ply) [obj] then colPlyProj gameState xs else x : colPlyProj gameState xs
+colPlyProj gameState@(GameState {enemies=enemies}) (proj:xs) = colPlyProjAux proj enemies ++ colPlyProj gameState xs
+  where
+    colPlyProjAux :: Projectile  -> [Ship] -> [Projectile]
+    colPlyProjAux proj [] = [proj] 
+    colPlyProjAux proj@(Projectile {proj_obj=proj_obj}) (x@(Ship{ship_obj=ship_obj}):xs) =
+      if checkRectCollision proj_obj ship_obj || outOfBounds proj_obj then [] else colPlyProjAux proj xs
+
+
+collisionDespawn :: Game -> Game
+collisionDespawn gameState@(GameState {npc_projectiles=npc_proj, ply_projectiles=ply_proj}) = gameState {npc_projectiles=desp_npc, ply_projectiles=desp_ply}
+  where
+    desp_ply = colPlyProj gameState ply_proj
+    desp_npc = colEnemProj gameState npc_proj
+
 
 
 
@@ -63,7 +84,6 @@ outOfBounds
 -}
 
 -- Collisiontests
-
 o1 :: Object
 o1 = Object { position = (2, 3),
               direction = (0, 0),
@@ -71,13 +91,13 @@ o1 = Object { position = (2, 3),
               boundingBox = (1, 1),
               graphic = color green $ rectangleSolid 50.0 50.0
             }
+                                
 o2 :: Object
 o2 = Object { position = (3, 4),
               direction = (0, 0),
               speed = 0,
               boundingBox = (1, 1),
-              graphic = color green $ rectangleSolid 50.0 50.0
-            }
+              graphic = color green $ rectangleSolid 50.0 50.0            }
      
 o3 :: Object
 o3 = Object { position = (150, 200),

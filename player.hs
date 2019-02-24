@@ -31,9 +31,7 @@ modPlyDirection gameState@(GameState {player=ply}) (x,y) = newGameState
 --  where
 --    (x, y) = position ply
 --    (nx, ny) = (x+dx, y+dy)
---    newPly = ply { position = (nx, ny) }
-
-player_fire gameState = undefined
+--    newPly = ply { position = (nx, ny) } 
 
 updatePlayer :: Float -> Game -> Ship
 updatePlayer dt gameState@(GameState {player=ply}) = newPlayer
