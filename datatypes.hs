@@ -6,37 +6,39 @@ import Debug.Trace
 
 -- Preliminary, subject to change
 data Game = GameState
-  { objects :: [Object], --use this for objects that aren't ships
-    enemies :: [Ship],
-    player :: Ship,
+  { objects         :: [Object], --use this for objects that aren't ships
+    enemies         :: [Ship],
+    player          :: Ship,
     ply_projectiles :: [Projectile],
     npc_projectiles :: [Projectile],
-    enemy :: Ship,
-    ticker :: Float,
-    playerIsFiring :: Bool -- move to Ship datatype?
+    enemy           :: Ship,
+    ticker          :: Float,
+    playerIsFiring  :: Bool -- move to Ship datatype?
   } deriving Show
 
 -- Preliminary, subject to change
 data Object = Object
-  { position :: (Float, Float),
-    direction :: (Float, Float),
-    speed :: Float,
+  { position    :: (Float, Float),
+    direction   :: (Float, Float),
+    speed       :: Float,
     boundingBox :: BoundingBox,
-    graphic :: Picture
+    graphic     :: Picture
   } deriving Show
 
 -- Preliminary, subject to change
 data Ship = Ship
-  { ship_obj :: Object,
-    ship_health :: Int,
-    wep_cooldown :: Float,
-    projectile :: Projectile
+  { ship_obj        :: Object,
+    ship_health     :: Int,
+    wep_cooldown    :: Float,
+    projectile      :: Projectile,
+    last_fired_tick :: Float,
+    isPlayer        :: Bool
   } deriving Show
 
 data Projectile = Projectile
   { proj_obj :: Object,
-    effect :: Effect
-    } deriving Show
+    effect   :: Effect
+  } deriving Show
 
 data Effect = Damage Int | NoEffect deriving Show
 

@@ -21,7 +21,9 @@ enemyShipTemplate :: Ship
 enemyShipTemplate = Ship { ship_obj = enemyObj1,
                            ship_health = 100,
                            wep_cooldown = 1.0,
-                           projectile = testProj
+                           projectile = testProj,
+                           last_fired_tick = 0,
+                           isPlayer = False
                          }
 
 --getEnemyPos :: Game -> (Float, Float)
