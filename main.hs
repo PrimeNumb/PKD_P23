@@ -60,7 +60,7 @@ initGameState = GameState {
   player = playerShip,
   ply_projectiles = [],
   npc_projectiles = [],
-  enemy = enemyObj1,
+  enemy = enemyShipTemplate,
   ticker = 0,
   playerIsFiring = False
   }
@@ -91,7 +91,7 @@ draw gameState@(GameState {objects=objs, player=playerShip, ply_projectiles=plyP
   where
     -- Everything that needs to be drawn goes here
     playerObj = makeDrawable (ship_obj playerShip)
-    enemy = makeDrawable enemyObj1
+    enemy = makeDrawable (ship_obj enemyObj1)
     plyProjectiles = map makeDrawable $ map proj_obj plyProjs
     -- The final picture frame
     newFrame = pictures $ playerObj:enemy:plyProjectiles ++ (map makeDrawable objs)

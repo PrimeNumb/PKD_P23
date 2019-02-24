@@ -3,7 +3,6 @@ import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
 import System.Random
 import Debug.Trace
-import Enemies
 import Player
 import Projectile
 import DataTypes
@@ -23,7 +22,9 @@ EXAMPLES:
 checkRectCollision :: Object -> [Object] -> Bool
 checkRectCollision _ [] = False
 checkRectCollision obj1@(Object {position=p1@(x1, y1), boundingBox=box1@(r1x, r1y)}) obj2@(Object {position=p2@(x2, y2), boundingBox=box2@(r2x, r2y)}:xs) =
-  if (r1x1 > r2x2 && r1x2 < r2x1  && r1y1 > r2y2 && r1y2 < r2y1) then True else checkRectCollision obj1 xs
+  if (r1x1 > r2x2 && r1x2 < r2x1  && r1y1 > r2y2 && r1y2 < r2y1)
+  then True
+  else checkRectCollision obj1 xs
   where
     r1x1 = x1 + r1x
     r1x2 = x1 - r1x
@@ -48,9 +49,9 @@ playerCollideBullet :: Game -> Bool
 playerCollideBullet = gameState@(Game {player=ply, npc_projectiles=proj}) = checkRectCollision ply proj
 
 -}
-colPlyProj :: Game -> [Projectile]  -> [Projectile]
+colPlyProj :: Game -> [Projectile] -> [Projectile]
 colPlyProj _ [] = []
-colPlyProj gameState@(Game {player=ply}) (x@(Projectile {proj_obj=obj}):xs) = if checkRectCollision ply [obj] then colPlyProj gameState xs else x : colPlyProj gameState xs
+colPlyProj gameState@(GameState {player=ply}) (x@(Projectile {proj_obj=obj}):xs) = if checkRectCollision (ship_obj ply) [obj] then colPlyProj gameState xs else x : colPlyProj gameState xs
 
 
 
@@ -64,17 +65,17 @@ outOfBounds
 -- Collisiontests
 
 o1 :: Object
-o1 = Object { position = (200, 200),
+o1 = Object { position = (2, 3),
               direction = (0, 0),
-              speed = 300,
-              boundingBox = (25, 25),
+              speed = 0,
+              boundingBox = (1, 1),
               graphic = color green $ rectangleSolid 50.0 50.0
             }
 o2 :: Object
-o2 = Object { position = (-200, -200),
+o2 = Object { position = (3, 4),
               direction = (0, 0),
-              speed = 300,
-              boundingBox = (25, 25),
+              speed = 0,
+              boundingBox = (1, 1),
               graphic = color green $ rectangleSolid 50.0 50.0
             }
      
