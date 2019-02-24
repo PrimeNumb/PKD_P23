@@ -20,14 +20,14 @@ testProjObj =
 
 testProjGraphic = color blue $ circleSolid 5
 
-
-spawnProjectile :: Object -> Effect -> Game -> Game
-spawnProjectile obj fx gameState
-  | (direction obj) == (0,0) = gameState { projectiles = (Projectile newObj fx):projList }
-  | otherwise = gameState { projectiles = (Projectile obj fx):projList }
+-- Spawns a player projectile
+spawnPlyProjectile :: Object -> Effect -> Game -> Game
+spawnPlyProjectile obj fx gameState
+  | (direction obj) == (0,0) = gameState { ply_projectiles = (Projectile newObj fx):projList }
+  | otherwise = gameState { ply_projectiles = (Projectile obj fx):projList }
   where
     newObj = obj { direction = (1,0) }
-    projList = projectiles gameState
+    projList = ply_projectiles gameState
     newProjList = (Projectile obj fx):projList
 
 updateProjectile :: Float -> Projectile -> Projectile

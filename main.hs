@@ -41,7 +41,8 @@ initGameState :: Game
 initGameState = GameState {
   objects = [],
   player = playerObj,
-  projectiles = [],
+  ply_projectiles = [],
+  npc_projectiles = [],
   ticker = 0,
   playerIsFiring = False,
   enemy = enemyObj1
@@ -69,11 +70,11 @@ main = do
    EXAMPLES: 
 -}
 draw :: Game -> Picture
-draw gameState@(GameState {objects=objs, player=playerObj, projectiles=projs, enemy = enemyObj1}) = pictures $ player:enemy:projectiles ++ (map makeDrawable objs)
+draw gameState@(GameState {objects=objs, player=playerObj, ply_projectiles=plyProjs, enemy = enemyObj1}) = pictures $ player:enemy:plyProjectiles ++ (map makeDrawable objs)
   where
     player = makeDrawable playerObj
     enemy = makeDrawable enemyObj1
-    projectiles = map makeDrawable $ map proj_obj projs
+    plyProjectiles = map makeDrawable $ map proj_obj plyProjs
 
 {- update
    Updates a given game state one iteration.
@@ -82,14 +83,15 @@ draw gameState@(GameState {objects=objs, player=playerObj, projectiles=projs, en
    EXAMPLES:
 -}
 update :: Float -> Game -> Game
-update dt gameState@(GameState {ticker=ticker,projectiles=projList}) = newGameState 
+update dt gameState@(GameState {ticker=ticker,ply_projectiles=projList,enemy=enemy}) = newGameState 
   where
     -- Everything that should be updated each iteration goes here
-    newProjList = map (updateProjectile dt) projList
+    newPlyProjList = map (updateProjectile dt) projList
     newPlayer = updatePlayer dt gameState
     newTicker = ticker+dt
+    newEnemy = updateEnemy dt gameState
     --The final updated gamestate
-    newGameState = gameState {player=newPlayer, ticker=newTicker, projectiles=newProjList}
+    newGameState = gameState {player=newPlayer, ticker=newTicker, ply_projectiles=newPlyProjList, enemy=newEnemy}
 
 {- handleEvent gameState
 Calls a specific
@@ -105,7 +107,7 @@ handleEvent (EventKey key Down mod _) gameState =
     (SpecialKey KeyLeft)  -> modPlyDirection gameState (-1,0)
     (SpecialKey KeyRight) -> modPlyDirection gameState (1,0)
     --(SpecialKey KeySpace) -> gameState { playerIsFiring = True}
-    (SpecialKey KeySpace) -> spawnProjectile (Object (getPlayerPos gameState) (1,0) projObjDefault_spd projObjDefault_bbox projObjDefault_gfx) NoEffect gameState
+    (SpecialKey KeySpace) -> spawnPlyProjectile (Object (getPlayerPos gameState) (1,0) projObjDefault_spd projObjDefault_bbox projObjDefault_gfx) NoEffect gameState
     _ -> gameState
 handleEvent (EventKey key Up _ _) gameState =
   case key of
@@ -163,9 +165,9 @@ boundingBoxPoints (width, height) (x,y) = points
 -- Test cases and test related functions go here for now
 testGameState = initGameState -- this will change to more advanced test gamestates in the future
 
-perfTest_spawnProj1 gs = spawnProjectile (Object (getPlayerPos gs) (getPlayerDir gs) projObjDefault_spd projObjDefault_bbox projObjDefault_gfx) NoEffect gs
+perfTest_spawnProj1 gs = spawnPlyProjectile (Object (getPlayerPos gs) (getPlayerDir gs) projObjDefault_spd projObjDefault_bbox projObjDefault_gfx) NoEffect gs
 
-perfTest_spawnProj2 gs = spawnProjectile testProjObj NoEffect gs
+perfTest_spawnProj2 gs = spawnPlyProjectile testProjObj NoEffect gs
 
 testGraphic = translate (-25) 25 $ circle 30
 testObject =
