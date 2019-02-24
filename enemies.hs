@@ -5,12 +5,13 @@ import System.Random
 import Debug.Trace
 import Rendering
 import DataTypes
+import Helpers
 enemyColor :: Color
 enemyColor = blue
 
 enemyObj1 :: Object
 enemyObj1 = Object { position = (400, 250),
-                     direction = (0, 1.0),
+                     direction = (-1.0, 0),
                      speed = 100,
                      boundingBox = (0,0),
                      graphic = color enemyColor $ rectangleSolid (70.0) (20.0)
@@ -24,16 +25,17 @@ enemyObj1 = Object { position = (400, 250),
 --movePatternEnemy (ex, ey
 
 
-moveEnemy :: Game -> (Float, Float) -> Game
-moveEnemy gameState@(GameState {enemy = enemy}) (ex, ey) = gameState {enemy = newEnemy}
+{- moveEnemy :: Game -> (Float, Float) -> Game
+moveEnemy gs@(GameState {enemy=eny}) (ex, ey) = gs {enemy = newEnemy}
   where
     (x, y) = position enemy
-    (nx, ny) = (x, y+ey)
-    newEnemy = enemy {position = (nx, ny)}
+    (nx, ny) = (x+ex, y+ey)
+    newEnemy = eny {position = (nx, ny)} -}
 
-updateEnemy dt gameState@(GameState {enemy=enemy}) = moveEnemy gameState v
+                   
+updateEnemy dt gameState@(GameState {enemy=enemy}) = gameState {enemy=newEnemy}
   where
     (dx,dy) = direction enemy
     enemySpeed = speed enemy
     v = (dx*enemySpeed*dt,dy*enemySpeed*dt)
-
+    newEnemy = moveObject enemy v
