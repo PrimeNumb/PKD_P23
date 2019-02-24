@@ -40,7 +40,7 @@ playerDefaultProjObj =
   Object { position = (0,0),
            direction = (1,0),
            speed = projObjDefault_spd,
-           boundingBox = (0,0),
+           boundingBox = projObjDefault_bbox,
            graphic = projObjDefault_gfx
          }
 playerDefaultProj = Projectile playerDefaultProjObj NoEffect
@@ -50,7 +50,7 @@ projObjDefault_spd :: Float
 projObjDefault_spd = 400
 
 projObjDefault_bbox :: BoundingBox
-projObjDefault_bbox = (0,0)
+projObjDefault_bbox = (2.5,2.5)
 
 projObjDefault_gfx :: Picture
 projObjDefault_gfx = color red $ circleSolid 5
