@@ -22,7 +22,7 @@ playerObj :: Object
 playerObj = Object { position = (0, 0),
                      direction = (0, 0),
                      speed = 300,
-                     boundingBox = ((25, 25), (-25, -25)),
+                     boundingBox = (25, -25),
                      graphic = color green $ rectangleSolid 50.0 50.0
                    }
 
@@ -39,9 +39,7 @@ projObjDefault_gfx = color red $ circleSolid 5
 -- The initial game state
 initGameState :: Game
 initGameState = GameState {
-  objects = [o1
-            ,o2
-            ],
+  objects = [],
   player = playerObj,
   projectiles = [],
   ticker = 0,
@@ -89,15 +87,6 @@ update dt gameState = updatePlayer dt $ tickedGameState { projectiles = updatePr
     projList = projectiles gameState
     updateProjectiles = map (updateProjectile dt) projList
     tickedGameState = gameState {ticker = (ticker gameState)+dt}
-    
-
-updatePlayer dt gameState@(GameState {player=ply, objects = obj}) =
-  if (not $ (checkRectCollision ply obj)) then movePlayer gameState v else gameState
-  where
-    (dx,dy) = direction ply
-    plySpeed = speed ply
-    v = (dx*plySpeed*dt,dy*plySpeed*dt)
-
 
 {- handleEvent gameState
 Calls a specific
@@ -167,36 +156,6 @@ boundingBoxPoints (width, height) (x,y) = points
     (bl_x, bl_y) = (tl_x, y-(height/2))
     (br_x, br_y) = (tr_x, bl_y)
     points = [(tl_x,tl_y),(tr_x,tr_y),(br_x,br_y),(bl_x,bl_y)]
-
--- Get the player position from a given game state
-getPlayerPos :: Game -> Position
-getPlayerPos gameState = position $ player gameState
-
--- Get the player direction from a given game state
-getPlayerDir :: Game -> Direction
-getPlayerDir gameState = direction $ player gameState
-
--- Returns a new game state where the player direction has been modified
-modPlyDirection :: Game -> (Float, Float) -> Game
-modPlyDirection gameState (x,y) = newGameState
-  where
-    (px,py) = direction (player gameState)
-    (nx,ny) = (x+px,y+py)
-    newGameState = gameState {player = (player gameState) { direction = (nx,ny)}}
-
-{- movePlayer object gameState deltaVector
-   desc
-   PRE: 
-   RETURNS: 
-   EXAMPLES: 
--}
-movePlayer :: Game -> (Float, Float) -> Game
-movePlayer gameState@(GameState {player=ply}) (dx, dy) = gameState { player = newPly}
-  where
-    (x, y) = position ply
-    (nx, ny) = (x+dx, y+dy)
-    newPly = ply { position = (nx, ny) }
-
 
 -- Test cases and test related functions go here for now
 testGameState = initGameState -- this will change to more advanced test gamestates in the future
