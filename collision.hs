@@ -45,15 +45,21 @@ playerCollideShip gameState@(Game {player=ply, enemy=enemies}) = checkRectCollis
 
 
 playerCollideBullet :: Game -> Bool
-playerCollideBullet = gameState@(Game {player=ply, projectiles=proj}) = checkRectCollision ply proj
-
-
---This one is harder, use foldl?
-enemyCollideBullet :: Game -> Bool
-enemyCollideBullet = undefined
+playerCollideBullet = gameState@(Game {player=ply, npc_projectiles=proj}) = checkRectCollision ply proj
 
 -}
+colPlyProj :: Game -> [Projectile]  -> [Projectile]
+colPlyProj _ [] = []
+colPlyProj gameState@(Game {player=ply}) (x@(Projectile {proj_obj=obj}):xs) = if checkRectCollision ply [obj] then colPlyProj gameState xs else x : colPlyProj gameState xs
 
+
+
+
+{-
+outOfBounds :: Object -> Bool
+outOfBounds 
+  
+-}
 
 -- Collisiontests
 
