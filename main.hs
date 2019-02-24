@@ -82,7 +82,7 @@ draw gameState@(GameState {objects=objs, player=playerObj, projectiles=projs, en
    EXAMPLES:
 -}
 update :: Float -> Game -> Game
-update dt gameState = updatePlayer dt $ tickedGameState { projectiles = updateProjectiles}
+update dt gameState = updatePlayer dt $ tickedGameState { projectiles = updateProjectiles, enemy = updateEnemy}
   where
     projList = projectiles gameState
     updateProjectiles = map (updateProjectile dt) projList
