@@ -12,8 +12,8 @@ enemyColor = blue
 
 enemyObj1 :: Object
 enemyObj1 = Object { position = (400, 250),
-                     direction = (0, 0),
-                     speed = 100,
+                     direction = (-1.0, 0),
+                     speed = 50,
                      boundingBox = (0,0),
                      graphic = color enemyColor $ rectangleSolid (70.0) (20.0)
                    }
@@ -50,11 +50,17 @@ changeDir gameState@(GameState {enemy=eny@(Object {position = pos, direction = d
 changeDir :: Object -> (Float, Float) -> Object
 changeDir obj (x,y) = obj {direction = (x, y)}
 
+
+--currentDir ::
+
+enemyMovement :: Object
+enemyMovement = changeDir enemyObj1 (fst(direction enemyObj1),-3.0)
+
 updateEnemy :: Float -> Game -> Ship                   
 updateEnemy dt gameState@(GameState {enemy=enemy}) = newEnemy
   where
     enemyObj = ship_obj enemy
-    (dx,dy) = direction enemyObj
+    (dx,dy) = direction enemyMovement
     enemySpeed = speed enemyObj
     v = (dx*enemySpeed*dt,dy*enemySpeed*dt)
     newEnemyObj = moveObject enemyObj v
