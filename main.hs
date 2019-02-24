@@ -82,14 +82,15 @@ draw gameState@(GameState {objects=objs, player=playerObj, projectiles=projs, en
    EXAMPLES:
 -}
 update :: Float -> Game -> Game
-update dt gameState@(GameState {ticker=ticker,projectiles=projList}) = newGameState 
+update dt gameState@(GameState {ticker=ticker,projectiles=projList, enemy=enemy}) = newGameState 
   where
     -- Everything that should be updated each iteration goes here
     newProjList = map (updateProjectile dt) projList
     newPlayer = updatePlayer dt gameState
     newTicker = ticker+dt
+    newEnemy = updateEnemy dt gameState
     --The final updated gamestate
-    newGameState = gameState {player=newPlayer, ticker=newTicker, projectiles=newProjList}
+    newGameState = gameState {player=newPlayer, ticker=newTicker, projectiles=newProjList, enemy=newEnemy}
 
 {- handleEvent gameState
 Calls a specific

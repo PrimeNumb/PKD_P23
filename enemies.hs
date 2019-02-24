@@ -33,7 +33,7 @@ moveEnemy gs@(GameState {enemy=eny}) (ex, ey) = gs {enemy = newEnemy}
     newEnemy = eny {position = (nx, ny)} -}
 
                    
-updateEnemy dt gameState@(GameState {enemy=enemy}) = gameState {enemy=newEnemy}
+updateEnemy dt gameState@(GameState {enemy=enemy}) = newEnemy
   where
     (dx,dy) = direction enemy
     enemySpeed = speed enemy
