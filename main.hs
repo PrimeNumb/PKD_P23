@@ -29,7 +29,9 @@ playerShip :: Ship
 playerShip = Ship { ship_obj = playerObj,
                     ship_health = 100,
                     wep_cooldown = 0.25,
-                    projectile = playerDefaultProj
+                    projectile = playerDefaultProj,
+                    last_fired_tick = 0,
+                    isPlayer = True
                   }
 
 
@@ -94,7 +96,7 @@ draw gameState@(GameState {objects=objs, player=playerShip, ply_projectiles=plyP
     enemy = makeDrawable (ship_obj enemyObj1)
     plyProjectiles = map makeDrawable $ map proj_obj plyProjs
     -- The final picture frame
-    newFrame = pictures $ playerObj:enemy:plyProjectiles ++ (map makeDrawable objs)
+    newFrame = pictures $ plyProjectiles ++ enemy:playerObj:(map makeDrawable objs)
 
 {- update
    Updates a given game state one iteration.
@@ -127,7 +129,7 @@ handleEvent (EventKey key Down mod _) gameState =
     (SpecialKey KeyLeft)  -> modPlyDirection gameState (-1,0)
     (SpecialKey KeyRight) -> modPlyDirection gameState (1,0)
     --(SpecialKey KeySpace) -> gameState { playerIsFiring = True}
-    (SpecialKey KeySpace) -> spawnPlyProjectile (Object (getPlayerPos gameState) (1,0) projObjDefault_spd projObjDefault_bbox projObjDefault_gfx) NoEffect gameState
+    (SpecialKey KeySpace) -> ship_fire (player gameState) gameState (1,0)
     _ -> gameState
 handleEvent (EventKey key Up _ _) gameState =
   case key of
@@ -141,6 +143,17 @@ handleEvent (EventKey key Up _ _) gameState =
 handleEvent (EventResize (x, y)) gameState = gameState
 handleEvent _ gameState = gameState
 
+-- Fires a ship's projectile from its position, given a direction
+ship_fire :: Ship -> Game -> Direction -> Game
+ship_fire ship gameState dir = spawnProjectile newShipProj ship gameState
+  where
+    shipPos = position $ ship_obj ship
+    shipProj = (projectile ship)
+    shipProjObj = (proj_obj shipProj) { direction = dir, position = shipPos }
+    newShipProj = Projectile shipProjObj (effect shipProj)
+    
+    
+
 -- Check if an object is inside a bounding box
 -- Returns a tuple where
 -- 1st element is TRUE if the obj is partially inside the bounding box
@@ -150,6 +163,14 @@ handleEvent _ gameState = gameState
 --  where
 --    obj_bbox = boundingBox obj
 --    partialCollision = 
+
+applyEffect :: Effect -> Ship -> Ship
+applyEffect fx ship = 
+  case fx of
+    Damage x -> ship { ship_health = (shipHealth - x)}
+    NoEffect -> ship -- do nothing
+    where
+      shipHealth = ship_health ship
 
 isInBounds :: Point -> BoundingBox -> Point -> Bool
 isInBounds (x, y) (width, height) (px, py) = xIsInBounds && yIsInBounds
@@ -184,10 +205,6 @@ boundingBoxPoints (width, height) (x,y) = points
 
 -- Test cases and test related functions go here for now
 testGameState = initGameState -- this will change to more advanced test gamestates in the future
-
-perfTest_spawnProj1 gs = spawnPlyProjectile (Object (getPlayerPos gs) (getPlayerDir gs) projObjDefault_spd projObjDefault_bbox projObjDefault_gfx) NoEffect gs
-
-perfTest_spawnProj2 gs = spawnPlyProjectile testProjObj NoEffect gs
 
 testGraphic = translate (-25) 25 $ circle 30
 testObject =

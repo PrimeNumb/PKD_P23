@@ -21,14 +21,23 @@ testProjObj =
 testProjGraphic = color blue $ circleSolid 5
 
 -- Spawns a player projectile
-spawnPlyProjectile :: Object -> Effect -> Game -> Game
-spawnPlyProjectile obj fx gameState
-  | (direction obj) == (0,0) = gameState { ply_projectiles = (Projectile newObj fx):projList }
-  | otherwise = gameState { ply_projectiles = (Projectile obj fx):projList }
+--DEPRECATED - DO NOT USE
+--spawnPlyProjectile :: Object -> Effect -> Game -> Game
+--spawnPlyProjectile obj fx gameState
+--  | (direction obj) == (0,0) = gameState { ply_projectiles = (Projectile newObj fx):projList }
+--  | otherwise = gameState { ply_projectiles = (Projectile obj fx):projList }
+--  where
+--    newObj = obj { direction = (1,0) }
+--    projList = ply_projectiles gameState
+--    newProjList = (Projectile obj fx):projList
+
+spawnProjectile :: Projectile -> Ship -> Game -> Game
+spawnProjectile proj owner@(Ship {isPlayer=isPlayer}) gameState
+  | isPlayer = gameState { ply_projectiles = plyProjList }
+  | otherwise = gameState { npc_projectiles = npcProjList }
   where
-    newObj = obj { direction = (1,0) }
-    projList = ply_projectiles gameState
-    newProjList = (Projectile obj fx):projList
+    plyProjList = proj:(ply_projectiles gameState)
+    npcProjList = proj:(npc_projectiles gameState)
 
 updateProjectile :: Float -> Projectile -> Projectile
 updateProjectile dt proj@(Projectile {proj_obj=pObj}) = proj { proj_obj = newProjObj}
