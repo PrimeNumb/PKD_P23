@@ -1,6 +1,6 @@
 module Player where
 import DataTypes
-
+import Helpers
 
 -- Get the player position from a given game state
 getPlayerPos :: Game -> Position
@@ -24,18 +24,20 @@ modPlyDirection gameState (x,y) = newGameState
    RETURNS: 
    EXAMPLES: 
 -}
-movePlayer :: Game -> (Float, Float) -> Game
-movePlayer gameState@(GameState {player=ply}) (dx, dy) = gameState { player = newPly}
-  where
-    (x, y) = position ply
-    (nx, ny) = (x+dx, y+dy)
-    newPly = ply { position = (nx, ny) }
+--movePlayer :: Game -> (Float, Float) -> Game
+--movePlayer gameState@(GameState {player=ply}) (dx, dy) = gameState { player = newPly}
+--  where
+--    (x, y) = position ply
+--    (nx, ny) = (x+dx, y+dy)
+--    newPly = ply { position = (nx, ny) }
 
 player_fire gameState = undefined
 
-updatePlayer dt gameState@(GameState {player=ply}) = movePlayer gameState v
+updatePlayer :: Float -> Game -> Object
+updatePlayer dt gameState@(GameState {player=ply}) = newPlayer
   where
     (dx,dy) = direction ply
     plySpeed = speed ply
-    v = (dx*plySpeed*dt,dy*plySpeed*dt)
+    v = (dx*plySpeed*dt,dy*plySpeed*dt) --rename this
+    newPlayer = moveObject ply v
 
