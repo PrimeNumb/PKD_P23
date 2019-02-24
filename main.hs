@@ -25,7 +25,23 @@ playerObj = Object { position = (0, 0),
                      boundingBox = (25, -25),
                      graphic = color green $ rectangleSolid 50.0 50.0
                    }
+playerShip :: Ship
+playerShip = Ship { ship_obj = playerObj,
+                    ship_health = 100,
+                    wep_cooldown = 0.25,
+                    projectile = playerDefaultProj
+                  }
 
+
+playerDefaultProjObj =
+  Object { position = (0,0),
+           direction = (1,0),
+           speed = projObjDefault_spd,
+           boundingBox = (0,0),
+           graphic = projObjDefault_gfx
+         }
+playerDefaultProj = Projectile playerDefaultProjObj NoEffect
+                  
 -- Projectile templates
 projObjDefault_spd :: Float
 projObjDefault_spd = 400
@@ -40,11 +56,13 @@ projObjDefault_gfx = color red $ circleSolid 5
 initGameState :: Game
 initGameState = GameState {
   objects = [],
-  player = playerObj,
-  projectiles = [],
+  enemies = [],
+  player = playerShip,
+  ply_projectiles = [],
+  npc_projectiles = [],
+  enemy = enemyShipTemplate,
   ticker = 0,
-  playerIsFiring = False,
-  enemy = enemyObj1
+  playerIsFiring = False
   }
 
 {- main
@@ -69,11 +87,14 @@ main = do
    EXAMPLES: 
 -}
 draw :: Game -> Picture
-draw gameState@(GameState {objects=objs, player=playerObj, projectiles=projs, enemy = enemyObj1}) = pictures $ player:enemy:projectiles ++ (map makeDrawable objs)
+draw gameState@(GameState {objects=objs, player=playerShip, ply_projectiles=plyProjs, enemy = enemyObj1}) = newFrame
   where
-    player = makeDrawable playerObj
-    enemy = makeDrawable enemyObj1
-    projectiles = map makeDrawable $ map proj_obj projs
+    -- Everything that needs to be drawn goes here
+    playerObj = makeDrawable (ship_obj playerShip)
+    enemy = makeDrawable (ship_obj enemyObj1)
+    plyProjectiles = map makeDrawable $ map proj_obj plyProjs
+    -- The final picture frame
+    newFrame = pictures $ playerObj:enemy:plyProjectiles ++ (map makeDrawable objs)
 
 {- update
    Updates a given game state one iteration.
@@ -82,15 +103,15 @@ draw gameState@(GameState {objects=objs, player=playerObj, projectiles=projs, en
    EXAMPLES:
 -}
 update :: Float -> Game -> Game
-update dt gameState@(GameState {ticker=ticker,projectiles=projList, enemy=enemy}) = newGameState 
+update dt gameState@(GameState {ticker=ticker,ply_projectiles=projList,enemy=enemy}) = newGameState 
   where
     -- Everything that should be updated each iteration goes here
-    newProjList = map (updateProjectile dt) projList
+    newPlyProjList = map (updateProjectile dt) projList
     newPlayer = updatePlayer dt gameState
     newTicker = ticker+dt
     newEnemy = updateEnemy dt gameState
     --The final updated gamestate
-    newGameState = gameState {player=newPlayer, ticker=newTicker, projectiles=newProjList, enemy=newEnemy}
+    newGameState = gameState {player=newPlayer, ticker=newTicker, ply_projectiles=newPlyProjList, enemy=newEnemy}
 
 {- handleEvent gameState
 Calls a specific
@@ -106,7 +127,7 @@ handleEvent (EventKey key Down mod _) gameState =
     (SpecialKey KeyLeft)  -> modPlyDirection gameState (-1,0)
     (SpecialKey KeyRight) -> modPlyDirection gameState (1,0)
     --(SpecialKey KeySpace) -> gameState { playerIsFiring = True}
-    (SpecialKey KeySpace) -> spawnProjectile (Object (getPlayerPos gameState) (1,0) projObjDefault_spd projObjDefault_bbox projObjDefault_gfx) NoEffect gameState
+    (SpecialKey KeySpace) -> spawnPlyProjectile (Object (getPlayerPos gameState) (1,0) projObjDefault_spd projObjDefault_bbox projObjDefault_gfx) NoEffect gameState
     _ -> gameState
 handleEvent (EventKey key Up _ _) gameState =
   case key of
@@ -164,9 +185,9 @@ boundingBoxPoints (width, height) (x,y) = points
 -- Test cases and test related functions go here for now
 testGameState = initGameState -- this will change to more advanced test gamestates in the future
 
-perfTest_spawnProj1 gs = spawnProjectile (Object (getPlayerPos gs) (getPlayerDir gs) projObjDefault_spd projObjDefault_bbox projObjDefault_gfx) NoEffect gs
+perfTest_spawnProj1 gs = spawnPlyProjectile (Object (getPlayerPos gs) (getPlayerDir gs) projObjDefault_spd projObjDefault_bbox projObjDefault_gfx) NoEffect gs
 
-perfTest_spawnProj2 gs = spawnProjectile testProjObj NoEffect gs
+perfTest_spawnProj2 gs = spawnPlyProjectile testProjObj NoEffect gs
 
 testGraphic = translate (-25) 25 $ circle 30
 testObject =
