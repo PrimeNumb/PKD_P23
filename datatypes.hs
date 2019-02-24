@@ -11,7 +11,7 @@ data Game = GameState
     player :: Ship,
     ply_projectiles :: [Projectile],
     npc_projectiles :: [Projectile],
-    enemy :: Object,
+    enemy :: Ship,
     ticker :: Float,
     playerIsFiring :: Bool -- move to Ship datatype?
   } deriving Show
