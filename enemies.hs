@@ -12,7 +12,7 @@ enemyColor = blue
 
 enemyObj1 :: Object
 enemyObj1 = Object { position = (400, 250),
-                     direction = (-1.0, 0),
+                     direction = (-1.0, -1.0),
                      speed = 50,
                      boundingBox = (0,0),
                      graphic = color enemyColor $ rectangleSolid (70.0) (20.0)
@@ -47,20 +47,35 @@ changeDir gameState@(GameState {enemy=eny@(Object {position = pos, direction = d
    | snd(pos eny) <= 250 = (0,-1.0)
   | snd(position enemy) => -100 = (0,1.0) -}
 
+{- changeDir
+   Changes the direction of an enemy
+   RETURNS: An object with a new direction
+   EXAMPLE: changeDir ship (1.0,1.0) = ship {direction = 1.0,1.0}
+-}
 changeDir :: Object -> (Float, Float) -> Object
 changeDir obj (x,y) = obj {direction = (x, y)}
 
 
---currentDir ::
 
-enemyMovement :: Object
-enemyMovement = changeDir enemyObj1 (fst(direction enemyObj1),-3.0)
+enemyMovement :: Object -> Object
+enemyMovement obj
+  | snd(position obj) > 300.0 = trace traceStr $ changeDir obj (fst(direction obj),-1)
+  | snd(position obj) < -100.0 = trace traceStr $ changeDir obj (fst(direction obj),1)
+  | otherwise = trace traceStr obj
+  where
+    traceStr = (show $ snd (position obj))  ++ " " ++ (show c1) ++ " " ++ (show c2) ++ " " ++ (show $ snd (direction obj))
+    c1 = snd(position obj) > 300
+    c2 = snd(position obj) < 100
+    {-ny = -}
+
+
+--movementPattern = 
 
 updateEnemy :: Float -> Game -> Ship                   
 updateEnemy dt gameState@(GameState {enemy=enemy}) = newEnemy
   where
     enemyObj = ship_obj enemy
-    (dx,dy) = direction enemyMovement
+    (dx,dy) = direction $ enemyMovement enemyObj
     enemySpeed = speed enemyObj
     v = (dx*enemySpeed*dt,dy*enemySpeed*dt)
     newEnemyObj = moveObject enemyObj v
