@@ -48,12 +48,14 @@ playerCollideBullet :: Game -> Bool
 playerCollideBullet = gameState@(Game {player=ply, npc_projectiles=proj}) = checkRectCollision ply proj
 -}
 
---TODO: Fixa så att den bara behöver game
+outOfBounds :: Object -> Bool
+outOfBounds obj = not (checkRectCollision obj border)
+
+
 colEnemProj :: Game -> [Projectile] -> [Projectile]
 colEnemProj _ [] = []
 colEnemProj gameState@(GameState {player=ply@(Ship {ship_obj=ship_obj})}) (x@(Projectile {proj_obj=proj_obj}):xs) =
-  if checkRectCollision ship_obj proj_obj then colEnemProj gameState xs else x : colEnemProj gameState xs
-
+  if checkRectCollision ship_obj proj_obj || outOfBounds proj_obj then colEnemProj gameState xs else x : colEnemProj gameState xs
 
 colPlyProj :: Game -> [Projectile] -> [Projectile]
 colPlyProj _ [] = []
@@ -62,7 +64,7 @@ colPlyProj gameState@(GameState {enemies=enemies}) (proj:xs) = colPlyProjAux pro
     colPlyProjAux :: Projectile  -> [Ship] -> [Projectile]
     colPlyProjAux proj [] = [proj] 
     colPlyProjAux proj@(Projectile {proj_obj=proj_obj}) (x@(Ship{ship_obj=ship_obj}):xs) =
-      if checkRectCollision proj_obj ship_obj then [] else colPlyProjAux proj xs
+      if checkRectCollision proj_obj ship_obj || outOfBounds proj_obj then [] else colPlyProjAux proj xs
 
 
 collisionDespawn :: Game -> Game
@@ -70,6 +72,8 @@ collisionDespawn gameState@(GameState {npc_projectiles=npc_proj, ply_projectiles
   where
     desp_ply = colPlyProj gameState ply_proj
     desp_npc = colEnemProj gameState npc_proj
+
+
 
 
 
