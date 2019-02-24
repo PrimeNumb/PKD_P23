@@ -10,7 +10,7 @@ import DataTypes
 import Globals
 import Rendering
 import Helpers
-import Collision
+--import Collision
 --import Control.Lens -- PLAN B: SOLVES NESTED RECORD FIELD HELL
 
 -- The game window

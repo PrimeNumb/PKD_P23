@@ -12,7 +12,7 @@ enemyObj1 :: Object
 enemyObj1 = Object { position = (400, 250),
                      direction = (0, 1.0),
                      speed = 100,
-                     boundingBox = ((0, 0), (0, 0)),
+                     boundingBox = (0,0),
                      graphic = color enemyColor $ rectangleSolid (70.0) (20.0)
                    }
 
