@@ -10,6 +10,7 @@ import DataTypes
 import Globals
 import Rendering
 import Helpers
+import Collision
 --import Collision
 --import Control.Lens -- PLAN B: SOLVES NESTED RECORD FIELD HELL
 
@@ -56,7 +57,7 @@ projObjDefault_gfx = color red $ circleSolid 5
 initGameState :: Game
 initGameState = GameState {
   objects = [],
-  enemies = [],
+  enemies = [enemyShipTemplate],
   player = playerShip,
   ply_projectiles = [],
   npc_projectiles = [],
@@ -111,7 +112,7 @@ update dt gameState@(GameState {ticker=ticker,ply_projectiles=projList,enemy=ene
     newTicker = ticker+dt
     newEnemy = updateEnemy dt gameState
     --The final updated gamestate
-    newGameState = gameState {player=newPlayer, ticker=newTicker, ply_projectiles=newPlyProjList, enemy=newEnemy}
+    newGameState = collisionDespawn (gameState {player=newPlayer, ticker=newTicker, ply_projectiles=newPlyProjList, enemy=newEnemy})
 
 {- handleEvent gameState
 Calls a specific
