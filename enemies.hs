@@ -7,6 +7,9 @@ import Rendering
 import DataTypes
 import Helpers
 import Projectile
+
+
+
 enemyColor :: Color
 enemyColor = blue
 
@@ -17,9 +20,20 @@ enemyObj1 = Object { position = (400, 250),
                      boundingBox = (35,10),
                      graphic = color enemyColor $ rectangleSolid (70.0) (20.0)
                    }
+
+{-
+updateEnemies :: Game -> [Ship] -> [Ship]
+updateEnemies _ [] = []
+updateEnemies gameState@(GameState {ply_projectiles=proj}) (ship:xs) =
+  if health <= 0 then []
+  else newShip : updateEnemies gameState xs
+  where
+    newShip = applyEffect (getEffect ship proj) ship
+-}
+
 enemyShipTemplate :: Ship
 enemyShipTemplate = Ship { ship_obj = enemyObj1,
-                           ship_health = 100,
+                           ship_health = 5,
                            wep_cooldown = 1.0,
                            projectile = testProj,
                            last_fired_tick = 0,
@@ -33,7 +47,16 @@ enemyShipTemplate = Ship { ship_obj = enemyObj1,
 --movePatternEnemy :: (Float, Float)
 --movePatternEnemy (ex, ey
 
+{-
+updateEnemies :: Game -> [Ship] -> [Ship]
+updateEnemies _ [] = []
+updateEnemies gameState@(GameState {ply_projectiles=proj}) (ship:xs) =
+  if health <= 0 then []
+  else newShip : updateEnemies gameState xs
+  where
+    newShip = applyEffect (getEffect ship proj) ship
 
+-}
 {- moveEnemy :: Game -> (Float, Float) -> Game
 moveEnemy gs@(GameState {enemy=eny}) (ex, ey) = gs {enemy = newEnemy}
   where
@@ -51,6 +74,7 @@ changeDir gameState@(GameState {enemy=eny@(Object {position = pos, direction = d
 
 changeDir :: Object -> (Float, Float) -> Object
 changeDir obj (x,y) = obj {direction = (x, y)}
+                                      
 
 updateEnemy :: Float -> Game -> Ship                   
 updateEnemy dt gameState@(GameState {enemy=enemy}) = newEnemy

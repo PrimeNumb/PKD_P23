@@ -77,11 +77,8 @@ collisionDespawn gameState@(GameState {npc_projectiles=npc_proj, ply_projectiles
 
 
 
-{-
-outOfBounds :: Object -> Bool
-outOfBounds 
-  
--}
+
+
 
 -- Collisiontests
 o1 :: Object
