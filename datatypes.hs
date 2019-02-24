@@ -8,7 +8,8 @@ import Debug.Trace
 data Game = GameState
   { objects :: [Object],
     player :: Object,
-    projectiles :: [Projectile],
+    ply_projectiles :: [Projectile],
+    npc_projectiles :: [Projectile],
     enemy :: Object,
     ticker :: Float,
     playerIsFiring :: Bool
@@ -24,6 +25,7 @@ data Object = Object
   } deriving Show
 
 -- Preliminary, subject to change
+-- MOVE THIS
 data Ship = Ship
   { ship_obj :: Object,
     health :: Int
