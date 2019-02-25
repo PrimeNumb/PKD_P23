@@ -1,6 +1,8 @@
 module Globals where
 import Graphics.Gloss
 import DataTypes
+import Graphics.Gloss.Juicy
+import System.IO.Unsafe
 
 -- Should these be kept in main?
 win_title :: String
@@ -27,3 +29,23 @@ win_background = black
 
 targetFramerate :: Int
 targetFramerate = 60
+
+
+--Sprites
+--function png taken from gloss-game (credit the author?)
+
+png :: FilePath -> Picture
+png fname = maybe (text "PNG ERROR") id (unsafePerformIO $ loadJuicyPNG fname)
+
+playerSprite :: Picture
+playerSprite = png "./player.png"
+
+enemySprite :: Picture
+enemySprite = png "./enemyShip.png"
+
+plyProjSprite :: Picture
+plyProjSprite = png "laserRed.png"
+
+npcProjSprite :: Picture
+npcProjSprite = png "laserGreen.png"
+

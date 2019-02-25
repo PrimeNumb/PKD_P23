@@ -111,13 +111,13 @@ o3 :: Object
 o3 = Object { position = (0, 0),
               direction = (0, 0),
               speed = 300,
-              boundingBox = (100, 100),
-              graphic = color green $ rectangleSolid 200.0 200.0
+              boundingBox = (50, 98),
+              graphic = enemySprite
             }
      
 enemyShipTest :: Ship
 enemyShipTest = Ship { ship_obj = o3,
-                       ship_health = 5,
+                       ship_health = 10,
                        wep_cooldown = 1.0,
                        projectile = testPro,
                        last_fired_tick = 0,
