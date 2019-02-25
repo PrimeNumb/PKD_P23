@@ -8,7 +8,7 @@ import Helpers
 
 testProj =
   Projectile { proj_obj = testProjObj,
-               effect = NoEffect
+               effect = Damage 1
              }
 testProjObj =
   Object { position = (0,0),

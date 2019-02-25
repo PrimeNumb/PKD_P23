@@ -90,14 +90,15 @@ main = do
    EXAMPLES: 
 -}
 draw :: Game -> Picture
-draw gameState@(GameState {objects=objs, player=playerShip, ply_projectiles=plyProjs, enemy = enemyObj1}) = newFrame
+draw gameState@(GameState {objects=objs, player=playerShip, ply_projectiles=plyProjs, enemy = enemyObj1, enemies=enemies}) = newFrame
   where
     -- Everything that needs to be drawn goes here
     playerObj = makeDrawable (ship_obj playerShip)
     enemy = makeDrawable (ship_obj enemyObj1)
     plyProjectiles = map makeDrawable $ map proj_obj plyProjs
+    enemyPics = map makeDrawable (map ship_obj enemies) 
     -- The final picture frame
-    newFrame = pictures $ plyProjectiles ++ enemy:playerObj:(map makeDrawable objs)
+    newFrame = pictures $ enemyPics ++ plyProjectiles ++ enemy:playerObj:(map makeDrawable objs)
 
 {- update
    Updates a given game state one iteration.
@@ -109,7 +110,7 @@ update :: Float -> Game -> Game
 update dt gameState@(GameState {ticker=ticker,ply_projectiles=projList,enemy=enemy, enemies=enemies}) = newGameState 
   where
     -- Everything that should be updated each iteration goes here
-    newPlyProjList = map (updateProjectile dt) projList
+    newPlyProjList = map (updateProjectile dt) (colPlyProj gameState projList)
     newPlayer = updatePlayer dt gameState
     newTicker = ticker+dt
     newEnemy = updateEnemy dt gameState
@@ -159,27 +160,6 @@ ship_fire ship dir gameState@(GameState {ticker=currentTick})
     shipProj = (projectile ship)
     shipProjObj = (proj_obj shipProj) { direction = dir, position = shipPos }
     newShipProj = Projectile shipProjObj (effect shipProj)
-    
-applyEffect :: Effect -> Ship -> Ship
-applyEffect fx ship = 
-  case fx of
-    Damage x -> ship { ship_health = (shipHealth - x)}
-    NoEffect -> ship -- do nothing
-    where
-      shipHealth = ship_health ship
-
-getEffect :: Ship -> [Projectile] -> Effect
-getEffect _ [] = NoEffect
-getEffect ship@(Ship{ship_obj=ship_obj}) (x@(Projectile{effect=effect, proj_obj=proj_obj}):xs) =
-  if checkRectCollision ship_obj proj_obj then effect else getEffect ship xs  
-
-updateEnemies :: Game -> [Ship] -> [Ship]
-updateEnemies _ [] = []
-updateEnemies gameState@(GameState {ply_projectiles=proj}) (ship:xs) =
-  if ship_health ship <= 0 then []
-  else newShip : updateEnemies gameState xs
-  where
-    newShip = applyEffect (getEffect ship proj) ship
 
 --processShipWeapons :: Game -> Game
 --processShipWeapons gameState@(GameState {player=ply,enemies=npcs,ply_projectiles=plyProjList,npc_projectles=npcProjList}) = 
