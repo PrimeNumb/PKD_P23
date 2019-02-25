@@ -43,7 +43,7 @@ playerDefaultProjObj =
            boundingBox = projObjDefault_bbox,
            graphic = projObjDefault_gfx
          }
-playerDefaultProj = Projectile playerDefaultProjObj NoEffect
+playerDefaultProj = Projectile playerDefaultProjObj (Damage 1)
                   
 -- Projectile templates
 projObjDefault_spd :: Float
@@ -106,15 +106,16 @@ draw gameState@(GameState {objects=objs, player=playerShip, ply_projectiles=plyP
    EXAMPLES:
 -}
 update :: Float -> Game -> Game
-update dt gameState@(GameState {ticker=ticker,ply_projectiles=projList,enemy=enemy}) = newGameState 
+update dt gameState@(GameState {ticker=ticker,ply_projectiles=projList,enemy=enemy, enemies=enemies}) = newGameState 
   where
     -- Everything that should be updated each iteration goes here
     newPlyProjList = map (updateProjectile dt) projList
     newPlayer = updatePlayer dt gameState
     newTicker = ticker+dt
     newEnemy = updateEnemy dt gameState
+    newEnemies = updateEnemies gameState enemies
     --The final updated gamestate
-    newGameState = collisionDespawn (gameState {player=newPlayer, ticker=newTicker, ply_projectiles=newPlyProjList, enemy=newEnemy})
+    newGameState = collisionDespawn (gameState {player=newPlayer, ticker=newTicker, ply_projectiles=newPlyProjList, enemy=newEnemy, enemies=newEnemies})
 
 {- handleEvent gameState
 Calls a specific
@@ -153,6 +154,28 @@ ship_fire ship gameState dir = spawnProjectile newShipProj ship gameState
     shipProjObj = (proj_obj shipProj) { direction = dir, position = shipPos }
     newShipProj = Projectile shipProjObj (effect shipProj)
     
+applyEffect :: Effect -> Ship -> Ship
+applyEffect fx ship = 
+  case fx of
+    Damage x -> ship { ship_health = (shipHealth - x)}
+    NoEffect -> ship -- do nothing
+    where
+      shipHealth = ship_health ship
+
+getEffect :: Ship -> [Projectile] -> Effect
+getEffect _ [] = NoEffect
+getEffect ship@(Ship{ship_obj=ship_obj}) (x@(Projectile{effect=effect, proj_obj=proj_obj}):xs) =
+  if checkRectCollision ship_obj proj_obj then effect else getEffect ship xs
+  
+
+updateEnemies :: Game -> [Ship] -> [Ship]
+updateEnemies _ [] = []
+updateEnemies gameState@(GameState {ply_projectiles=proj}) (ship:xs) =
+  if ship_health ship <= 0 then []
+  else newShip : updateEnemies gameState xs
+  where
+    newShip = applyEffect (getEffect ship proj) ship
+
     
 
 -- Check if an object is inside a bounding box
@@ -165,13 +188,6 @@ ship_fire ship gameState dir = spawnProjectile newShipProj ship gameState
 --    obj_bbox = boundingBox obj
 --    partialCollision = 
 
-applyEffect :: Effect -> Ship -> Ship
-applyEffect fx ship = 
-  case fx of
-    Damage x -> ship { ship_health = (shipHealth - x)}
-    NoEffect -> ship -- do nothing
-    where
-      shipHealth = ship_health ship
 
 isInBounds :: Point -> BoundingBox -> Point -> Bool
 isInBounds (x, y) (width, height) (px, py) = xIsInBounds && yIsInBounds
