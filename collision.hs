@@ -86,10 +86,10 @@ getEffect ship@(Ship{ship_obj=ship_obj}) (x@(Projectile{effect=effect, proj_obj=
 updateEnemies :: Game -> [Ship] -> [Ship]
 updateEnemies _ [] = []
 updateEnemies gameState@(GameState {ply_projectiles=proj}) (ship:xs) =
-  if trace (show (ship_health  ship)) ship_health ship <= 0 then []
+  if ship_health ship <= 0 then []
   else newShip : updateEnemies gameState xs
   where
-    newShip = applyEffect (getEffect ship proj) ship
+    newShip = applyEffect (trace (show (getEffect ship proj)) (getEffect ship proj)) ship
 
 
 
@@ -126,7 +126,8 @@ enemyShipTest = Ship { ship_obj = o3,
                        wep_cooldown = 1.0,
                        projectile = testPro,
                        last_fired_tick = 0,
-                       isPlayer = False
+                       isPlayer = False,
+                       isFiring = False
                      }
 
 
