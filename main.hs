@@ -117,7 +117,7 @@ update dt gameState@(GameState {ticker=ticker,ply_projectiles=projList,enemy=ene
     newEnemies = updateEnemies gameState enemies
     --traceStr = "Tick: " ++ show ticker ++ (show $ direction $ ship_obj newEnemy)
     --The final updated gamestate
-    newGameState = ship_fire newPlayer (1,0) (gameState {player=newPlayer, ticker=newTicker, ply_projectiles=newPlyProjList, enemy=newEnemy})
+    newGameState = ship_fire newPlayer (1,0) (gameState {player=newPlayer, ticker=newTicker, ply_projectiles=newPlyProjList, enemy=newEnemy, enemies=newEnemies})
 
 {- handleEvent gameState
 Calls a specific
