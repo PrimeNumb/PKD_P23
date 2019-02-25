@@ -59,7 +59,7 @@ projObjDefault_gfx = color red $ circleSolid 5
 initGameState :: Game
 initGameState = GameState {
   objects = [],
-  enemies = [enemyShipTemplate],
+  enemies = [enemyShipTemplate, enemyShipTest],
   player = playerShip,
   ply_projectiles = [],
   npc_projectiles = [],
