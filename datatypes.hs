@@ -32,6 +32,7 @@ data Ship = Ship
     wep_cooldown    :: Float,
     projectile      :: Projectile,
     last_fired_tick :: Float,
+    isFiring        :: Bool,
     isPlayer        :: Bool
   } deriving Show
 

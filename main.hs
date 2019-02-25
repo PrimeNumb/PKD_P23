@@ -29,9 +29,10 @@ playerObj = Object { position = (0, 0),
 playerShip :: Ship
 playerShip = Ship { ship_obj = playerObj,
                     ship_health = 100,
-                    wep_cooldown = 0.25,
+                    wep_cooldown = 1.0,
                     projectile = playerDefaultProj,
                     last_fired_tick = 0,
+                    isFiring = False,
                     isPlayer = True
                   }
 
@@ -114,7 +115,7 @@ update dt gameState@(GameState {ticker=ticker,ply_projectiles=projList,enemy=ene
     newTicker = ticker+dt
     newEnemy = updateEnemy dt gameState
     --The final updated gamestate
-    newGameState = collisionDespawn (gameState {player=newPlayer, ticker=newTicker, ply_projectiles=newPlyProjList, enemy=newEnemy})
+    newGameState = collisionDespawn $ ship_fire newPlayer (1,0) (gameState {player=newPlayer, ticker=newTicker, ply_projectiles=newPlyProjList, enemy=newEnemy})
 
 {- handleEvent gameState
 Calls a specific
@@ -130,7 +131,7 @@ handleEvent (EventKey key Down mod _) gameState =
     (SpecialKey KeyLeft)  -> modPlyDirection gameState (-1,0)
     (SpecialKey KeyRight) -> modPlyDirection gameState (1,0)
     --(SpecialKey KeySpace) -> gameState { playerIsFiring = True}
-    (SpecialKey KeySpace) -> ship_fire (player gameState) gameState (1,0)
+    (SpecialKey KeySpace) -> gameState { player = (player gameState) {isFiring=True}}
     _ -> gameState
 handleEvent (EventKey key Up _ _) gameState =
   case key of
@@ -138,29 +139,38 @@ handleEvent (EventKey key Up _ _) gameState =
     (SpecialKey KeyDown)  -> modPlyDirection gameState (0,1)
     (SpecialKey KeyLeft)  -> modPlyDirection gameState (1,0)
     (SpecialKey KeyRight) -> modPlyDirection gameState (-1,0)
-    --(SpecialKey KeySpace) -> gameState { playerIsFiring = False}
+    (SpecialKey KeySpace) -> gameState { player = (player gameState) {isFiring=False}}
     _ -> gameState
 -- Need to do something when the screen is resized
 handleEvent (EventResize (x, y)) gameState = gameState
 handleEvent _ gameState = gameState
 
 -- Fires a ship's projectile from its position, given a direction
-ship_fire :: Ship -> Game -> Direction -> Game
-ship_fire ship gameState dir = spawnProjectile newShipProj ship gameState
+ship_fire :: Ship -> Direction -> Game -> Game
+ship_fire ship dir gameState@(GameState {ticker=currentTick})
+  | canFire && (isFiring ship) = spawnProjectile newShipProj isPC gameState
+  | otherwise = gameState
   where
+    canFire = (currentTick - (last_fired_tick ship)) > (wep_cooldown ship)
+    isPC = isPlayer ship
+    -- Construct the projectile object
     shipPos = position $ ship_obj ship
     shipProj = (projectile ship)
     shipProjObj = (proj_obj shipProj) { direction = dir, position = shipPos }
     newShipProj = Projectile shipProjObj (effect shipProj)
-    
-    
 
+--processShipWeapons :: Game -> Game
+--processShipWeapons gameState@(GameState {player=ply,enemies=npcs,ply_projectiles=plyProjList,npc_projectles=npcProjList}) = 
+--  where
+--    newPlyProjList = plyProjList
+--    newGameState = gameState
+
+    
 -- Check if an object is inside a bounding box
 -- Returns a tuple where
 -- 1st element is TRUE if the obj is partially inside the bounding box
 -- 2nd element is TRUE if the obj is completely inside the bounding box
 --checkCollision :: Object -> BoundingBox -> (Bool, Bool)
---checkCollision obj bbox = undefined
 --  where
 --    obj_bbox = boundingBox obj
 --    partialCollision = 
@@ -180,7 +190,6 @@ isInBounds (x, y) (width, height) (px, py) = xIsInBounds && yIsInBounds
     (bx, by) = (px+(width/2),py-(height/2))
     xIsInBounds = (tx <= x) && (x >= bx)
     yIsInBounds = (ty >= y) && (y >= by)
-
 
 {- checkRectCollision
 Checks is two objects overlap (collide).
