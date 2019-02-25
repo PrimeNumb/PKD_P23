@@ -4,7 +4,13 @@
 module Helpers where
 import DataTypes
 
+
 moveObject :: Object -> (Float, Float) -> Object
 moveObject obj@(Object {position = (x,y)}) (dx, dy) = obj { position = (nx,ny)}
   where
     (nx,ny) = (x+dx,y+dy)
+
+
+
+
+
