@@ -1,15 +1,10 @@
 module Collision where
 import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
-import System.Random
-import Debug.Trace
-import Player
-import Projectile
 import DataTypes
 import Globals
-import Rendering
-import Helpers
-
+import Enemies
+import Debug.Trace
 
 
 {- checkRectCollision
@@ -74,6 +69,27 @@ collisionDespawn gameState@(GameState {npc_projectiles=npc_proj, ply_projectiles
     desp_npc = colEnemProj gameState npc_proj
 
 
+applyEffect :: Effect -> Ship -> Ship
+applyEffect fx ship = 
+  case fx of
+    Damage x -> ship { ship_health = (shipHealth - x)}
+    NoEffect -> ship -- do nothing
+    where
+      shipHealth = ship_health ship
+
+getEffect :: Ship -> [Projectile] -> Effect
+getEffect _ [] = NoEffect
+getEffect ship@(Ship{ship_obj=ship_obj}) (x@(Projectile{effect=effect, proj_obj=proj_obj}):xs) =
+  if checkRectCollision ship_obj proj_obj then trace (show effect) effect else getEffect ship xs
+  
+
+updateEnemies :: Game -> [Ship] -> [Ship]
+updateEnemies _ [] = []
+updateEnemies gameState@(GameState {ply_projectiles=proj}) (ship:xs) =
+  if trace (show (ship_health  ship)) ship_health ship <= 0 then []
+  else newShip : updateEnemies gameState xs
+  where
+    newShip = applyEffect (getEffect ship proj) ship
 
 
 
@@ -90,21 +106,32 @@ o1 = Object { position = (2, 3),
             }
                                 
 o2 :: Object
-o2 = Object { position = (3, 4),
+o2 = Object { position = (0, 0),
               direction = (0, 0),
               speed = 0,
               boundingBox = (1, 1),
               graphic = color green $ rectangleSolid 50.0 50.0            }
      
 o3 :: Object
-o3 = Object { position = (150, 200),
+o3 = Object { position = (0, 0),
               direction = (0, 0),
               speed = 300,
-              boundingBox = (10, 10),
+              boundingBox = (100, 100),
               graphic = color green $ rectangleSolid 50.0 50.0
             }
      
+enemyShipTest :: Ship
+enemyShipTest = Ship { ship_obj = o3,
+                       ship_health = 5,
+                       wep_cooldown = 1.0,
+                       projectile = testPro,
+                       last_fired_tick = 0,
+                       isPlayer = False
+                     }
 
 
-
+testPro =
+  Projectile { proj_obj = o2,
+               effect = Damage 1
+             }
 

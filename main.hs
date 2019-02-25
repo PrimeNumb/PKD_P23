@@ -153,28 +153,6 @@ ship_fire ship gameState dir = spawnProjectile newShipProj ship gameState
     shipProj = (projectile ship)
     shipProjObj = (proj_obj shipProj) { direction = dir, position = shipPos }
     newShipProj = Projectile shipProjObj (effect shipProj)
-    
-applyEffect :: Effect -> Ship -> Ship
-applyEffect fx ship = 
-  case fx of
-    Damage x -> ship { ship_health = (shipHealth - x)}
-    NoEffect -> ship -- do nothing
-    where
-      shipHealth = ship_health ship
-
-getEffect :: Ship -> [Projectile] -> Effect
-getEffect _ [] = NoEffect
-getEffect ship@(Ship{ship_obj=ship_obj}) (x@(Projectile{effect=effect, proj_obj=proj_obj}):xs) =
-  if checkRectCollision ship_obj proj_obj then effect else getEffect ship xs
-  
-
-updateEnemies :: Game -> [Ship] -> [Ship]
-updateEnemies _ [] = []
-updateEnemies gameState@(GameState {ply_projectiles=proj}) (ship:xs) =
-  if ship_health ship <= 0 then []
-  else newShip : updateEnemies gameState xs
-  where
-    newShip = applyEffect (getEffect ship proj) ship
 
     
 
