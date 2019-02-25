@@ -79,7 +79,7 @@ updateEnemy dt gameState@(GameState {enemy=oldEnemy}) = trace traceStr $ newEnem
     pos_y = snd enemyPos 
     enemySpeed = speed enemyObj
     deltaMove = (dx*enemySpeed*dt,dy*enemySpeed*dt)
-    --traceStr = "Tick: " ++ show (ticker gameState) ++  show (dx, dy)
+    traceStr = "Tick: " ++ show (ticker gameState) ++  show (dx, dy)
     newEnemy = oldEnemy { ship_obj = (moveObject enemyObj deltaMove)}
     --traceStr = show $ direction $ ship_obj newEnemy
 
