@@ -23,7 +23,7 @@ playerObj :: Object
 playerObj = Object { position = (0, 0),
                      direction = (0, 0),
                      speed = 300,
-                     boundingBox = (25, -25),
+                     boundingBox = (25, 25),
                      graphic = color green $ rectangleSolid 50.0 50.0
                    }
 playerShip :: Ship
@@ -35,7 +35,6 @@ playerShip = Ship { ship_obj = playerObj,
                     isFiring = False,
                     isPlayer = True
                   }
-
 
 playerDefaultProjObj =
   Object { position = (0,0),
@@ -115,8 +114,9 @@ update dt gameState@(GameState {ticker=ticker,ply_projectiles=projList,enemy=ene
     newTicker = ticker+dt
     newEnemy = updateEnemy dt gameState
     newEnemies = updateEnemies gameState enemies
+    --traceStr = "Tick: " ++ show ticker ++ (show $ direction $ ship_obj newEnemy)
     --The final updated gamestate
-    newGameState = collisionDespawn $ ship_fire newPlayer (1,0) (gameState {player=newPlayer, ticker=newTicker, ply_projectiles=newPlyProjList, enemy=newEnemy})
+    newGameState = ship_fire newPlayer (1,0) (gameState {player=newPlayer, ticker=newTicker, ply_projectiles=newPlyProjList, enemy=newEnemy})
 
 {- handleEvent gameState
 Calls a specific
