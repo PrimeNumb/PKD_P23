@@ -29,6 +29,7 @@ enemyShipTemplate = Ship { ship_obj = enemyObj1,
                            wep_cooldown = 1.0,
                            projectile = testProj,
                            last_fired_tick = 0,
+                           isFiring = False,
                            isPlayer = False
                          }
 

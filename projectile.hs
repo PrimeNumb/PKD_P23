@@ -31,8 +31,17 @@ testProjGraphic = color blue $ circleSolid 5
 --    projList = ply_projectiles gameState
 --    newProjList = (Projectile obj fx):projList
 
-spawnProjectile :: Projectile -> Ship -> Game -> Game
-spawnProjectile proj owner@(Ship {isPlayer=isPlayer}) gameState
+-- Adds a list of projectiles into the gamestate based on whether
+-- they belong to the player or not
+spawnProjectiles :: [Projectile] -> Bool -> Game -> Game
+spawnProjectiles projList isPlayer gameState@(GameState {ply_projectiles=plyProjList, npc_projectiles=npcProjList})
+  | isPlayer = gameState { ply_projectiles = (projList ++ plyProjList)}
+  | otherwise = gameState { npc_projectiles = (projList ++ npcProjList)}
+  
+-- Adds a projectile into the gamestate based on whether they
+-- belong to the player or not
+spawnProjectile :: Projectile -> Bool -> Game -> Game
+spawnProjectile proj isPlayer gameState
   | isPlayer = gameState { ply_projectiles = plyProjList }
   | otherwise = gameState { npc_projectiles = npcProjList }
   where
