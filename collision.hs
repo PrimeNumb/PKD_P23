@@ -63,10 +63,10 @@ colPlyProj gameState@(GameState {enemies=enemies}) (proj:xs) = colPlyProjAux pro
 
 
 collisionDespawn :: Game -> Game
-collisionDespawn gameState@(GameState {npc_projectiles=npc_proj, ply_projectiles=ply_proj}) = gameState {npc_projectiles=desp_npc, ply_projectiles=desp_ply}
+collisionDespawn gameState@(GameState {npc_projectiles=npc_proj, ply_projectiles=ply_proj}) = gameState {npc_projectiles=desp_npc_proj, ply_projectiles=desp_ply_proj}
   where
-    desp_ply = colPlyProj gameState ply_proj
-    desp_npc = colEnemProj gameState npc_proj
+    desp_ply_proj = ply_proj --colPlyProj gameState ply_proj
+    desp_npc_proj = colEnemProj gameState npc_proj
 
 
 applyEffect :: Effect -> Ship -> Ship
@@ -81,7 +81,8 @@ getEffect :: Ship -> [Projectile] -> Effect
 getEffect _ [] = NoEffect
 getEffect ship@(Ship{ship_obj=ship_obj}) (x@(Projectile{effect=effect, proj_obj=proj_obj}):xs) =
   if checkRectCollision ship_obj proj_obj then trace (show effect) effect else getEffect ship xs
-  
+
+
 
 updateEnemies :: Game -> [Ship] -> [Ship]
 updateEnemies _ [] = []
@@ -90,10 +91,6 @@ updateEnemies gameState@(GameState {ply_projectiles=proj}) (ship:xs) =
   else newShip : updateEnemies gameState xs
   where
     newShip = applyEffect (trace (show (getEffect ship proj)) (getEffect ship proj)) ship
-
-
-
-
 
 
 -- Collisiontests

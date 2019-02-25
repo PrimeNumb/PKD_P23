@@ -91,14 +91,15 @@ main = do
    EXAMPLES: 
 -}
 draw :: Game -> Picture
-draw gameState@(GameState {objects=objs, player=playerShip, ply_projectiles=plyProjs, enemy = enemyObj1}) = newFrame
+draw gameState@(GameState {objects=objs, player=playerShip, ply_projectiles=plyProjs, enemy = enemyObj1, enemies=enemies}) = newFrame
   where
     -- Everything that needs to be drawn goes here
     playerObj = makeDrawable (ship_obj playerShip)
     enemy = makeDrawable (ship_obj enemyObj1)
     plyProjectiles = map makeDrawable $ map proj_obj plyProjs
+    enemyPics = map makeDrawable (map ship_obj enemies) 
     -- The final picture frame
-    newFrame = pictures $ plyProjectiles ++ enemy:playerObj:(map makeDrawable objs)
+    newFrame = pictures $ enemyPics ++ plyProjectiles ++ enemy:playerObj:(map makeDrawable objs)
 
 {- update
    Updates a given game state one iteration.
@@ -110,13 +111,14 @@ update :: Float -> Game -> Game
 update dt gameState@(GameState {ticker=ticker,ply_projectiles=projList,enemy=enemy, enemies=enemies}) = newGameState 
   where
     -- Everything that should be updated each iteration goes here
-    newPlyProjList = map (updateProjectile dt) projList
+    newPlyProjList = map (updateProjectile dt) (colPlyProj gameState projList)
     newPlayer = updatePlayer dt gameState
     newTicker = ticker+dt
     newEnemy = updateEnemy dt gameState
     newEnemies = updateEnemies gameState enemies
+    
     --The final updated gamestate
-    newGameState = collisionDespawn $ ship_fire newPlayer (1,0) (gameState {player=newPlayer, ticker=newTicker, ply_projectiles=newPlyProjList, enemy=newEnemy})
+    newGameState = ship_fire newPlayer (1,0) (gameState {player=newPlayer, ticker=newTicker, ply_projectiles=newPlyProjList, enemy=newEnemy, enemies=newEnemies})
 
 {- handleEvent gameState
 Calls a specific
