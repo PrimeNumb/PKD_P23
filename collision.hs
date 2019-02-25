@@ -65,7 +65,7 @@ colPlyProj gameState@(GameState {enemies=enemies}) (proj:xs) = colPlyProjAux pro
 collisionDespawn :: Game -> Game
 collisionDespawn gameState@(GameState {npc_projectiles=npc_proj, ply_projectiles=ply_proj}) = gameState {npc_projectiles=desp_npc_proj, ply_projectiles=desp_ply_proj}
   where
-    desp_ply_proj = ply_proj --colPlyProj gameState ply_proj
+    desp_ply_proj = colPlyProj gameState ply_proj
     desp_npc_proj = colEnemProj gameState npc_proj
 
 
@@ -114,7 +114,7 @@ o3 = Object { position = (0, 0),
               direction = (0, 0),
               speed = 300,
               boundingBox = (100, 100),
-              graphic = color green $ rectangleSolid 50.0 50.0
+              graphic = color green $ rectangleSolid 200.0 200.0
             }
      
 enemyShipTest :: Ship
