@@ -12,7 +12,6 @@ enemyColor = blue
 
 enemyObj1 :: Object
 enemyObj1 = Object { position = (400, 250),
-<<<<<<< HEAD
                      direction = (-1.0, -1.0),
                      speed = 50,
                      boundingBox = (35,10),
@@ -27,49 +26,19 @@ enemyShipTemplate = Ship { ship_obj = enemyObj1,
                            isPlayer = False
                          }
 
---getEnemyPos :: Game -> (Float, Float)
---getEnemyPos gameState = position $ enemy gameState
 
-
---movePatternEnemy :: (Float, Float)
---movePatternEnemy (ex, ey
-
-
-{- moveEnemy :: Game -> (Float, Float) -> Game
-moveEnemy gs@(GameState {enemy=eny}) (ex, ey) = gs {enemy = newEnemy}
-  where
-    (x, y) = position enemy
-    (nx, ny) = (x+ex, y+ey)
-    newEnemy = eny {position = (nx, ny)} -}
-
-
-{-changeDir:: Game -> (Float, Float) -> (Float, Float)
-changeDir gameState@(GameState {enemy=eny@(Object {position = pos, direction = dir})})
-   | fst(pos eny) <= 400 = (-1.0,0)
-  | fst(position enemy) => 200 = (1.0,0)
-   | snd(pos eny) <= 250 = (0,-1.0)
-  | snd(position enemy) => -100 = (0,1.0) -}
-
-{- changeDir
-   Changes the direction of an enemy
-   RETURNS: An object with a new direction
-   EXAMPLE: changeDir ship (1.0,1.0) = ship {direction = 1.0,1.0}
--}
-changeDir :: Object -> (Float, Float) -> Object
+changeDir ::  Object -> (Float, Float) -> Object
 changeDir obj (x,y) = obj {direction = (x, y)}
 
 
 
 enemyMovement :: Object -> Object
-enemyMovement obj
-  | snd(position obj) > 300.0 = trace traceStr $ changeDir obj (fst(direction obj),-1)
-  | snd(position obj) < -100.0 = trace traceStr $ changeDir obj (fst(direction obj),1)
-  | otherwise = trace traceStr obj
+enemyMovement enemy = changeDir enemy (fst(direction enemy), ny)
   where
-    traceStr = (show $ snd (position obj))  ++ " " ++ (show c1) ++ " " ++ (show c2) ++ " " ++ (show $ snd (direction obj))
-    c1 = snd(position obj) > 300
-    c2 = snd(position obj) < 100
-    {-ny = -}
+    ny
+      | snd(position enemy) > 300.0  = -1.0
+      | snd(position enemy) < -100.0 = 1.0
+      | otherwise = snd(direction enemy)
 
 
 --movementPattern = 
