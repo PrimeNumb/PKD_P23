@@ -41,6 +41,7 @@ data Projectile = Projectile
     effect   :: Effect
   } deriving Show
 
+data Encounter = EncounterQueue [Ship]
 data Effect = Damage Int | NoEffect deriving Show
 
 {- BoundingBox

@@ -59,7 +59,7 @@ projObjDefault_gfx = color red $ circleSolid 5
 initGameState :: Game
 initGameState = GameState {
   objects = [],
-  enemies = [enemyShipTemplate, enemyShipTest],
+  enemies = [enemyShipTemplate],
   player = playerShip,
   ply_projectiles = [],
   npc_projectiles = [],
@@ -116,6 +116,7 @@ update dt gameState@(GameState {ticker=ticker,ply_projectiles=projList,enemy=ene
     newEnemy = updateEnemy dt gameState
     newEnemies = updateEnemies gameState enemies
     --traceStr = "Tick: " ++ show ticker ++ (show $ direction $ ship_obj newEnemy)
+    traceStr = "Speed: " ++ (show (speed $ ship_obj newEnemy))
     --The final updated gamestate
     newGameState = ship_fire newPlayer (1,0) (gameState {player=newPlayer, ticker=newTicker, ply_projectiles=newPlyProjList, enemy=newEnemy})
 
