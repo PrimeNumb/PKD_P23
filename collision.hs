@@ -83,7 +83,6 @@ getEffect ship@(Ship{ship_obj=ship_obj}) (x@(Projectile{effect=effect, proj_obj=
   if checkRectCollision ship_obj proj_obj then trace (show effect) effect else getEffect ship xs
 
 
-
 updateEnemies :: Game -> [Ship] -> [Ship]
 updateEnemies _ [] = []
 updateEnemies gameState@(GameState {ply_projectiles=proj}) (ship:xs) =
@@ -91,7 +90,6 @@ updateEnemies gameState@(GameState {ply_projectiles=proj}) (ship:xs) =
   else newShip : updateEnemies gameState xs
   where
     newShip = applyEffect (trace (show (getEffect ship proj)) (getEffect ship proj)) ship
-
 
 -- Collisiontests
 o1 :: Object
