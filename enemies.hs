@@ -32,6 +32,7 @@ enemyShipTemplate = Ship { ship_obj = enemyObj1,
                            isPlayer = False
                          }
 
+
 changeDir :: Object -> (Float, Float) -> Object
 changeDir obj (x,y) = obj {direction = (x, y)}
                                       
@@ -39,18 +40,14 @@ changeDir obj (x,y) = obj {direction = (x, y)}
 
 
 enemyMovement :: Object -> Object
-enemyMovement obj
-  | snd(position obj) > 300.0 = trace traceStr $ changeDir obj (fst(direction obj),-1)
-  | snd(position obj) < -100.0 = trace traceStr $ changeDir obj (fst(direction obj),1)
-  | otherwise = trace traceStr obj
+enemyMovement enemy = changeDir enemy (fst(direction enemy), ny)
   where
-    traceStr = (show $ snd (position obj))  ++ " " ++ (show c1) ++ " " ++ (show c2) ++ " " ++ (show $ snd (direction obj))
-    c1 = snd(position obj) > 300
-    c2 = snd(position obj) < 100
-    {-ny = -}
+    ny
+      | snd(position enemy) > 300.0  = -1.0
+      | snd(position enemy) < -100.0 = 1.0
+      | otherwise = snd(direction enemy)
 
 
---movementPattern = 
 
 updateEnemy :: Float -> Game -> Ship                   
 updateEnemy dt gameState@(GameState {enemy=enemy}) = newEnemy
