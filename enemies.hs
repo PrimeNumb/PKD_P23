@@ -7,7 +7,7 @@ import Rendering
 import DataTypes
 import Helpers
 import Projectile
-
+import Globals
 
 enemyColor :: Color
 enemyColor = blue
@@ -16,8 +16,8 @@ enemyDefaultProjObj =
   Object { position = (0,0),
            direction = (-1,0),
            speed = projObjDefault_spd,
-           boundingBox = projObjDefault_bbox,
-           graphic = projObjDefault_gfx
+           boundingBox = (16.5,4.5),
+           graphic = npcProjSprite
          }
 enemyDefaultProj = Projectile enemyDefaultProjObj (Damage 1)
 

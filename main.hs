@@ -67,7 +67,6 @@ EXAMPLES:
 -}
 main :: IO()
 main = do
-
   play window win_background targetFramerate initGameState draw handleEvent update
 
 
@@ -75,12 +74,12 @@ draw :: Game -> Picture
 draw gameState@(GameState {objects=objs, player=playerShip, ply_projectiles=plyProjs, npc_projectiles=enemyProjs, enemies=enemies}) = newFrame
   where
     -- Everything that needs to be drawn goes here
-    playerPic = makeDrawable playerShip
-    plyProjPics = map makeDrawable plyProjs
-    enemyProjPics = map makeDrawable enemyProjs
-    enemyPics = map makeDrawable enemies 
+    playerPic = drawWithBounds playerShip
+    plyProjPics = map drawWithBounds plyProjs
+    enemyProjPics = map drawWithBounds enemyProjs
+    enemyPics = map drawWithBounds enemies 
     -- The final picture frame
-    newFrame = pictures $ enemyPics ++ enemyProjPics ++ plyProjPics ++ playerPic:(map makeDrawable objs)
+    newFrame = pictures $enemyProjPics ++ plyProjPics ++ enemyPics ++ playerPic:(map makeDrawable objs)
 
 {- update
    Updates a given game state one iteration.
@@ -131,19 +130,6 @@ handleEvent (EventKey key Up _ _) gameState =
 handleEvent (EventResize (x, y)) gameState = gameState
 handleEvent _ gameState = gameState
 
--- DEPRECATED
-ship_fire' :: Direction -> Ship -> Game -> Game
-ship_fire' dir ship gameState@(GameState {ticker=currentTick})
-  | canFire && (isFiring ship) = spawnProjectile newShipProj isPC gameState
-  | otherwise = gameState
-  where
-    canFire = (currentTick - (last_fired_tick ship)) > (wep_cooldown ship)
-    isPC = isPlayer ship
-    -- Construct the projectile object
-    shipPos = position $ ship_obj ship
-    shipProj = (projectile ship)
-    shipProjObj = (proj_obj shipProj) { direction = dir, position = shipPos }
-    newShipProj = Projectile shipProjObj (effect shipProj)
 
 -- Fires a ship's projectile from its position, given a direction
 ship_fire :: Direction -> Float -> Ship -> Maybe Projectile
@@ -170,46 +156,6 @@ processEnemyFireAux [] acc = acc
 processEnemyFireAux (Just x : xs) acc = processEnemyFireAux xs (x:acc)
 processEnemyFireAux (Nothing : xs) acc = processEnemyFireAux xs acc
     
--- Check if an object is inside a bounding box
--- Returns a tuple where
--- 1st element is TRUE if the obj is partially inside the bounding box
--- 2nd element is TRUE if the obj is completely inside the bounding box
---checkCollision :: Object -> BoundingBox -> (Bool, Bool)
---  where
---    obj_bbox = boundingBox obj
---    partialCollision = 
-
-
-isInBounds :: Point -> BoundingBox -> Point -> Bool
-isInBounds (x, y) (width, height) (px, py) = xIsInBounds && yIsInBounds
-  where
-    (tx, ty) = (px-(width/2),py+(height/2))
-    (bx, by) = (px+(width/2),py-(height/2))
-    xIsInBounds = (tx <= x) && (x >= bx)
-    yIsInBounds = (ty >= y) && (y >= by)
-
-{- checkRectCollision
-Checks is two objects overlap (collide).
-PRE: The object's bounding boxes have their top left corner listed as the first 2-tuple. 
-RETURNS:
-EXAMPLES: 
--}
-
-{- boundingBoxPoints bbox
-Constructs a list out of all points (corners) in a bounding box, givens its position.
-PRE: 
-RETURNS: A list containing all points in bbox, where the first element is the point in the upper left corner of bbox and each proceeding element are all the points on the path going clockwise around bbox.
-EXAMPLES: 
--}
-boundingBoxPoints :: BoundingBox -> Point -> [Point]
-boundingBoxPoints (width, height) (x,y) = points
-  where
-    (tl_x, tl_y) = (x-(width/2), y+(height/2))
-    (tr_x, tr_y) = (x+(width/2), tl_y)
-    (bl_x, bl_y) = (tl_x, y-(height/2))
-    (br_x, br_y) = (tr_x, bl_y)
-    points = [(tl_x,tl_y),(tr_x,tr_y),(br_x,br_y),(bl_x,bl_y)]
-
 -- Test cases and test related functions go here for now
 testGameState = initGameState -- this will change to more advanced test gamestates in the future
 

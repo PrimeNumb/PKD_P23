@@ -42,14 +42,26 @@ data Projectile = Projectile
 
 class Drawable a where
   makeDrawable :: a -> Picture
+  drawBounds :: a -> Picture
+  drawWithBounds :: a -> Picture
 
 instance Drawable Object where
-  makeDrawable (Object {position = pos, graphic=g}) = uncurry translate pos $ g
+  makeDrawable (Object {position = pos, graphic=g}) =
+    uncurry translate pos $ g
+  drawBounds (Object {position=(x,y), boundingBox=(bx,by)}) =
+    color red $ translate x y $ rectangleWire (2*bx) (2*by)
+  drawWithBounds obj@(Object {position=(x,y), boundingBox=(bx,by)}) =
+    pictures $ (makeDrawable obj):(drawBounds obj):[]
+    
 instance Drawable Ship where
   makeDrawable (Ship {ship_obj=obj}) = makeDrawable obj
+  drawBounds (Ship {ship_obj=obj}) = drawBounds obj
+  drawWithBounds (Ship {ship_obj=obj}) = drawWithBounds obj
 
 instance Drawable Projectile where
   makeDrawable (Projectile {proj_obj=obj}) = makeDrawable obj
+  drawBounds (Projectile {proj_obj=obj}) = drawBounds obj
+  drawWithBounds (Projectile {proj_obj=obj}) = drawWithBounds obj
 
 data Encounter = EncounterQueue [Ship]
 data Effect = Damage Int | NoEffect deriving Show
