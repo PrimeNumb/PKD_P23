@@ -5,6 +5,7 @@ import DataTypes
 import Globals
 import Enemies
 import Debug.Trace
+import Projectile
 
 
 {- checkRectCollision
@@ -148,7 +149,7 @@ enemyShipTest1 :: Ship
 enemyShipTest1 = Ship { ship_obj = o4,
                        ship_health = 10,
                        wep_cooldown = 1.0,
-                       projectile = testPro,
+                       projectile = testProj,
                        last_fired_tick = 0,
                        isPlayer = False,
                        isFiring = False
@@ -158,7 +159,7 @@ enemyShipTest2 :: Ship
 enemyShipTest2 = Ship { ship_obj = o5,
                        ship_health = 10,
                        wep_cooldown = 1.0,
-                       projectile = testPro,
+                       projectile = testProj,
                        last_fired_tick = 0,
                        isPlayer = False,
                        isFiring = False
