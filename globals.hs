@@ -38,16 +38,16 @@ png :: FilePath -> Picture
 png fname = maybe (text "PNG ERROR") id (unsafePerformIO $ loadJuicyPNG fname)
 
 playerSprite :: Picture
-playerSprite = png "./player2.png"
+playerSprite = png "./sprites/player2.png"
 
 enemySprite :: Picture
-enemySprite = png "./enemyShip.png"
+enemySprite = png "./sprites/enemyShip.png"
 
 plyProjSprite :: Picture
-plyProjSprite = png "laserRed.png"
+plyProjSprite = png "./sprites/laserRed.png"
 
 npcProjSprite :: Picture
-npcProjSprite = png "laserGreen.png"
+npcProjSprite = png "./sprites/laserGreen.png"
 
 background :: Picture
 background = undefined

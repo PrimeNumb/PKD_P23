@@ -21,7 +21,6 @@ enemyDefaultProjObj =
          }
 enemyDefaultProj = Projectile enemyDefaultProjObj (Damage 1)
 
-
 enemyObj1 :: Object
 enemyObj1 = Object { position = (400, 250),
                      direction = (-1.0, 0),

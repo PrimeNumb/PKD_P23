@@ -67,6 +67,7 @@ EXAMPLES:
 -}
 main :: IO()
 main = do
+  --display window win_background (makeDrawable playerObj)
   play window win_background targetFramerate initGameState draw handleEvent update
 
 
