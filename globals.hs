@@ -38,7 +38,7 @@ png :: FilePath -> Picture
 png fname = maybe (text "PNG ERROR") id (unsafePerformIO $ loadJuicyPNG fname)
 
 playerSprite :: Picture
-playerSprite = png "./player.png"
+playerSprite = png "./player2.png"
 
 enemySprite :: Picture
 enemySprite = png "./enemyShip.png"
@@ -49,3 +49,5 @@ plyProjSprite = png "laserRed.png"
 npcProjSprite :: Picture
 npcProjSprite = png "laserGreen.png"
 
+background :: Picture
+background = undefined
