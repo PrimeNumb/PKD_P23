@@ -44,26 +44,15 @@ playerDefaultProjObj =
            graphic = projObjDefault_gfx
          }
 playerDefaultProj = Projectile playerDefaultProjObj (Damage 1)
-                  
--- Projectile templates
-projObjDefault_spd :: Float
-projObjDefault_spd = 400
-
-projObjDefault_bbox :: BoundingBox
-projObjDefault_bbox = (2.5,2.5)
-
-projObjDefault_gfx :: Picture
-projObjDefault_gfx = color red $ circleSolid 5
 
 -- The initial game state
 initGameState :: Game
 initGameState = GameState {
   objects = [],
-  enemies = [enemyShipTemplate],
+  enemies = [enemyShipTemplate,enemyShipTemplate2,enemyShipTemplate3],
   player = playerShip,
   ply_projectiles = [],
   npc_projectiles = [],
-  enemy = enemyShipTemplate,
   ticker = 0,
   playerIsFiring = False
   }
@@ -90,15 +79,15 @@ main = do
    EXAMPLES: 
 -}
 draw :: Game -> Picture
-draw gameState@(GameState {objects=objs, player=playerShip, ply_projectiles=plyProjs, enemy = enemyObj1, enemies=enemies}) = newFrame
+draw gameState@(GameState {objects=objs, player=playerShip, ply_projectiles=plyProjs, npc_projectiles=enemyProjs, enemies=enemies}) = newFrame
   where
     -- Everything that needs to be drawn goes here
-    playerObj = makeDrawable (ship_obj playerShip)
-    enemy = makeDrawable (ship_obj enemyObj1)
-    plyProjectiles = map makeDrawable $ map proj_obj plyProjs
-    enemyPics = map makeDrawable (map ship_obj enemies) 
+    playerPic = makeDrawable playerShip
+    plyProjPics = map makeDrawable plyProjs
+    enemyProjPics = map makeDrawable enemyProjs
+    enemyPics = map makeDrawable enemies 
     -- The final picture frame
-    newFrame = pictures $ enemyPics ++ plyProjectiles ++ enemy:playerObj:(map makeDrawable objs)
+    newFrame = pictures $ enemyPics ++ enemyProjPics ++ plyProjPics ++ playerPic:(map makeDrawable objs)
 
 {- update
    Updates a given game state one iteration.
@@ -107,18 +96,20 @@ draw gameState@(GameState {objects=objs, player=playerShip, ply_projectiles=plyP
    EXAMPLES:
 -}
 update :: Float -> Game -> Game
-update dt gameState@(GameState {ticker=ticker,ply_projectiles=projList,enemy=enemy, enemies=enemies}) = newGameState 
+update dt gameState@(GameState {ticker=currentTick,ply_projectiles=projList, enemies=enemies,npc_projectiles=enemyProjList}) = newGameState 
   where
     -- Everything that should be updated each iteration goes here
-    newPlyProjList = map (updateProjectile dt) (colPlyProj gameState projList)
+    updatePlyProjList = map (updateProjectile dt) (colPlyProj gameState projList)
     newPlayer = updatePlayer dt gameState
-    newTicker = ticker+dt
-    newEnemy = updateEnemy dt gameState
-    newEnemies = updateEnemies gameState enemies
-    --traceStr = "Tick: " ++ show ticker ++ (show $ direction $ ship_obj newEnemy)
-    traceStr = "Speed: " ++ (show (speed $ ship_obj newEnemy))
+    newTicker = currentTick+dt
+    newPlyProjList = case (ship_fire (1,0) newTicker newPlayer) of
+       Just x -> x:updatePlyProjList
+       Nothing -> updatePlyProjList
+    newEnemies = updateEnemies gameState (map (updateEnemy dt gameState) enemies)
+    updateEnemyProjList = map (updateProjectile dt) (colEnemProj gameState enemyProjList)
+    newEnemyProjList = (processEnemyFire gameState) ++ updateEnemyProjList
     --The final updated gamestate
-    newGameState = ship_fire newPlayer (1,0) (gameState {player=newPlayer, ticker=newTicker, ply_projectiles=newPlyProjList, enemy=newEnemy, enemies=newEnemies})
+    newGameState = (gameState {player=newPlayer, ticker=newTicker, ply_projectiles=newPlyProjList, enemies=newEnemies, npc_projectiles=newEnemyProjList})
 
 {- handleEvent gameState
 Calls a specific
@@ -133,7 +124,6 @@ handleEvent (EventKey key Down mod _) gameState =
     (SpecialKey KeyDown)  -> modPlyDirection gameState (0,-1)
     (SpecialKey KeyLeft)  -> modPlyDirection gameState (-1,0)
     (SpecialKey KeyRight) -> modPlyDirection gameState (1,0)
-    --(SpecialKey KeySpace) -> gameState { playerIsFiring = True}
     (SpecialKey KeySpace) -> gameState { player = (player gameState) {isFiring=True}}
     _ -> gameState
 handleEvent (EventKey key Up _ _) gameState =
@@ -148,9 +138,9 @@ handleEvent (EventKey key Up _ _) gameState =
 handleEvent (EventResize (x, y)) gameState = gameState
 handleEvent _ gameState = gameState
 
--- Fires a ship's projectile from its position, given a direction
-ship_fire :: Ship -> Direction -> Game -> Game
-ship_fire ship dir gameState@(GameState {ticker=currentTick})
+-- DEPRECATED
+ship_fire' :: Direction -> Ship -> Game -> Game
+ship_fire' dir ship gameState@(GameState {ticker=currentTick})
   | canFire && (isFiring ship) = spawnProjectile newShipProj isPC gameState
   | otherwise = gameState
   where
@@ -162,12 +152,30 @@ ship_fire ship dir gameState@(GameState {ticker=currentTick})
     shipProjObj = (proj_obj shipProj) { direction = dir, position = shipPos }
     newShipProj = Projectile shipProjObj (effect shipProj)
 
---processShipWeapons :: Game -> Game
---processShipWeapons gameState@(GameState {player=ply,enemies=npcs,ply_projectiles=plyProjList,npc_projectles=npcProjList}) = 
---  where
---    newPlyProjList = plyProjList
---    newGameState = gameState
+-- Fires a ship's projectile from its position, given a direction
+ship_fire :: Direction -> Float -> Ship -> Maybe Projectile
+ship_fire dir currentTick ship
+  | canFire && (isFiring ship) = Just newShipProj
+  | otherwise = Nothing
+  where
+    canFire = (currentTick - (last_fired_tick ship)) > (wep_cooldown ship)
+    -- Construct the projectile object
+    shipPos = position $ ship_obj ship
+    shipProj = (projectile ship)
+    shipProjObj = (proj_obj shipProj) { direction = dir, position = shipPos }
+    newShipProj = Projectile shipProjObj (effect shipProj)
 
+
+processEnemyFire :: Game -> [Projectile]
+processEnemyFire gameState@(GameState {enemies=enemies,ticker=t}) = newProjList
+  where
+    traceStr = show newProjList
+    newProjList = processEnemyFireAux (map (ship_fire (-1,0) t) enemies) []
+
+processEnemyFireAux :: [Maybe Projectile] -> [Projectile] -> [Projectile]
+processEnemyFireAux [] acc = acc
+processEnemyFireAux (Just x : xs) acc = processEnemyFireAux xs (x:acc)
+processEnemyFireAux (Nothing : xs) acc = processEnemyFireAux xs acc
     
 -- Check if an object is inside a bounding box
 -- Returns a tuple where

@@ -11,7 +11,6 @@ data Game = GameState
     player          :: Ship,
     ply_projectiles :: [Projectile],
     npc_projectiles :: [Projectile],
-    enemy           :: Ship,
     ticker          :: Float,
     playerIsFiring  :: Bool -- move to Ship datatype?
   } deriving Show
@@ -40,6 +39,17 @@ data Projectile = Projectile
   { proj_obj :: Object,
     effect   :: Effect
   } deriving Show
+
+class Drawable a where
+  makeDrawable :: a -> Picture
+
+instance Drawable Object where
+  makeDrawable (Object {position = pos, graphic=g}) = uncurry translate pos $ g
+instance Drawable Ship where
+  makeDrawable (Ship {ship_obj=obj}) = makeDrawable obj
+
+instance Drawable Projectile where
+  makeDrawable (Projectile {proj_obj=obj}) = makeDrawable obj
 
 data Encounter = EncounterQueue [Ship]
 data Effect = Damage Int | NoEffect deriving Show

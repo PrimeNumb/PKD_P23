@@ -80,7 +80,7 @@ applyEffect fx ship =
 getEffect :: Ship -> [Projectile] -> Effect
 getEffect _ [] = NoEffect
 getEffect ship@(Ship{ship_obj=ship_obj}) (x@(Projectile{effect=effect, proj_obj=proj_obj}):xs) =
-  if checkRectCollision ship_obj proj_obj then trace (show effect) effect else getEffect ship xs
+  if checkRectCollision ship_obj proj_obj then effect else getEffect ship xs
 
 
 
@@ -90,7 +90,7 @@ updateEnemies gameState@(GameState {ply_projectiles=proj}) (ship:xs) =
   if ship_health ship <= 0 then []
   else newShip : updateEnemies gameState xs
   where
-    newShip = applyEffect (trace (show (getEffect ship proj)) (getEffect ship proj)) ship
+    newShip = applyEffect (getEffect ship proj) ship
 
 
 -- Collisiontests

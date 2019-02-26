@@ -22,5 +22,5 @@ Converts a game object into a picture ready to be drawn on the screen.
    RETURNS: 
    EXAMPLES: 
 -}
-makeDrawable :: Object -> Picture
-makeDrawable (Object {position = pos, graphic=g}) = uncurry translate pos $ g
+--makeDrawable :: Object -> Picture
+--makeDrawable (Object {position = pos, graphic=g}) = uncurry translate pos $ g
