@@ -4,6 +4,8 @@
 module Helpers where
 import DataTypes
 
+changeDir :: Object -> (Float, Float) -> Object
+changeDir obj (x,y) = obj {direction = (x, y)}
 
 moveObject :: Object -> (Float, Float) -> Object
 moveObject obj@(Object {position = (x,y)}) (dx, dy) = obj { position = (nx,ny)}
