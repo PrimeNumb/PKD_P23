@@ -71,7 +71,7 @@ processDir (x,y) (dx,dy)
     --traceStr3rd = "Letting dy = " ++ show dy
     --traceStr = traceStr1 ++ traceStr2 ++ traceStr3 ++ traceStr4
 updateEnemy :: Float -> Game -> Ship
-updateEnemy dt gameState@(GameState {enemy=oldEnemy}) = trace traceStr $ newEnemy
+updateEnemy dt gameState@(GameState {enemy=oldEnemy}) =  newEnemy
   where
     enemyObj = ship_obj oldEnemy
     enemyPos = position enemyObj
@@ -79,7 +79,6 @@ updateEnemy dt gameState@(GameState {enemy=oldEnemy}) = trace traceStr $ newEnem
     pos_y = snd enemyPos 
     enemySpeed = speed enemyObj
     deltaMove = (dx*enemySpeed*dt,dy*enemySpeed*dt)
-    traceStr = "Tick: " ++ show (ticker gameState) ++  show (dx, dy)
     newEnemy = oldEnemy { ship_obj = (moveObject enemyObj deltaMove)}
     --traceStr = show $ direction $ ship_obj newEnemy
 
