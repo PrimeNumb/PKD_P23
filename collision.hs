@@ -5,6 +5,7 @@ import DataTypes
 import Globals
 import Enemies
 import Debug.Trace
+import Projectile
 
 
 {- checkRectCollision
@@ -82,8 +83,6 @@ getEffect _ [] = NoEffect
 getEffect ship@(Ship{ship_obj=ship_obj}) (x@(Projectile{effect=effect, proj_obj=proj_obj}):xs) =
   if checkRectCollision ship_obj proj_obj then effect else getEffect ship xs
 
-
-
 updateEnemies :: Game -> [Ship] -> [Ship]
 updateEnemies _ [] = []
 updateEnemies gameState@(GameState {ply_projectiles=proj}) (ship:xs) =
@@ -91,7 +90,6 @@ updateEnemies gameState@(GameState {ply_projectiles=proj}) (ship:xs) =
   else newShip : updateEnemies gameState xs
   where
     newShip = applyEffect (getEffect ship proj) ship
-
 
 -- Collisiontests
 o1 :: Object
@@ -113,23 +111,54 @@ o3 :: Object
 o3 = Object { position = (0, 0),
               direction = (0, 0),
               speed = 300,
-              boundingBox = (100, 100),
-              graphic = color green $ rectangleSolid 200.0 200.0
+              boundingBox = (25, 25),
+              graphic = enemySprite
             }
+
+o4 :: Object
+o4 = Object { position = (100, 100),
+              direction = (0, 0),
+              speed = 300,
+              boundingBox = (25, 25),
+              graphic = enemySprite
+            }
+o5 :: Object
+o5 = Object { position = (200, 200),
+              direction = (0, 0),
+              speed = 300,
+              boundingBox = (25, 49),
+              graphic = enemySprite
+            }
+
      
 enemyShipTest :: Ship
 enemyShipTest = Ship { ship_obj = o3,
-                       ship_health = 5,
+                       ship_health = 10,
                        wep_cooldown = 1.0,
-                       projectile = testPro,
+                       projectile = testProj,
                        last_fired_tick = 0,
                        isPlayer = False,
-                       isFiring = False
+                       isFiring = True
                      }
 
+enemyShipTest1 :: Ship
+enemyShipTest1 = Ship { ship_obj = o4,
+                       ship_health = 10,
+                       wep_cooldown = 1.0,
+                       projectile = testProj,
+                       last_fired_tick = 0,
+                       isPlayer = False,
+                       isFiring = True
+                     }
 
-testPro =
-  Projectile { proj_obj = o2,
-               effect = Damage 1
-             }
+enemyShipTest2 :: Ship
+enemyShipTest2 = Ship { ship_obj = o5,
+                       ship_health = 10,
+                       wep_cooldown = 1.0,
+                       projectile = testProj,
+                       last_fired_tick = 0,
+                       isPlayer = False,
+                       isFiring = True
+                     }
+
 

@@ -11,6 +11,7 @@ import Globals
 import Rendering
 import Helpers
 import Collision
+
 --import Collision
 --import Control.Lens -- PLAN B: SOLVES NESTED RECORD FIELD HELL
 
@@ -24,7 +25,7 @@ playerObj = Object { position = (0, 0),
                      direction = (0, 0),
                      speed = 300,
                      boundingBox = (25, 25),
-                     graphic = color green $ rectangleSolid 50.0 50.0
+                     graphic = playerSprite
                    }
 playerShip :: Ship
 playerShip = Ship { ship_obj = playerObj,
@@ -41,7 +42,7 @@ playerDefaultProjObj =
            direction = (1,0),
            speed = projObjDefault_spd,
            boundingBox = projObjDefault_bbox,
-           graphic = projObjDefault_gfx
+           graphic = plyProjSprite
          }
 playerDefaultProj = Projectile playerDefaultProjObj (Damage 1)
 
@@ -49,7 +50,7 @@ playerDefaultProj = Projectile playerDefaultProjObj (Damage 1)
 initGameState :: Game
 initGameState = GameState {
   objects = [],
-  enemies = [enemyShipTemplate,enemyShipTemplate2,enemyShipTemplate3],
+  enemies = [enemyShipTest, enemyShipTest1, enemyShipTest2],
   player = playerShip,
   ply_projectiles = [],
   npc_projectiles = [],
@@ -66,18 +67,10 @@ EXAMPLES:
 -}
 main :: IO()
 main = do
---  let sampleCircle1 = translate 50 50 $ (circle 69)
---      sampleCircle2 = (circle 69)
---      toDraw = pictures [sampleCircle1, sampleCircle2]
-  --display window win_background $ testProjGraphic
+
   play window win_background targetFramerate initGameState draw handleEvent update
 
-{- draw gameState
-   Constructs a drawable picture out of a given game state.
-   PRE: 
-   RETURNS:
-   EXAMPLES: 
--}
+
 draw :: Game -> Picture
 draw gameState@(GameState {objects=objs, player=playerShip, ply_projectiles=plyProjs, npc_projectiles=enemyProjs, enemies=enemies}) = newFrame
   where
@@ -228,4 +221,6 @@ testObject =
            boundingBox = (0,0),
            graphic = testGraphic
          }
+
+  
 
