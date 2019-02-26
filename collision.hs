@@ -111,12 +111,48 @@ o3 :: Object
 o3 = Object { position = (0, 0),
               direction = (0, 0),
               speed = 300,
+              boundingBox = (25, 25),
+              graphic = enemySprite
+            }
+
+o4 :: Object
+o4 = Object { position = (100, 100),
+              direction = (0, 0),
+              speed = 300,
+              boundingBox = (25, 25),
+              graphic = enemySprite
+            }
+o5 :: Object
+o5 = Object { position = (200, 200),
+              direction = (0, 0),
+              speed = 300,
               boundingBox = (50, 98),
               graphic = enemySprite
             }
+
      
 enemyShipTest :: Ship
 enemyShipTest = Ship { ship_obj = o3,
+                       ship_health = 10,
+                       wep_cooldown = 1.0,
+                       projectile = testPro,
+                       last_fired_tick = 0,
+                       isPlayer = False,
+                       isFiring = False
+                     }
+
+enemyShipTest1 :: Ship
+enemyShipTest1 = Ship { ship_obj = o4,
+                       ship_health = 10,
+                       wep_cooldown = 1.0,
+                       projectile = testPro,
+                       last_fired_tick = 0,
+                       isPlayer = False,
+                       isFiring = False
+                     }
+
+enemyShipTest2 :: Ship
+enemyShipTest2 = Ship { ship_obj = o5,
                        ship_health = 10,
                        wep_cooldown = 1.0,
                        projectile = testPro,

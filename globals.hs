@@ -1,7 +1,7 @@
 module Globals where
+import Graphics.Gloss.Juicy
 import Graphics.Gloss
 import DataTypes
-import Graphics.Gloss.Juicy
 import System.IO.Unsafe
 
 -- Should these be kept in main?

@@ -60,7 +60,7 @@ projObjDefault_gfx = color red $ circleSolid 5
 initGameState :: Game
 initGameState = GameState {
   objects = [],
-  enemies = [enemyShipTemplate, enemyShipTest],
+  enemies = [enemyShipTest, enemyShipTest1, enemyShipTest2],
   player = playerShip,
   ply_projectiles = [],
   npc_projectiles = [],
@@ -78,18 +78,10 @@ EXAMPLES:
 -}
 main :: IO()
 main = do
---  let sampleCircle1 = translate 50 50 $ (circle 69)
---      sampleCircle2 = (circle 69)
---      toDraw = pictures [sampleCircle1, sampleCircle2]
-  --display window win_background $ testProjGraphic
+
   play window win_background targetFramerate initGameState draw handleEvent update
 
-{- draw gameState
-   Constructs a drawable picture out of a given game state.
-   PRE: 
-   RETURNS:
-   EXAMPLES: 
--}
+
 draw :: Game -> Picture
 draw gameState@(GameState {objects=objs, player=playerShip, ply_projectiles=plyProjs, enemy = enemyObj1, enemies=enemies}) = newFrame
   where
