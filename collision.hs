@@ -5,6 +5,7 @@ import DataTypes
 import Globals
 import Enemies
 import Debug.Trace
+import Projectile
 
 
 {- checkRectCollision
