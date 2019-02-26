@@ -8,13 +8,16 @@ import DataTypes
    RETURNS: 
    EXAMPLES: 
 -}
-makeRectangle :: (Float, Float) -> Float -> Float -> Picture
-makeRectangle point@(x, y) width height = polygon [upperLeft, upperRight, lowerRight, lowerLeft]
+makeRectangle :: Position -> Float -> Float -> Picture
+makeRectangle (x, y) width height = polygon [upperLeft, upperRight, lowerRight, lowerLeft]
   where
-    upperLeft = (x-(width/2), y+(height/2))
-    upperRight = (x+(width/2), y+(height/2))
-    lowerRight = (x+(width/2), y-(height/2))
-    lowerLeft = (x-(width/2), y-(height/2))
+    upperLeft = (x-(width), y+(height))
+    upperRight = (x+(width), y+(height))
+    lowerRight = (x+(width), y-(height))
+    lowerLeft = (x-(width), y-(height))
+
+--makeRectangle' :: Position -> Float -> Float -> Picture
+--makeRectangle' (x,y) width height
 
 {- makeDrawable
 Converts a game object into a picture ready to be drawn on the screen.
@@ -22,5 +25,5 @@ Converts a game object into a picture ready to be drawn on the screen.
    RETURNS: 
    EXAMPLES: 
 -}
-makeDrawable :: Object -> Picture
-makeDrawable (Object {position = pos, graphic=g}) = uncurry translate pos $ g
+--makeDrawable :: Object -> Picture
+--makeDrawable (Object {position = pos, graphic=g}) = uncurry translate pos $ g

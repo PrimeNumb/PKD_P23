@@ -6,6 +6,17 @@ import Debug.Trace
 import DataTypes
 import Helpers
 
+-- Projectile templates
+projObjDefault_spd :: Float
+projObjDefault_spd = 400
+
+projObjDefault_bbox :: BoundingBox
+projObjDefault_bbox = (2.5,2.5)
+
+projObjDefault_gfx :: Picture
+projObjDefault_gfx = color red $ circleSolid 5
+
+
 testProj =
   Projectile { proj_obj = testProjObj,
                effect = Damage 1
