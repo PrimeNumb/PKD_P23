@@ -11,16 +11,6 @@ win_title = "Space Shooter"
 win_size :: (Int, Int)
 win_size = (1024, 768)
 
-
-border :: Object
-border =
-  Object { position = (0, 0),
-           direction = (0, 0),
-           speed = 0,
-           boundingBox = (512, 384),
-           graphic = Blank
-         }
-
 win_offset :: (Int, Int)
 win_offset = (0, 0)
 
@@ -49,5 +39,13 @@ plyProjSprite = png "laserRed.png"
 npcProjSprite :: Picture
 npcProjSprite = png "laserGreen.png"
 
-background :: Picture
-background = undefined
+background :: Object
+background =
+  Object { position = (0, 0),
+           direction = (0, 0),
+           speed = 0,
+           boundingBox = (512, 384),
+           graphic = png "./spacebackg2.png"
+         }
+
+

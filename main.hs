@@ -29,7 +29,7 @@ playerObj = Object { position = (0, 0),
                    }
 playerShip :: Ship
 playerShip = Ship { ship_obj = playerObj,
-                    ship_health = 100,
+                    ship_health = 2,
                     wep_cooldown = 0.25,
                     projectile = playerDefaultProj,
                     last_fired_tick = 0,
@@ -59,7 +59,7 @@ projObjDefault_gfx = color red $ circleSolid 5
 -- The initial game state
 initGameState :: Game
 initGameState = GameState {
-  objects = [],
+  objects = [background],
   enemies = [enemyShipTest, enemyShipTest1, enemyShipTest2],
   player = playerShip,
   ply_projectiles = [],
@@ -91,7 +91,7 @@ draw gameState@(GameState {objects=objs, player=playerShip, ply_projectiles=plyP
     plyProjectiles = map makeDrawable $ map proj_obj plyProjs
     enemyPics = map makeDrawable (map ship_obj enemies) 
     -- The final picture frame
-    newFrame = pictures $ enemyPics ++ plyProjectiles ++ enemy:playerObj:(map makeDrawable objs)
+    newFrame = pictures $ [makeDrawable background] ++ enemyPics ++ plyProjectiles ++ enemy:playerObj:[]
 
 {- update
    Updates a given game state one iteration.
@@ -104,7 +104,7 @@ update dt gameState@(GameState {ticker=ticker,ply_projectiles=projList,enemy=ene
   where
     -- Everything that should be updated each iteration goes here
     newPlyProjList = map (updateProjectile dt) (colPlyProj gameState projList)
-    newPlayer = updatePlayer dt gameState
+    newPlayer = plyHandleDmg gameState (updatePlayer dt gameState)
     newTicker = ticker+dt
     newEnemy = updateEnemy dt gameState
     newEnemies = updateEnemies gameState enemies
