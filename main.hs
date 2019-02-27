@@ -27,7 +27,7 @@ playerObj = Object { position = (0, 0),
                    }
 playerShip :: Ship
 playerShip = Ship { ship_obj = playerObj,
-                    ship_health = 1,
+                    ship_health = 3,
                     wep_cooldown = 0.25,
                     projectile = playerDefaultProj,
                     last_fired_tick = 0,
@@ -85,9 +85,11 @@ draw gameState@(GameState {objects=objs, player=playerShip, ply_projectiles=plyP
     playerPic = drawWithBounds playerShip
     plyProjPics = map drawWithBounds plyProjs
     enemyProjPics = map drawWithBounds enemyProjs
-    enemyPics = map drawWithBounds enemies 
+    enemyPics = map drawWithBounds enemies
+    heartPics = map makeDrawable (updateHealthDisplay playerShip)
+    backgroundPic = [(makeDrawable background)]
     -- The final picture frame
-    newFrame = pictures $ [(makeDrawable background)] ++ enemyProjPics ++ plyProjPics ++ enemyPics ++ playerPic:(map makeDrawable objs)
+    newFrame = pictures $ backgroundPic ++ heartPics ++ enemyProjPics ++ plyProjPics ++ enemyPics ++ playerPic:(map makeDrawable objs)
 
 {- update
    Updates a given game state one iteration.
@@ -95,6 +97,7 @@ draw gameState@(GameState {objects=objs, player=playerShip, ply_projectiles=plyP
    RETURNS:
    EXAMPLES:
 -}
+
 update :: Float -> Game -> Game
 update dt gameState@(GameState {ticker=currentTick,ply_projectiles=projList, enemies=enemies,npc_projectiles=enemyProjList,encounterStack=eStack}) = newGameState 
   where
@@ -118,6 +121,19 @@ update dt gameState@(GameState {ticker=currentTick,ply_projectiles=projList, ene
     --The final updated gamestate
     newGameState = (gameState {player=newPlayer, ticker=newTicker, ply_projectiles=newPlyProjList, enemies=newEnemies, npc_projectiles=newEnemyProjList, encounterStack=newEncounterStack})
 
+updateHealthDisplay :: Ship -> [Object]
+updateHealthDisplay player@(Ship{ship_health=ship_health}) =
+  if ship_health <= 0 then []
+  else Object { position = (xpos, -250),
+                direction = (0, 0),
+                speed = 0,
+                boundingBox = (0, 0),
+                graphic = png "./sprites/heart.png"
+              } : updateHealthDisplay player{ship_health=newHp}
+  where
+    newHp = ship_health - 1
+    xpos = fromIntegral (-500 + (40 * ship_health))
+    
 updateEncounterStack :: EncounterStack -> Float -> [Ship] -> (EncounterStack,[Ship])
 updateEncounterStack stack@(EncounterStack {}) currentTick enemyContainer
   | shouldPopEncounterStack currentTick stack = popEncounterStack updatedStack enemyContainer
