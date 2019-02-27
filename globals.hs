@@ -55,7 +55,7 @@ heartSprite :: Picture
 heartSprite = png "./sprites/heart.png"
 
 gameOverSprite :: Picture
-heartSprite = png "./sprites/gameOver.png"
+gameOverSprite = png "./sprites/gameOver.png"
 
 background :: Object
 background =
