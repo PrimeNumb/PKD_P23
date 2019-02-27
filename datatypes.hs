@@ -6,7 +6,8 @@ import Debug.Trace
 
 -- Preliminary, subject to change
 data Game = GameState
-  { objects         :: [Object], --use this for objects that aren't ships
+  { playable_bounds :: BoundingBox,
+    objects         :: [Object], --use this for objects that aren't ships
     enemies         :: [Ship],
     player          :: Ship,
     ply_projectiles :: [Projectile],
@@ -42,16 +43,21 @@ data Projectile = Projectile
 
 class Movable a where
   move :: a -> Vector -> a
+  setPos :: Vector -> a -> a
 
 instance Movable Object where
   move obj@(Object {position=(x,y)}) (vx,vy) = obj { position = (x+vx,y+vy) }
-
+  setPos (x,y) obj@(Object {position=(obj_x,obj_y)}) =
+    move obj (x-obj_x,y-obj_y)
 instance Movable Ship where
   move ship@(Ship {ship_obj=obj}) v = ship {ship_obj=(move obj v)}
+  setPos pos ship@(Ship {ship_obj=obj}) =
+    ship {ship_obj=(setPos pos obj)}
 
 instance Movable Projectile where
   move proj@(Projectile {proj_obj=obj}) v = proj {proj_obj=(move obj v)}
-
+  setPos pos proj@(Projectile {proj_obj=obj}) =
+    proj {proj_obj=(setPos pos obj)}
 class Drawable a where
   makeDrawable :: a -> Picture
   drawBounds :: a -> Picture

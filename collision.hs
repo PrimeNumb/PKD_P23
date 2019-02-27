@@ -71,7 +71,7 @@ collisionDespawn gameState@(GameState {npc_projectiles=npc_proj, ply_projectiles
     desp_ply_proj = colPlyProj gameState ply_proj
     desp_npc_proj = colEnemProj gameState npc_proj
 -}
-
+-- MOVE & RENAME THIS
 applyEffect :: Effect -> Ship -> Ship
 applyEffect fx ship = 
   case fx of
@@ -80,11 +80,13 @@ applyEffect fx ship =
     where
       shipHealth = ship_health ship
 
+-- MOVE & RENAME THIS
 getEffect :: Ship -> [Projectile] -> Effect
 getEffect _ [] = NoEffect
 getEffect ship@(Ship{ship_obj=ship_obj}) (x@(Projectile{effect=effect, proj_obj=proj_obj}):xs) =
   if checkRectCollision ship_obj proj_obj then effect else getEffect ship xs
 
+-- MOVE & RENAME THIS
 updateEnemies :: Game -> [Ship] -> [Ship]
 updateEnemies _ [] = []
 updateEnemies gameState@(GameState {ply_projectiles=proj}) (ship:xs) =
@@ -94,7 +96,7 @@ updateEnemies gameState@(GameState {ply_projectiles=proj}) (ship:xs) =
     newShip = applyEffect (getEffect ship proj) ship
 
 
-
+-- MOVE & RENAME THIS
 plyHandleDmg :: Game -> Ship -> Ship
 plyHandleDmg gameState@(GameState {enemies=enemies ,npc_projectiles=npc_projectiles}) player@(Ship{ship_obj=ply_obj})
   | ship_health player <= 0 = enemyShipTest

@@ -8,8 +8,15 @@ import System.IO.Unsafe
 win_title :: String
 win_title = "Space Shooter"
 
+-- CHANGE WINDOW SIZE LATER BEFORE DEMO
+win_width :: Float
+win_width = 1024.0
+
+win_height :: Float
+win_height = 576.0
+
 win_size :: (Int, Int)
-win_size = (1024, 768)
+win_size = (floor win_width, floor win_height)
 
 win_offset :: (Int, Int)
 win_offset = (0, 0)
@@ -44,7 +51,7 @@ background =
   Object { position = (0, 0),
            direction = (0, 0),
            speed = 0,
-           boundingBox = (512, 384),
+           boundingBox = (win_width/2, win_height/2),
            graphic = png "./sprites/spacebackg.png"
          }
 

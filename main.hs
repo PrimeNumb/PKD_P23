@@ -47,6 +47,7 @@ playerDefaultProj = Projectile playerDefaultProjObj (Damage 1)
 -- The initial game state
 initGameState :: Game
 initGameState = GameState {
+  playable_bounds = (win_width/2, win_height/2),
   objects = [],
   enemies = [enemyShipTest, enemyShipTest1, enemyShipTest2],
   player = playerShip,
