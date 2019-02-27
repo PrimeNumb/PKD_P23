@@ -80,7 +80,7 @@ eneHandleDmg gameState@(GameState {player=player, ply_projectiles=proj}) (ship:x
 
 plyHandleDmg :: Game -> Ship -> Ship
 plyHandleDmg gameState@(GameState {enemies=enemies ,npc_projectiles=npc_projectiles}) player@(Ship{ship_obj=ply_obj})
-  | ship_health player <= 0 = enemyShipTest
+  | ship_health player <= 0 = invisPlayer
   | foldl (||) False enemy_collisions = applyEffect (Damage 1) player
   | otherwise = applyEffect (getEffect player npc_projectiles) player
   where
@@ -125,7 +125,25 @@ o5 = Object { position = (200, 200),
               boundingBox = (25, 49),
               graphic = enemySprite
             }
- 
+
+gameOverObject :: Object
+gameOverObject = Object { position = (0, 0),
+                          direction = (0, 0),
+                          speed = 300,
+                          boundingBox = (25, 25),
+                          graphic = rectangleSolid 1 1
+                        }
+
+  
+invisPlayer :: Ship
+invisPlayer = Ship { ship_obj = gameOverObject,
+                     ship_health = 500,
+                     wep_cooldown = 200.0,
+                     projectile = harmlessProj,
+                     last_fired_tick = 0,
+                     isPlayer = False,
+                     isFiring = False
+                   }
      
 enemyShipTest :: Ship
 enemyShipTest = Ship { ship_obj = o3,
