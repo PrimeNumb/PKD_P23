@@ -35,15 +35,6 @@ checkRectCollision obj1@(Object {position=p1@(x1, y1), boundingBox=box1@(r1x, r1
 --TODO: Make enemybullets and friendlybullets, they don't interact the same way.
 
 
-playerCollideShip :: Game -> Ship -> Bool
-playerCollideShip gameState@(GameState {player=ply}) ship = checkRectCollision (ship_obj ply) (ship_obj ship)
-
-
-{-
-playerCollideBullet :: Game -> Bool
-playerCollideBullet = gameState@(Game {player=ply, npc_projectiles=proj}) = checkRectCollision ply proj
--}
-
 outOfBounds :: Object -> Bool
 outOfBounds obj = not (checkRectCollision obj background)
 
@@ -63,15 +54,6 @@ colPlyProj gameState@(GameState {enemies=enemies}) (proj:xs) = colPlyProjAux pro
       if checkRectCollision proj_obj ship_obj || outOfBounds proj_obj then [] else colPlyProjAux proj xs
 
 
-
-{-
-collisionDespawn :: Game -> Game
-collisionDespawn gameState@(GameState {npc_projectiles=npc_proj, ply_projectiles=ply_proj}) = gameState {npc_projectiles=desp_npc_proj, ply_projectiles=desp_ply_proj}
-  where
-    desp_ply_proj = colPlyProj gameState ply_proj
-    desp_npc_proj = colEnemProj gameState npc_proj
--}
-
 applyEffect :: Effect -> Ship -> Ship
 applyEffect fx ship = 
   case fx of
@@ -85,33 +67,25 @@ getEffect _ [] = NoEffect
 getEffect ship@(Ship{ship_obj=ship_obj}) (x@(Projectile{effect=effect, proj_obj=proj_obj}):xs) =
   if checkRectCollision ship_obj proj_obj then effect else getEffect ship xs
 
-updateEnemies :: Game -> [Ship] -> [Ship]
-updateEnemies _ [] = []
-updateEnemies gameState@(GameState {ply_projectiles=proj}) (ship:xs) =
-<<<<<<< HEAD
-  if ship_health ship <= 0  || playerCollideShip gameState ship then updateEnemies gameState xs
-=======
-  if ship_health ship <= 0 then updateEnemies gameState xs
->>>>>>> e0a297c37a4b38adeb70d1ab9b8fcb9ad05f1303
-  else newShip : updateEnemies gameState xs
+eneHandleDmg :: Game -> [Ship] -> [Ship]
+eneHandleDmg _ [] = []
+eneHandleDmg gameState@(GameState {player=player, ply_projectiles=proj}) (ship:xs) =
+  if ship_health ship <= 0  || playerCollideShip then eneHandleDmg gameState xs
+  else newShip : eneHandleDmg gameState xs
   where
     newShip = applyEffect (getEffect ship proj) ship
-
-<<<<<<< HEAD
+    playerCollideShip = checkRectCollision (ship_obj player) (ship_obj ship)
 
 
 plyHandleDmg :: Game -> Ship -> Ship
 plyHandleDmg gameState@(GameState {enemies=enemies ,npc_projectiles=npc_projectiles}) player@(Ship{ship_obj=ply_obj})
   |ship_health player <= 0 = enemyShipTest
-  |foldl (||) False enemy_objs = applyEffect (Damage 1) player
+  |foldl (||) False enemy_collisions = applyEffect (Damage 1) player
   |otherwise = applyEffect (getEffect player npc_projectiles) player
   where
     enemy_collisions = map (checkRectCollision ply_obj) enemy_objs
     enemy_objs = map ship_obj enemies
 
-
-=======
->>>>>>> e0a297c37a4b38adeb70d1ab9b8fcb9ad05f1303
 -- Collisiontests
 o1 :: Object
 o1 = Object { position = (2, 3),
@@ -164,15 +138,9 @@ enemyShipTest = Ship { ship_obj = o3,
 
 enemyShipTest1 :: Ship
 enemyShipTest1 = Ship { ship_obj = o4,
-<<<<<<< HEAD
-                       ship_health = 10,
-                       wep_cooldown = 1.0,
-                       projectile = testProj,
-=======
                        ship_health = 3,
                        wep_cooldown = 2.0,
                        projectile = enemyDefaultProj,
->>>>>>> e0a297c37a4b38adeb70d1ab9b8fcb9ad05f1303
                        last_fired_tick = 0,
                        isPlayer = False,
                        isFiring = True
@@ -180,15 +148,9 @@ enemyShipTest1 = Ship { ship_obj = o4,
 
 enemyShipTest2 :: Ship
 enemyShipTest2 = Ship { ship_obj = o5,
-<<<<<<< HEAD
-                       ship_health = 10,
-                       wep_cooldown = 1.0,
-                       projectile = testProj,
-=======
                        ship_health = 3,
                        wep_cooldown = 2.0,
                        projectile = enemyDefaultProj,
->>>>>>> e0a297c37a4b38adeb70d1ab9b8fcb9ad05f1303
                        last_fired_tick = 0,
                        isPlayer = False,
                        isFiring = True

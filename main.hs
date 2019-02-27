@@ -29,7 +29,7 @@ playerObj = Object { position = (0, 0),
                    }
 playerShip :: Ship
 playerShip = Ship { ship_obj = playerObj,
-                    ship_health = 2,
+                    ship_health = 20,
                     wep_cooldown = 0.25,
                     projectile = playerDefaultProj,
                     last_fired_tick = 0,
@@ -49,7 +49,7 @@ playerDefaultProj = Projectile playerDefaultProjObj (Damage 1)
 -- The initial game state
 initGameState :: Game
 initGameState = GameState {
-  objects = [background],
+  objects = [],
   enemies = [enemyShipTest, enemyShipTest1, enemyShipTest2],
   player = playerShip,
   ply_projectiles = [],
@@ -79,8 +79,7 @@ draw gameState@(GameState {objects=objs, player=playerShip, ply_projectiles=plyP
     enemyProjPics = map drawWithBounds enemyProjs
     enemyPics = map drawWithBounds enemies 
     -- The final picture frame
-    newFrame = pictures $enemyProjPics ++ plyProjPics ++ enemyPics ++ playerPic:(map makeDrawable objs)
->>>>>>> e0a297c37a4b38adeb70d1ab9b8fcb9ad05f1303
+    newFrame = pictures $ [(makeDrawable background)] ++ enemyProjPics ++ plyProjPics ++ enemyPics ++ playerPic:(map makeDrawable objs)
 
 {- update
    Updates a given game state one iteration.
@@ -98,7 +97,7 @@ update dt gameState@(GameState {ticker=currentTick,ply_projectiles=projList, ene
     newPlyProjList = case (ship_fire (1,0) newTicker newPlayer) of
        Just x -> x:updatePlyProjList
        Nothing -> updatePlyProjList
-    newEnemies = updateEnemies gameState (map (updateEnemy dt gameState) enemies)
+    newEnemies = eneHandleDmg gameState (map (updateEnemy dt gameState) enemies)
     updateEnemyProjList = map (updateProjectile dt) (colEnemProj gameState enemyProjList)
     newEnemyProjList = (processEnemyFire gameState) ++ updateEnemyProjList
     --The final updated gamestate
