@@ -8,18 +8,15 @@ import System.IO.Unsafe
 win_title :: String
 win_title = "Space Shooter"
 
+-- CHANGE WINDOW SIZE LATER BEFORE DEMO
+win_width :: Float
+win_width = 1024.0
+
+win_height :: Float
+win_height = 576.0
+
 win_size :: (Int, Int)
-win_size = (1024, 768)
-
-
-border :: Object
-border =
-  Object { position = (0, 0),
-           direction = (0, 0),
-           speed = 0,
-           boundingBox = (512, 384),
-           graphic = Blank
-         }
+win_size = (floor win_width, floor win_height)
 
 win_offset :: (Int, Int)
 win_offset = (0, 0)
@@ -30,6 +27,8 @@ win_background = black
 targetFramerate :: Int
 targetFramerate = 60
 
+enemy_spawn_interval :: Float
+enemy_spawn_interval = 2.0
 
 --Sprites
 --function png taken from gloss-game (credit the author?)
@@ -38,20 +37,25 @@ png :: FilePath -> Picture
 png fname = maybe (text "PNG ERROR") id (unsafePerformIO $ loadJuicyPNG fname)
 
 playerSprite :: Picture
-playerSprite = png "./player2.png"
+playerSprite = png "./sprites/player2.png"
 
 enemySprite :: Picture
-enemySprite = png "./enemyShip.png"
-{-
-enemySize :: (Float, Float)
-enemySizeX = 
-enemySizeY = ( 
--}
+enemySprite = png "./sprites/enemyShip.png"
+
+>>>>>>> 02718a6c87b7337e3005cbd49130d972e6d07abc
 plyProjSprite :: Picture
-plyProjSprite = png "laserRed.png"
+plyProjSprite = png "./sprites/laserRed.png"
 
 npcProjSprite :: Picture
-npcProjSprite = png "laserGreen.png"
+npcProjSprite = png "./sprites/laserGreen.png"
 
-background :: Picture
-background = undefined
+background :: Object
+background =
+  Object { position = (0, 0),
+           direction = (0, 0),
+           speed = 0,
+           boundingBox = (win_width/2, win_height/2),
+           graphic = png "./sprites/spacebackg.png"
+         }
+
+

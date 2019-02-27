@@ -8,19 +8,33 @@ import DataTypes
 import Helpers
 import Projectile
 import Globals
+import Collision
+
+enemyDefaultSpawnPos :: Position
+enemyDefaultSpawnPos = (win_width+enemy_width, 0)
+  where
+    enemy_width = fst $ boundingBox $ ship_obj enemyShipTemplate
+
+enemyObjTemplate :: Object
+enemyObjTemplate = Object { position = enemyDefaultSpawnPos,
+                            direction = (-1, 0),
+                            speed = 100,
+                            boundingBox = (25, 49),
+                            graphic = enemySprite
+                          }
+
+enemyShipTemplate :: Ship
+enemyShipTemplate = Ship { ship_obj = enemyObjTemplate,
+                           ship_health = 3,
+                           wep_cooldown = 2.0,
+                           projectile = enemyDefaultProj,
+                           last_fired_tick = 0,
+                           isPlayer = False,
+                           isFiring = True
+                         }
 
 enemyColor :: Color
 enemyColor = blue
-
-enemyDefaultProjObj =
-  Object { position = (0,0),
-           direction = (-1,0),
-           speed = projObjDefault_spd,
-           boundingBox = (16.5,4.5),
-           graphic = npcProjSprite
-         }
-enemyDefaultProj = Projectile enemyDefaultProjObj (Damage 1)
-
 
 enemyObj1 :: Object
 enemyObj1 = Object { position = (400, 250),
@@ -30,13 +44,13 @@ enemyObj1 = Object { position = (400, 250),
                      graphic = color enemyColor $ rectangleSolid (50.0) (50.0)
                    }
                     
-enemyMovement :: Object -> Object
-enemyMovement enemy = changeDir enemy (fst(direction enemy), ny)
-  where
-    ny
-      | snd(position enemy) > 300.0  = -1.0
-      | snd(position enemy) < -100.0 = 1.0
-      | otherwise = snd(direction enemy)
+--enemyMovement :: Object -> Object
+--enemyMovement enemy = changeDir enemy (fst(direction enemy), ny)
+--  where
+--    ny
+--      | snd(position enemy) > 300.0  = -1.0
+--      | snd(position enemy) < -100.0 = 1.0
+--      | otherwise = snd(direction enemy)
 
 {-
 updateEnemies :: Game -> [Ship] -> [Ship]
@@ -71,4 +85,4 @@ updateEnemy dt gameState@(GameState {ticker=currentTick}) enemy = newEnemy
     (dx,dy) = direction newEnemyObj
     enemySpeed = speed enemyObj
     deltaPos = (dx*enemySpeed*dt,dy*enemySpeed*dt)
-    newEnemy = enemy { ship_obj = (moveObject newEnemyObj deltaPos), last_fired_tick = updatedTick }
+    newEnemy = enemy { ship_obj = (move newEnemyObj deltaPos), last_fired_tick = updatedTick, isFiring=(not $ outOfBounds newEnemyObj) }

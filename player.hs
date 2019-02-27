@@ -49,6 +49,8 @@ updatePlayer dt gameState@(GameState {ticker=currentTick,player=ply}) =
     (dx,dy) = direction plyObj
     plySpeed = speed plyObj
     deltaPos = (dx*plySpeed*dt,dy*plySpeed*dt) --rename this
+    
     -- The new player 
-    newPlayer = ply {ship_obj = (moveObject plyObj deltaPos), last_fired_tick = updatedTick}
-
+    newPlayer =
+      ply { ship_obj =
+           (clampToBounds (playable_bounds gameState) $ move plyObj deltaPos), last_fired_tick = updatedTick }
