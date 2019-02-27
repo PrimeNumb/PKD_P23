@@ -6,15 +6,16 @@ import Debug.Trace
 
 -- Preliminary, subject to change
 data Game = GameState
-  { playable_bounds :: BoundingBox,
-    objects         :: [Object], --use this for objects that aren't ships
+  { objects         :: [Object], --use this for objects that aren't ships
     enemies         :: [Ship],
-    encounterStack  :: EncounterStack,
+    playable_bounds :: BoundingBox,
+    randomGen       :: StdGen,
+    encounter       :: Encounter,
     player          :: Ship,
     ply_projectiles :: [Projectile],
     npc_projectiles :: [Projectile],
     ticker          :: Float,
-    playerIsFiring  :: Bool -- move to Ship datatype?
+    showHitbox      :: Bool
   } deriving Show
 
 -- Preliminary, subject to change
@@ -42,11 +43,12 @@ data Projectile = Projectile
     effect   :: Effect
   } deriving Show
 
-data EncounterStack =
-  EncounterStack { pop_interval  :: Float,
-                   last_pop      :: Float,
-                   ship_stack    :: [Ship]
-                   } deriving Show
+data Encounter = Encounter
+  {
+    pop_interval  :: Float,
+    last_pop      :: Float,
+    ship_stack    :: [Ship]
+  } deriving Show
 data Effect = Damage Int | NoEffect deriving Show
 
 {- BoundingBox
@@ -78,6 +80,8 @@ instance Movable Projectile where
   move proj@(Projectile {proj_obj=obj}) v = proj {proj_obj=(move obj v)}
   setPos pos proj@(Projectile {proj_obj=obj}) =
     proj {proj_obj=(setPos pos obj)}
+
+
 class Drawable a where
   makeDrawable :: a -> Picture
   drawBounds :: a -> Picture

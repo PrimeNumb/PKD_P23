@@ -6,28 +6,43 @@ import System.Random
 import Globals
 
 -- Pops the first element from the stack and puts it into a container
-popEncounterStack :: EncounterStack -> [Ship] -> (EncounterStack,[Ship])
-popEncounterStack stack@(EncounterStack {ship_stack=[]}) container = (stack,container)
-popEncounterStack stack@(EncounterStack {ship_stack=(x:xs)}) container =
-  ((stack {ship_stack=xs}),x:container)
-    
+--popEncounter :: Encounter -> [Ship] -> (Encounter,[Ship])
+--popEncounter encounter@(Encounter {ship_stack=[]}) container = (encounter,container)
+--popEncounter encounter@(Encounter {ship_stack=(x:xs)}) container =
+--  ((encounter {ship_stack=xs}),x:container)
 
-shouldPopEncounterStack :: Float -> EncounterStack -> Bool
-shouldPopEncounterStack currentTick (EncounterStack {pop_interval=pop_interval,last_pop=last_pop}) =
+pop :: [a] -> [a] -> ([a],[a])
+pop [] container = ([],container)
+pop (x:xs) container = (xs, x:container)
+
+push :: [a] -> a -> [a]
+push stack element = element:stack
+
+--pushEncounter :: Encounter -> Ship -> Encounter
+--pushEncounter encounter@(Encounter {ship_stack=ship_stack}) ship =
+--  encounter {ship_stack=(ship:ship_stack)}
+
+shouldPopEncounter :: Float -> Encounter -> Bool
+shouldPopEncounter currentTick (Encounter {pop_interval=pop_interval,last_pop=last_pop}) =
   (currentTick - last_pop) >= pop_interval
 
 -- WORK IN PROGRESS
-generateEncounter :: Int -> [Ship]
-generateEncounter nrOfShips = generateEncounterAux nrOfShips []
-
-generateEncounterAux :: Int -> [Ship] -> [Ship]
-generateEncounterAux 0 acc = acc
-generateEncounterAux nrOfShips acc = generateEncounterAux (nrOfShips-1) acc
-    
-generateEnemyShip = do
-  let pos_x = win_width/2 + enemy_width
-  pos_y <- getStdRandom (randomR (-win_height/2,win_height/2)) :: IO Float
-  cooldown <- getStdRandom (randomR (2.0, 4.0)) :: IO Float
-  return $ setPos (pos_x,pos_y) enemyShipTemplate
+generateEncounter :: StdGen -> Int -> Ship -> ([Ship], StdGen)
+generateEncounter gen nrOfShips template = (ships, newGen)
   where
-    enemy_width = fst $ boundingBox $ ship_obj enemyShipTemplate
+    (ships, newGen) = generateEncounterAux gen nrOfShips template []
+
+generateEncounterAux :: StdGen -> Int -> Ship -> [Ship] -> ([Ship], StdGen)
+generateEncounterAux gen 0 template acc = (acc, gen)
+generateEncounterAux gen nrOfShips template acc =
+  generateEncounterAux newGen (nrOfShips-1) template (newShip:acc)
+  where
+    (newShip, newGen) = generateEnemyShip gen template
+
+generateEnemyShip :: StdGen -> Ship -> (Ship, StdGen)
+generateEnemyShip gen shipTemplate = (setPos (pos_x,pos_y) $ enemyShipTemplate {wep_cooldown=cooldown}, gen2)
+  where
+    enemy_width = fst $ boundingBox $ ship_obj shipTemplate
+    pos_x = win_width/2 + enemy_width
+    (pos_y, gen1) = randomR (-win_height/2,win_height/2) gen :: (Float, StdGen)
+    (cooldown, gen2) = randomR (1.5, 2.0) gen1 :: (Float, StdGen)

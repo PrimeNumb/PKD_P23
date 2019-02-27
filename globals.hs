@@ -30,6 +30,9 @@ targetFramerate = 60
 enemy_spawn_interval :: Float
 enemy_spawn_interval = 2.0
 
+enemy_spawn_initial_delay :: Float
+enemy_spawn_initial_delay = 5.0
+
 --Sprites
 --function png taken from gloss-game (credit the author?)
 

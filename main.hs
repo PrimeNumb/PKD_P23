@@ -44,24 +44,25 @@ playerDefaultProjObj =
          }
 playerDefaultProj = Projectile playerDefaultProjObj (Damage 1)
 
-initEncounterStack =
-  EncounterStack { pop_interval = enemy_spawn_interval,
-                   last_pop = 5.0,
-                   ship_stack = [enemyShipTemplate,enemyShipTemplate]
-                 }
+defaultEncounter = Encounter
+  { pop_interval = enemy_spawn_interval,
+    last_pop = enemy_spawn_initial_delay,
+    ship_stack = [enemyShipTemplate,enemyShipTemplate]
+  }
 
 -- The initial game state
 initGameState :: Game
 initGameState = GameState {
-  playable_bounds = (win_width/2, win_height/2),
   objects = [],
-  enemies = [(setPos (200,-200) enemyShipTemplate)],
-  encounterStack = initEncounterStack,
+  enemies = [],
+  playable_bounds = (win_width/2, win_height/2),
+  randomGen = mkStdGen 1234,
+  encounter = defaultEncounter,
   player = playerShip,
   ply_projectiles = [],
   npc_projectiles = [],
   ticker = 0,
-  playerIsFiring = False
+  showHitbox  = False
   }
 
 
@@ -72,22 +73,33 @@ RETURNS:
 SIDE EFFECTS: 
 EXAMPLES: 
 -}
-main :: IO()
+main :: IO ()
 main = do
   --display window win_background (makeDrawable playerObj)
-  play window win_background targetFramerate initGameState draw handleEvent update
+  seed <- randomIO :: IO Int
+  let gen = mkStdGen seed
+      (generatedShipStack, newGen) = generateEncounter gen 10 enemyShipTemplate
+      initEncounter = defaultEncounter {ship_stack=generatedShipStack}
+  play window win_background targetFramerate (initGameState {randomGen=newGen, encounter=initEncounter}) draw handleEvent update
+  return ()
+    
 
 
 draw :: Game -> Picture
-draw gameState@(GameState {objects=objs, player=playerShip, ply_projectiles=plyProjs, npc_projectiles=enemyProjs, enemies=enemies}) = newFrame
+draw gameState@(GameState {objects=objs, player=playerShip, ply_projectiles=plyProjs, npc_projectiles=enemyProjs, enemies=enemies, showHitbox=showHitbox}) = newFrame
   where
     -- Everything that needs to be drawn goes here
-    playerPic = drawWithBounds playerShip
-    plyProjPics = map drawWithBounds plyProjs
+    playerPic = if showHitbox then drawWithBounds playerShip else makeDrawable playerShip
+    plyProjPics = (map drawWithBounds plyProjs)
     enemyProjPics = map drawWithBounds enemyProjs
-    enemyPics = map drawWithBounds enemies 
+    enemyPics = map drawWithBounds enemies
+    drawObjs =
+      (map proj_obj enemyProjs) ++ (map proj_obj plyProjs) ++ (map ship_obj enemies) ++ (ship_obj playerShip):objs
     -- The final picture frame
-    newFrame = pictures $ [(makeDrawable background)] ++ enemyProjPics ++ plyProjPics ++ enemyPics ++ playerPic:(map makeDrawable objs)
+    newFrame = if showHitbox
+      then pictures $ (makeDrawable background):(map drawWithBounds drawObjs)
+      else pictures $ (map makeDrawable (background:drawObjs))
+--    newFrame = pictures $ [(makeDrawable background)] ++ enemyProjPics ++ plyProjPics ++ enemyPics ++ playerPic:(map makeDrawable objs)
 
 {- update
    Updates a given game state one iteration.
@@ -96,34 +108,40 @@ draw gameState@(GameState {objects=objs, player=playerShip, ply_projectiles=plyP
    EXAMPLES:
 -}
 update :: Float -> Game -> Game
-update dt gameState@(GameState {ticker=currentTick,ply_projectiles=projList, enemies=enemies,npc_projectiles=enemyProjList,encounterStack=eStack}) = newGameState 
+update dt gameState@(GameState {ticker=currentTick,ply_projectiles=projList, enemies=enemies,npc_projectiles=enemyProjList,encounter=encounter}) = newGameState 
   where
     -- Everything that should be updated each iteration goes here
     -- Player related
-    updatePlyProjList = map (updateProjectile dt) (colPlyProj gameState projList)
-    newPlayer = plyHandleDmg gameState (updatePlayer dt gameState)    
+    newPlayer = plyHandleDmg gameState (updatePlayer dt gameState)
+    updatePlyProjList =
+      map (updateProjectile dt) (colPlyProj gameState projList)
     newPlyProjList = case (ship_fire (1,0) newTicker newPlayer) of
        Just x -> x:updatePlyProjList
        Nothing -> updatePlyProjList
        
     -- Enemy related
-    (newEncounterStack, spawnedEnemies) = updateEncounterStack eStack currentTick enemies
+    (newEncounter, spawnedEnemies) =
+      updateEncounter encounter currentTick enemies
     newEnemies = updateEnemies' spawnedEnemies dt gameState
-    updatedEnemyProjList = map (updateProjectile dt) (colEnemProj gameState enemyProjList)
+    updatedEnemyProjList =
+      map (updateProjectile dt) (colEnemProj gameState enemyProjList)
     newEnemyProjList = (processEnemyFire gameState) ++ updatedEnemyProjList
     
     -- Game related
     newTicker = currentTick+dt
     
     --The final updated gamestate
-    newGameState = (gameState {player=newPlayer, ticker=newTicker, ply_projectiles=newPlyProjList, enemies=newEnemies, npc_projectiles=newEnemyProjList, encounterStack=newEncounterStack})
+    newGameState = (gameState {player=newPlayer, ticker=newTicker, ply_projectiles=newPlyProjList, enemies=newEnemies, npc_projectiles=newEnemyProjList, encounter=newEncounter})
 
-updateEncounterStack :: EncounterStack -> Float -> [Ship] -> (EncounterStack,[Ship])
-updateEncounterStack stack@(EncounterStack {}) currentTick enemyContainer
-  | shouldPopEncounterStack currentTick stack = popEncounterStack updatedStack enemyContainer
-  | otherwise = (stack, enemyContainer)
+updateEncounter :: Encounter -> Float -> [Ship] -> (Encounter,[Ship])
+updateEncounter encounter currentTick enemyContainer
+  | shouldPopEncounter currentTick encounter = (newEncounter, newEnemyContainer)
+  | otherwise = (encounter, enemyContainer)
   where
-    updatedStack = stack {last_pop=currentTick}
+    updatedEncounter = encounter {last_pop=currentTick}
+    (newStack, newEnemyContainer) =
+      pop (ship_stack updatedEncounter) enemyContainer
+    newEncounter = updatedEncounter {ship_stack=newStack}
   
 updateEnemies' :: [Ship] -> Float -> Game -> [Ship]
 updateEnemies' enemies dt gameState = updateEnemies gameState (map (updateEnemy dt gameState) enemies)
@@ -141,7 +159,15 @@ handleEvent (EventKey key Down mod _) gameState =
     (SpecialKey KeyDown)  -> modPlyDirection gameState (0,-1)
     (SpecialKey KeyLeft)  -> modPlyDirection gameState (-1,0)
     (SpecialKey KeyRight) -> modPlyDirection gameState (1,0)
-    (SpecialKey KeySpace) -> gameState { player = (player gameState) {isFiring=True}}
+    (SpecialKey KeySpace) -> gameState { player = (player gameState) {isFiring=True}, ply_projectiles = newPlyProjList }
+      where
+        currentTick = ticker gameState
+        plyProjList = ply_projectiles gameState
+        newPlyProjList =
+          case (ship_fire (1,0) currentTick (player gameState)) of
+            Just x  -> x:plyProjList
+            Nothing -> plyProjList
+    (SpecialKey KeyF1)    -> gameState { showHitbox = (not $ showHitbox gameState)}
     _ -> gameState
 handleEvent (EventKey key Up _ _) gameState =
   case key of
@@ -154,7 +180,6 @@ handleEvent (EventKey key Up _ _) gameState =
 -- Need to do something when the screen is resized
 handleEvent (EventResize (x, y)) gameState = gameState
 handleEvent _ gameState = gameState
-
 
 -- Fires a ship's projectile from its position, given a direction
 ship_fire :: Direction -> Float -> Ship -> Maybe Projectile
@@ -173,7 +198,6 @@ ship_fire dir currentTick ship
 processEnemyFire :: Game -> [Projectile]
 processEnemyFire gameState@(GameState {enemies=enemies,ticker=t}) = newProjList
   where
-    traceStr = show newProjList
     newProjList = processEnemyFireAux (map (ship_fire (-1,0) t) enemies) []
 
 processEnemyFireAux :: [Maybe Projectile] -> [Projectile] -> [Projectile]
