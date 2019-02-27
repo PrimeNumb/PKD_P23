@@ -11,9 +11,7 @@ import Globals
 import Rendering
 import Helpers
 import Collision
-
---import Collision
---import Control.Lens -- PLAN B: SOLVES NESTED RECORD FIELD HELL
+import Encounter
 
 -- The game window
 window :: Display
@@ -46,17 +44,26 @@ playerDefaultProjObj =
          }
 playerDefaultProj = Projectile playerDefaultProjObj (Damage 1)
 
+initEncounterStack =
+  EncounterStack { pop_interval = enemy_spawn_interval,
+                   last_pop = 5.0,
+                   ship_stack = [enemyShipTemplate,enemyShipTemplate]
+                 }
+
 -- The initial game state
 initGameState :: Game
 initGameState = GameState {
+  playable_bounds = (win_width/2, win_height/2),
   objects = [],
-  enemies = [enemyShipTest, enemyShipTest1, enemyShipTest2],
+  enemies = [(setPos (200,-200) enemyShipTemplate)],
+  encounterStack = initEncounterStack,
   player = playerShip,
   ply_projectiles = [],
   npc_projectiles = [],
   ticker = 0,
   playerIsFiring = False
   }
+
 
 {- main
 desc.
@@ -67,6 +74,7 @@ EXAMPLES:
 -}
 main :: IO()
 main = do
+  --display window win_background (makeDrawable playerObj)
   play window win_background targetFramerate initGameState draw handleEvent update
 
 
@@ -88,20 +96,37 @@ draw gameState@(GameState {objects=objs, player=playerShip, ply_projectiles=plyP
    EXAMPLES:
 -}
 update :: Float -> Game -> Game
-update dt gameState@(GameState {ticker=currentTick,ply_projectiles=projList, enemies=enemies,npc_projectiles=enemyProjList}) = newGameState 
+update dt gameState@(GameState {ticker=currentTick,ply_projectiles=projList, enemies=enemies,npc_projectiles=enemyProjList,encounterStack=eStack}) = newGameState 
   where
     -- Everything that should be updated each iteration goes here
+    -- Player related
     updatePlyProjList = map (updateProjectile dt) (colPlyProj gameState projList)
-    newPlayer = plyHandleDmg gameState (updatePlayer dt gameState)
-    newTicker = currentTick+dt
+    newPlayer = plyHandleDmg gameState (updatePlayer dt gameState)    
     newPlyProjList = case (ship_fire (1,0) newTicker newPlayer) of
        Just x -> x:updatePlyProjList
        Nothing -> updatePlyProjList
-    newEnemies = eneHandleDmg gameState (map (updateEnemy dt gameState) enemies)
-    updateEnemyProjList = map (updateProjectile dt) (colEnemProj gameState enemyProjList)
-    newEnemyProjList = (processEnemyFire gameState) ++ updateEnemyProjList
+       
+    -- Enemy related
+    (newEncounterStack, spawnedEnemies) = updateEncounterStack eStack currentTick enemies
+    newEnemies = updateEnemies spawnedEnemies dt gameState
+    updatedEnemyProjList = map (updateProjectile dt) (colEnemProj gameState enemyProjList)
+    newEnemyProjList = (processEnemyFire gameState) ++ updatedEnemyProjList
+    
+    -- Game related
+    newTicker = currentTick+dt
+    
     --The final updated gamestate
-    newGameState = (gameState {player=newPlayer, ticker=newTicker, ply_projectiles=newPlyProjList, enemies=newEnemies, npc_projectiles=newEnemyProjList})
+    newGameState = (gameState {player=newPlayer, ticker=newTicker, ply_projectiles=newPlyProjList, enemies=newEnemies, npc_projectiles=newEnemyProjList, encounterStack=newEncounterStack})
+
+updateEncounterStack :: EncounterStack -> Float -> [Ship] -> (EncounterStack,[Ship])
+updateEncounterStack stack@(EncounterStack {}) currentTick enemyContainer
+  | shouldPopEncounterStack currentTick stack = popEncounterStack updatedStack enemyContainer
+  | otherwise = (stack, enemyContainer)
+  where
+    updatedStack = stack {last_pop=currentTick}
+  
+updateEnemies :: [Ship] -> Float -> Game -> [Ship]
+updateEnemies enemies dt gameState = eneHandleDmg gameState (map (updateEnemy dt gameState) enemies)
 
 {- handleEvent gameState
 Calls a specific

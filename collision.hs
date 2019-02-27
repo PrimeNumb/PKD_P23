@@ -3,7 +3,6 @@ import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
 import DataTypes
 import Globals
-import Enemies
 import Debug.Trace
 import Projectile
 
@@ -54,6 +53,7 @@ colPlyProj gameState@(GameState {enemies=enemies}) (proj:xs) = colPlyProjAux pro
       if checkRectCollision proj_obj ship_obj || outOfBounds proj_obj then [] else colPlyProjAux proj xs
 
 
+
 applyEffect :: Effect -> Ship -> Ship
 applyEffect fx ship = 
   case fx of
@@ -62,10 +62,12 @@ applyEffect fx ship =
     where
       shipHealth = ship_health ship
 
+-- MOVE & RENAME THIS
 getEffect :: Ship -> [Projectile] -> Effect
 getEffect _ [] = NoEffect
 getEffect ship@(Ship{ship_obj=ship_obj}) (x@(Projectile{effect=effect, proj_obj=proj_obj}):xs) =
   if checkRectCollision ship_obj proj_obj then effect else getEffect ship xs
+
 
 eneHandleDmg :: Game -> [Ship] -> [Ship]
 eneHandleDmg _ [] = []
@@ -76,12 +78,11 @@ eneHandleDmg gameState@(GameState {player=player, ply_projectiles=proj}) (ship:x
     newShip = applyEffect (getEffect ship proj) ship
     playerCollideShip = checkRectCollision (ship_obj player) (ship_obj ship)
 
-
 plyHandleDmg :: Game -> Ship -> Ship
 plyHandleDmg gameState@(GameState {enemies=enemies ,npc_projectiles=npc_projectiles}) player@(Ship{ship_obj=ply_obj})
-  |ship_health player <= 0 = enemyShipTest
-  |foldl (||) False enemy_collisions = applyEffect (Damage 1) player
-  |otherwise = applyEffect (getEffect player npc_projectiles) player
+  | ship_health player <= 0 = enemyShipTest
+  | foldl (||) False enemy_collisions = applyEffect (Damage 1) player
+  | otherwise = applyEffect (getEffect player npc_projectiles) player
   where
     enemy_collisions = map (checkRectCollision ply_obj) enemy_objs
     enemy_objs = map ship_obj enemies
@@ -109,7 +110,7 @@ o3 = Object { position = (0, 0),
               boundingBox = (25, 25),
               graphic = enemySprite
             }
-
+ 
 o4 :: Object
 o4 = Object { position = (100, 100),
               direction = (0, 0),
@@ -124,7 +125,7 @@ o5 = Object { position = (200, 200),
               boundingBox = (25, 49),
               graphic = enemySprite
             }
-
+ 
      
 enemyShipTest :: Ship
 enemyShipTest = Ship { ship_obj = o3,
@@ -135,7 +136,7 @@ enemyShipTest = Ship { ship_obj = o3,
                        isPlayer = False,
                        isFiring = True
                      }
-
+ 
 enemyShipTest1 :: Ship
 enemyShipTest1 = Ship { ship_obj = o4,
                        ship_health = 3,
@@ -145,7 +146,7 @@ enemyShipTest1 = Ship { ship_obj = o4,
                        isPlayer = False,
                        isFiring = True
                      }
-
+ 
 enemyShipTest2 :: Ship
 enemyShipTest2 = Ship { ship_obj = o5,
                        ship_health = 3,
