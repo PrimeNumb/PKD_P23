@@ -12,8 +12,6 @@ import Rendering
 import Helpers
 import Collision
 
---import Collision
---import Control.Lens -- PLAN B: SOLVES NESTED RECORD FIELD HELL
 
 -- The game window
 window :: Display
@@ -49,7 +47,7 @@ playerDefaultProj = Projectile playerDefaultProjObj (Damage 1)
 -- The initial game state
 initGameState :: Game
 initGameState = GameState {
-  objects = [background],
+  objects = [],
   enemies = [enemyShipTest, enemyShipTest1, enemyShipTest2],
   player = playerShip,
   ply_projectiles = [],
@@ -80,8 +78,7 @@ draw gameState@(GameState {objects=objs, player=playerShip, ply_projectiles=plyP
     enemyProjPics = map drawWithBounds enemyProjs
     enemyPics = map drawWithBounds enemies 
     -- The final picture frame
-    newFrame = pictures $enemyProjPics ++ plyProjPics ++ enemyPics ++ playerPic:(map makeDrawable objs)
->>>>>>> e0a297c37a4b38adeb70d1ab9b8fcb9ad05f1303
+    newFrame = pictures $ [(makeDrawable background)] ++ enemyProjPics ++ plyProjPics ++ enemyPics ++ playerPic:(map makeDrawable objs)
 
 {- update
    Updates a given game state one iteration.

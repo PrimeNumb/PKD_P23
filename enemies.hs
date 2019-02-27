@@ -9,6 +9,25 @@ import Helpers
 import Projectile
 import Globals
 
+enemyObjTemplate :: Object
+enemyObjTemplate = Object { position = (200, 200),
+                            direction = (0, 0),
+                            speed = 300,
+                            boundingBox = (25, 49),
+                            graphic = enemySprite
+                          }
+
+enemyShipTemplate :: Ship
+enemyShipTemplate = Ship { ship_obj = enemyObjTemplate,
+                           ship_health = 3,
+                           wep_cooldown = 2.0,
+                           projectile = enemyDefaultProj,
+                           last_fired_tick = 0,
+                           isPlayer = False,
+                           isFiring = True
+                         }
+
+
 enemyColor :: Color
 enemyColor = blue
 
@@ -70,4 +89,4 @@ updateEnemy dt gameState@(GameState {ticker=currentTick}) enemy = newEnemy
     (dx,dy) = direction newEnemyObj
     enemySpeed = speed enemyObj
     deltaPos = (dx*enemySpeed*dt,dy*enemySpeed*dt)
-    newEnemy = enemy { ship_obj = (moveObject newEnemyObj deltaPos), last_fired_tick = updatedTick }
+    newEnemy = enemy { ship_obj = (move newEnemyObj deltaPos), last_fired_tick = updatedTick }

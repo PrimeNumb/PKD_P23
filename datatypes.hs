@@ -40,6 +40,18 @@ data Projectile = Projectile
     effect   :: Effect
   } deriving Show
 
+class Movable a where
+  move :: a -> Vector -> a
+
+instance Movable Object where
+  move obj@(Object {position=(x,y)}) (vx,vy) = obj { position = (x+vx,y+vy) }
+
+instance Movable Ship where
+  move ship@(Ship {ship_obj=obj}) v = ship {ship_obj=(move obj v)}
+
+instance Movable Projectile where
+  move proj@(Projectile {proj_obj=obj}) v = proj {proj_obj=(move obj v)}
+
 class Drawable a where
   makeDrawable :: a -> Picture
   drawBounds :: a -> Picture

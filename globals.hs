@@ -45,7 +45,7 @@ background =
            direction = (0, 0),
            speed = 0,
            boundingBox = (512, 384),
-           graphic = png "./spacebackg2.png"
+           graphic = png "./sprites/spacebackg.png"
          }
 
 

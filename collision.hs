@@ -88,30 +88,23 @@ getEffect ship@(Ship{ship_obj=ship_obj}) (x@(Projectile{effect=effect, proj_obj=
 updateEnemies :: Game -> [Ship] -> [Ship]
 updateEnemies _ [] = []
 updateEnemies gameState@(GameState {ply_projectiles=proj}) (ship:xs) =
-<<<<<<< HEAD
   if ship_health ship <= 0  || playerCollideShip gameState ship then updateEnemies gameState xs
-=======
-  if ship_health ship <= 0 then updateEnemies gameState xs
->>>>>>> e0a297c37a4b38adeb70d1ab9b8fcb9ad05f1303
   else newShip : updateEnemies gameState xs
   where
     newShip = applyEffect (getEffect ship proj) ship
 
-<<<<<<< HEAD
 
 
 plyHandleDmg :: Game -> Ship -> Ship
 plyHandleDmg gameState@(GameState {enemies=enemies ,npc_projectiles=npc_projectiles}) player@(Ship{ship_obj=ply_obj})
-  |ship_health player <= 0 = enemyShipTest
-  |foldl (||) False enemy_objs = applyEffect (Damage 1) player
-  |otherwise = applyEffect (getEffect player npc_projectiles) player
+  | ship_health player <= 0 = enemyShipTest
+  | foldl (||) False enemy_collisions = applyEffect (Damage 1) player
+  | otherwise = applyEffect (getEffect player npc_projectiles) player
   where
     enemy_collisions = map (checkRectCollision ply_obj) enemy_objs
     enemy_objs = map ship_obj enemies
 
 
-=======
->>>>>>> e0a297c37a4b38adeb70d1ab9b8fcb9ad05f1303
 -- Collisiontests
 o1 :: Object
 o1 = Object { position = (2, 3),
@@ -164,15 +157,9 @@ enemyShipTest = Ship { ship_obj = o3,
 
 enemyShipTest1 :: Ship
 enemyShipTest1 = Ship { ship_obj = o4,
-<<<<<<< HEAD
-                       ship_health = 10,
-                       wep_cooldown = 1.0,
-                       projectile = testProj,
-=======
                        ship_health = 3,
                        wep_cooldown = 2.0,
                        projectile = enemyDefaultProj,
->>>>>>> e0a297c37a4b38adeb70d1ab9b8fcb9ad05f1303
                        last_fired_tick = 0,
                        isPlayer = False,
                        isFiring = True
@@ -180,15 +167,9 @@ enemyShipTest1 = Ship { ship_obj = o4,
 
 enemyShipTest2 :: Ship
 enemyShipTest2 = Ship { ship_obj = o5,
-<<<<<<< HEAD
-                       ship_health = 10,
-                       wep_cooldown = 1.0,
-                       projectile = testProj,
-=======
                        ship_health = 3,
                        wep_cooldown = 2.0,
                        projectile = enemyDefaultProj,
->>>>>>> e0a297c37a4b38adeb70d1ab9b8fcb9ad05f1303
                        last_fired_tick = 0,
                        isPlayer = False,
                        isFiring = True

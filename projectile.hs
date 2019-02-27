@@ -60,10 +60,9 @@ spawnProjectile proj isPlayer gameState
     npcProjList = proj:(npc_projectiles gameState)
 
 updateProjectile :: Float -> Projectile -> Projectile
-updateProjectile dt proj@(Projectile {proj_obj=pObj}) = proj { proj_obj = newProjObj}
+updateProjectile dt proj@(Projectile {proj_obj=pObj}) = newProj
   where
-    testProjs = [] :: [Projectile]
     pSpeed = speed pObj
     (dx, dy) = direction pObj
-    newProjObj = moveObject pObj (dx*pSpeed*dt,dy*pSpeed*dt)
+    newProj = move proj (dx*pSpeed*dt,dy*pSpeed*dt)
     
