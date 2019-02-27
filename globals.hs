@@ -42,6 +42,7 @@ playerSprite = png "./sprites/player2.png"
 enemySprite :: Picture
 enemySprite = png "./sprites/enemyShip.png"
 
+>>>>>>> 02718a6c87b7337e3005cbd49130d972e6d07abc
 plyProjSprite :: Picture
 plyProjSprite = png "./sprites/laserRed.png"
 
