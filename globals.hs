@@ -42,7 +42,11 @@ playerSprite = png "./player2.png"
 
 enemySprite :: Picture
 enemySprite = png "./enemyShip.png"
-
+{-
+enemySize :: (Float, Float)
+enemySizeX = 
+enemySizeY = ( 
+-}
 plyProjSprite :: Picture
 plyProjSprite = png "laserRed.png"
 
