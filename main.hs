@@ -27,7 +27,7 @@ playerObj = Object { position = (0, 0),
                    }
 playerShip :: Ship
 playerShip = Ship { ship_obj = playerObj,
-                    ship_health = 2,
+                    ship_health = 20,
                     wep_cooldown = 0.25,
                     projectile = playerDefaultProj,
                     last_fired_tick = 0,
@@ -108,7 +108,7 @@ update dt gameState@(GameState {ticker=currentTick,ply_projectiles=projList, ene
        
     -- Enemy related
     (newEncounterStack, spawnedEnemies) = updateEncounterStack eStack currentTick enemies
-    newEnemies = updateEnemies' spawnedEnemies dt gameState
+    newEnemies = updateEnemies spawnedEnemies dt gameState
     updatedEnemyProjList = map (updateProjectile dt) (colEnemProj gameState enemyProjList)
     newEnemyProjList = (processEnemyFire gameState) ++ updatedEnemyProjList
     
@@ -125,8 +125,8 @@ updateEncounterStack stack@(EncounterStack {}) currentTick enemyContainer
   where
     updatedStack = stack {last_pop=currentTick}
   
-updateEnemies' :: [Ship] -> Float -> Game -> [Ship]
-updateEnemies' enemies dt gameState = updateEnemies gameState (map (updateEnemy dt gameState) enemies)
+updateEnemies :: [Ship] -> Float -> Game -> [Ship]
+updateEnemies enemies dt gameState = eneHandleDmg gameState (map (updateEnemy dt gameState) enemies)
 
 {- handleEvent gameState
 Calls a specific
