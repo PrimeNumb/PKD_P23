@@ -51,6 +51,9 @@ plyProjSprite = png "./sprites/laserRed.png"
 npcProjSprite :: Picture
 npcProjSprite = png "./sprites/laserGreen.png"
 
+heartSprite :: Picture
+heartSprite = png "./sprites/heart.png"
+
 background :: Object
 background =
   Object { position = (0, 0),

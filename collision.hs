@@ -34,15 +34,6 @@ checkRectCollision obj1@(Object {position=p1@(x1, y1), boundingBox=box1@(r1x, r1
 --TODO: Make enemybullets and friendlybullets, they don't interact the same way.
 
 
-playerCollideShip :: Game -> Ship -> Bool
-playerCollideShip gameState@(GameState {player=ply}) ship = checkRectCollision (ship_obj ply) (ship_obj ship)
-
-
-{-
-playerCollideBullet :: Game -> Bool
-playerCollideBullet = gameState@(Game {player=ply, npc_projectiles=proj}) = checkRectCollision ply proj
--}
-
 outOfBounds :: Object -> Bool
 outOfBounds obj = not (checkRectCollision obj background)
 
@@ -63,14 +54,6 @@ colPlyProj gameState@(GameState {enemies=enemies}) (proj:xs) = colPlyProjAux pro
 
 
 
-{-
-collisionDespawn :: Game -> Game
-collisionDespawn gameState@(GameState {npc_projectiles=npc_proj, ply_projectiles=ply_proj}) = gameState {npc_projectiles=desp_npc_proj, ply_projectiles=desp_ply_proj}
-  where
-    desp_ply_proj = colPlyProj gameState ply_proj
-    desp_npc_proj = colEnemProj gameState npc_proj
--}
--- MOVE & RENAME THIS
 applyEffect :: Effect -> Ship -> Ship
 applyEffect fx ship = 
   case fx of
@@ -85,26 +68,24 @@ getEffect _ [] = NoEffect
 getEffect ship@(Ship{ship_obj=ship_obj}) (x@(Projectile{effect=effect, proj_obj=proj_obj}):xs) =
   if checkRectCollision ship_obj proj_obj then effect else getEffect ship xs
 
--- MOVE & RENAME THIS
-updateEnemies :: Game -> [Ship] -> [Ship]
-updateEnemies _ [] = []
-updateEnemies gameState@(GameState {ply_projectiles=proj}) (ship:xs) =
-  if ship_health ship <= 0  || playerCollideShip gameState ship then updateEnemies gameState xs
-  else newShip : updateEnemies gameState xs
+
+eneHandleDmg :: Game -> [Ship] -> [Ship]
+eneHandleDmg _ [] = []
+eneHandleDmg gameState@(GameState {player=player, ply_projectiles=proj}) (ship:xs) =
+  if ship_health ship <= 0  || playerCollideShip then eneHandleDmg gameState xs
+  else newShip : eneHandleDmg gameState xs
   where
     newShip = applyEffect (getEffect ship proj) ship
+    playerCollideShip = checkRectCollision (ship_obj player) (ship_obj ship)
 
-
--- MOVE & RENAME THIS
 plyHandleDmg :: Game -> Ship -> Ship
 plyHandleDmg gameState@(GameState {enemies=enemies ,npc_projectiles=npc_projectiles}) player@(Ship{ship_obj=ply_obj})
-  | ship_health player <= 0 = enemyShipTest
+  | ship_health player <= 0 = invisPlayer
   | foldl (||) False enemy_collisions = applyEffect (Damage 1) player
   | otherwise = applyEffect (getEffect player npc_projectiles) player
   where
     enemy_collisions = map (checkRectCollision ply_obj) enemy_objs
     enemy_objs = map ship_obj enemies
-
 
 -- Collisiontests
 o1 :: Object
@@ -144,7 +125,25 @@ o5 = Object { position = (200, 200),
               boundingBox = (25, 49),
               graphic = enemySprite
             }
- 
+
+gameOverObject :: Object
+gameOverObject = Object { position = (0, 0),
+                          direction = (0, 0),
+                          speed = 300,
+                          boundingBox = (25, 25),
+                          graphic = rectangleSolid 1 1
+                        }
+
+  
+invisPlayer :: Ship
+invisPlayer = Ship { ship_obj = gameOverObject,
+                     ship_health = 500,
+                     wep_cooldown = 200.0,
+                     projectile = harmlessProj,
+                     last_fired_tick = 0,
+                     isPlayer = False,
+                     isFiring = False
+                   }
      
 enemyShipTest :: Ship
 enemyShipTest = Ship { ship_obj = o3,
@@ -168,6 +167,7 @@ enemyShipTest1 = Ship { ship_obj = o4,
  
 enemyShipTest2 :: Ship
 enemyShipTest2 = Ship { ship_obj = o5,
+
                        ship_health = 3,
                        wep_cooldown = 2.0,
                        projectile = enemyDefaultProj,

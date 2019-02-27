@@ -27,7 +27,7 @@ playerObj = Object { position = (0, 0),
                    }
 playerShip :: Ship
 playerShip = Ship { ship_obj = playerObj,
-                    ship_health = 2,
+                    ship_health = 3,
                     wep_cooldown = 0.25,
                     projectile = playerDefaultProj,
                     last_fired_tick = 0,
@@ -89,17 +89,15 @@ draw :: Game -> Picture
 draw gameState@(GameState {objects=objs, player=playerShip, ply_projectiles=plyProjs, npc_projectiles=enemyProjs, enemies=enemies, showHitbox=showHitbox}) = newFrame
   where
     -- Everything that needs to be drawn goes here
-    playerPic = if showHitbox then drawWithBounds playerShip else makeDrawable playerShip
-    plyProjPics = (map drawWithBounds plyProjs)
-    enemyProjPics = map drawWithBounds enemyProjs
-    enemyPics = map drawWithBounds enemies
+    heartPics = map makeDrawable (updateHealthDisplay playerShip)
+    backgroundPic = makeDrawable background
     drawObjs =
       (map proj_obj enemyProjs) ++ (map proj_obj plyProjs) ++ (map ship_obj enemies) ++ (ship_obj playerShip):objs
+    objPics = if showHitbox
+      then (map drawWithBounds drawObjs)
+      else (map makeDrawable drawObjs)
     -- The final picture frame
-    newFrame = if showHitbox
-      then pictures $ (makeDrawable background):(map drawWithBounds drawObjs)
-      else pictures $ (map makeDrawable (background:drawObjs))
---    newFrame = pictures $ [(makeDrawable background)] ++ enemyProjPics ++ plyProjPics ++ enemyPics ++ playerPic:(map makeDrawable objs)
+    newFrame = pictures $ (backgroundPic:heartPics) ++ objPics
 
 {- update
    Updates a given game state one iteration.
@@ -107,6 +105,7 @@ draw gameState@(GameState {objects=objs, player=playerShip, ply_projectiles=plyP
    RETURNS:
    EXAMPLES:
 -}
+
 update :: Float -> Game -> Game
 update dt gameState@(GameState {ticker=currentTick,ply_projectiles=projList, enemies=enemies,npc_projectiles=enemyProjList,encounter=encounter}) = newGameState 
   where
@@ -122,7 +121,7 @@ update dt gameState@(GameState {ticker=currentTick,ply_projectiles=projList, ene
     -- Enemy related
     (newEncounter, spawnedEnemies) =
       updateEncounter encounter currentTick enemies
-    newEnemies = updateEnemies' spawnedEnemies dt gameState
+    newEnemies = updateEnemies spawnedEnemies dt gameState
     updatedEnemyProjList =
       map (updateProjectile dt) (colEnemProj gameState enemyProjList)
     newEnemyProjList = (processEnemyFire gameState) ++ updatedEnemyProjList
@@ -142,9 +141,22 @@ updateEncounter encounter currentTick enemyContainer
     (newStack, newEnemyContainer) =
       pop (ship_stack updatedEncounter) enemyContainer
     newEncounter = updatedEncounter {ship_stack=newStack}
+
+updateHealthDisplay :: Ship -> [Object]
+updateHealthDisplay player@(Ship{ship_health=ship_health}) =
+  if ship_health <= 0 then []
+  else Object { position = (xpos, -250),
+                direction = (0, 0),
+                speed = 0,
+                boundingBox = (0, 0),
+                graphic = png "./sprites/heart.png"
+              } : updateHealthDisplay player{ship_health=newHp}
+  where
+    newHp = ship_health - 1
+    xpos = fromIntegral (-500 + (40 * ship_health))
   
-updateEnemies' :: [Ship] -> Float -> Game -> [Ship]
-updateEnemies' enemies dt gameState = updateEnemies gameState (map (updateEnemy dt gameState) enemies)
+updateEnemies :: [Ship] -> Float -> Game -> [Ship]
+updateEnemies enemies dt gameState = eneHandleDmg gameState (map (updateEnemy dt gameState) enemies)
 
 {- handleEvent gameState
 Calls a specific
