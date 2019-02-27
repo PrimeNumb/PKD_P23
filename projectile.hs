@@ -5,6 +5,7 @@ import System.Random
 import Debug.Trace
 import DataTypes
 import Helpers
+import Globals
 
 -- Projectile templates
 projObjDefault_spd :: Float
@@ -15,6 +16,15 @@ projObjDefault_bbox = (2.5,2.5)
 
 projObjDefault_gfx :: Picture
 projObjDefault_gfx = color red $ circleSolid 5
+
+enemyDefaultProjObj =
+  Object { position = (0,0),
+           direction = (-1,0),
+           speed = projObjDefault_spd,
+           boundingBox = (16.5,4.5),
+           graphic = npcProjSprite
+         }
+enemyDefaultProj = Projectile enemyDefaultProjObj (Damage 1)
 
 
 testProj =

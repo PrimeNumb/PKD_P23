@@ -3,7 +3,6 @@ import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
 import DataTypes
 import Globals
-import Enemies
 import Debug.Trace
 import Projectile
 
@@ -130,7 +129,7 @@ o3 = Object { position = (0, 0),
               boundingBox = (25, 25),
               graphic = enemySprite
             }
-
+ 
 o4 :: Object
 o4 = Object { position = (100, 100),
               direction = (0, 0),
@@ -145,7 +144,7 @@ o5 = Object { position = (200, 200),
               boundingBox = (25, 49),
               graphic = enemySprite
             }
-
+ 
      
 enemyShipTest :: Ship
 enemyShipTest = Ship { ship_obj = o3,
@@ -156,7 +155,7 @@ enemyShipTest = Ship { ship_obj = o3,
                        isPlayer = False,
                        isFiring = True
                      }
-
+ 
 enemyShipTest1 :: Ship
 enemyShipTest1 = Ship { ship_obj = o4,
                        ship_health = 3,
@@ -166,7 +165,7 @@ enemyShipTest1 = Ship { ship_obj = o4,
                        isPlayer = False,
                        isFiring = True
                      }
-
+ 
 enemyShipTest2 :: Ship
 enemyShipTest2 = Ship { ship_obj = o5,
                        ship_health = 3,

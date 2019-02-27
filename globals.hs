@@ -27,6 +27,8 @@ win_background = black
 targetFramerate :: Int
 targetFramerate = 60
 
+enemy_spawn_interval :: Float
+enemy_spawn_interval = 2.0
 
 --Sprites
 --function png taken from gloss-game (credit the author?)

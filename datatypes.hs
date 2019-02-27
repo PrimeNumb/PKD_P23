@@ -9,6 +9,7 @@ data Game = GameState
   { playable_bounds :: BoundingBox,
     objects         :: [Object], --use this for objects that aren't ships
     enemies         :: [Ship],
+    encounterStack  :: EncounterStack,
     player          :: Ship,
     ply_projectiles :: [Projectile],
     npc_projectiles :: [Projectile],
@@ -41,6 +42,25 @@ data Projectile = Projectile
     effect   :: Effect
   } deriving Show
 
+data EncounterStack =
+  EncounterStack { pop_interval  :: Float,
+                   last_pop      :: Float,
+                   ship_stack    :: [Ship]
+                   } deriving Show
+data Effect = Damage Int | NoEffect deriving Show
+
+{- BoundingBox
+   Represents a rectangle.
+   The first element of the tuple is the 2D coordinate of the upper left corner of the rectangle.
+   The second element of the tuple is the 2D coordinate of the lower right corner of the rectangle.
+-}
+type BoundingBox = (Float, Float)
+type Position = (Float, Float)
+type Direction = (Float, Float)
+
+
+
+-- TYPECLASS DOCS GO HERE
 class Movable a where
   move :: a -> Vector -> a
   setPos :: Vector -> a -> a
@@ -80,16 +100,3 @@ instance Drawable Projectile where
   makeDrawable (Projectile {proj_obj=obj}) = makeDrawable obj
   drawBounds (Projectile {proj_obj=obj}) = drawBounds obj
   drawWithBounds (Projectile {proj_obj=obj}) = drawWithBounds obj
-
-data Encounter = EncounterQueue [Ship]
-data Effect = Damage Int | NoEffect deriving Show
-
-{- BoundingBox
-   Represents a rectangle.
-   The first element of the tuple is the 2D coordinate of the upper left corner of the rectangle.
-   The second element of the tuple is the 2D coordinate of the lower right corner of the rectangle.
--}
-type BoundingBox = (Float, Float)
-type Position = (Float, Float)
-type Direction = (Float, Float)
-
