@@ -9,7 +9,7 @@ import Globals
 
 -- Projectile templates
 projObjDefault_spd :: Float
-projObjDefault_spd = 400
+projObjDefault_spd = 600
 
 projObjDefault_bbox :: BoundingBox
 projObjDefault_bbox = (2.5,2.5)
