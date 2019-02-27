@@ -27,7 +27,7 @@ playerObj = Object { position = (0, 0),
                    }
 playerShip :: Ship
 playerShip = Ship { ship_obj = playerObj,
-                    ship_health = 20,
+                    ship_health = 1,
                     wep_cooldown = 0.25,
                     projectile = playerDefaultProj,
                     last_fired_tick = 0,
