@@ -26,6 +26,14 @@ enemyDefaultProjObj =
          }
 enemyDefaultProj = Projectile enemyDefaultProjObj (Damage 1)
 
+harmlessProjObj = Object { position = (0,0),
+                        direction = (-1,0),
+                        speed = 0,
+                        boundingBox = (0,0),
+                        graphic = rectangleSolid 1 1
+                      }
+harmlessProj = Projectile harmlessProjObj (Damage 0)
+
 
 testProj =
   Projectile { proj_obj = testProjObj,
