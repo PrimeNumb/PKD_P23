@@ -13,18 +13,18 @@ import Collision
 enemyDefaultSpawnPos :: Position
 enemyDefaultSpawnPos = (win_width+enemy_width, 0)
   where
-    enemy_width = fst $ boundingBox $ ship_obj enemyShipTemplate
+    enemy_width = fst $ boundingBox $ ship_obj enemyShipDefaultTemplate
 
 enemyObjTemplate :: Object
 enemyObjTemplate = Object { position = enemyDefaultSpawnPos,
                             direction = (-1, 0),
                             speed = 100,
                             boundingBox = (25, 49),
-                            graphic = enemySprite
+                            graphic = color blue $ rectangleSolid 50 98
                           }
 
-enemyShipTemplate :: Ship
-enemyShipTemplate = Ship { ship_obj = enemyObjTemplate,
+enemyShipDefaultTemplate :: Ship
+enemyShipDefaultTemplate = Ship { ship_obj = enemyObjTemplate,
                            ship_health = 3,
                            wep_cooldown = 2.0,
                            projectile = enemyDefaultProj,
@@ -52,7 +52,7 @@ processDir (x,y) (dx,dy)
 
 
 updateEnemy :: Float -> Game -> Ship -> Ship               
-updateEnemy dt gameState@(GameState {ticker=currentTick}) enemy = newEnemy
+updateEnemy dt gameState@(GameState {ticker=currentTick,background=background}) enemy = newEnemy
   where
     -- Update the last fired tick
     canFire = (currentTick - (last_fired_tick enemy)) > (wep_cooldown enemy)
@@ -67,4 +67,4 @@ updateEnemy dt gameState@(GameState {ticker=currentTick}) enemy = newEnemy
     (dx,dy) = direction newEnemyObj
     enemySpeed = speed enemyObj
     deltaPos = (dx*enemySpeed*dt,dy*enemySpeed*dt)
-    newEnemy = enemy { ship_obj = (move newEnemyObj deltaPos), last_fired_tick = updatedTick, isFiring=(not $ outOfBounds newEnemyObj) }
+    newEnemy = enemy { ship_obj = (move newEnemyObj deltaPos), last_fired_tick = updatedTick, isFiring=(not $ outOfBounds newEnemyObj background) }

@@ -34,23 +34,23 @@ checkRectCollision obj1@(Object {position=p1@(x1, y1), boundingBox=box1@(r1x, r1
 --TODO: Make enemybullets and friendlybullets, they don't interact the same way.
 
 
-outOfBounds :: Object -> Bool
-outOfBounds obj = not (checkRectCollision obj background)
+outOfBounds :: Object -> Object -> Bool
+outOfBounds obj obj2 = not (checkRectCollision obj obj2)
 
 
 colEnemProj :: Game -> [Projectile] -> [Projectile]
 colEnemProj _ [] = []
-colEnemProj gameState@(GameState {player=ply@(Ship {ship_obj=ship_obj})}) (x@(Projectile {proj_obj=proj_obj}):xs) =
-  if checkRectCollision ship_obj proj_obj || outOfBounds proj_obj then colEnemProj gameState xs else x : colEnemProj gameState xs
+colEnemProj gameState@(GameState {player=ply@(Ship {ship_obj=ship_obj}),background=background}) (x@(Projectile {proj_obj=proj_obj}):xs) =
+  if checkRectCollision ship_obj proj_obj || (outOfBounds proj_obj background) then colEnemProj gameState xs else x : colEnemProj gameState xs
 
 colPlyProj :: Game -> [Projectile] -> [Projectile]
 colPlyProj _ [] = []
-colPlyProj gameState@(GameState {enemies=enemies}) (proj:xs) = colPlyProjAux proj enemies ++ colPlyProj gameState xs
+colPlyProj gameState@(GameState {enemies=enemies,background=background}) (proj:xs) = colPlyProjAux proj enemies ++ colPlyProj gameState xs
   where
     colPlyProjAux :: Projectile  -> [Ship] -> [Projectile]
     colPlyProjAux proj [] = [proj] 
     colPlyProjAux proj@(Projectile {proj_obj=proj_obj}) (x@(Ship{ship_obj=ship_obj}):xs) =
-      if checkRectCollision proj_obj ship_obj || outOfBounds proj_obj then [] else colPlyProjAux proj xs
+      if checkRectCollision proj_obj ship_obj || (outOfBounds proj_obj background) then [] else colPlyProjAux proj xs
 
 
 
@@ -88,43 +88,6 @@ plyHandleDmg gameState@(GameState {enemies=enemies ,npc_projectiles=npc_projecti
     enemy_objs = map ship_obj enemies
 
 -- Collisiontests
-o1 :: Object
-o1 = Object { position = (2, 3),
-              direction = (0, 0),
-              speed = 0,
-              boundingBox = (1, 1),
-              graphic = color green $ rectangleSolid 50.0 50.0
-            }
-                                
-o2 :: Object
-o2 = Object { position = (0, 0),
-              direction = (0, 0),
-              speed = 0,
-              boundingBox = (1, 1),
-              graphic = color green $ rectangleSolid 50.0 50.0            }
-     
-o3 :: Object
-o3 = Object { position = (0, 0),
-              direction = (0, 0),
-              speed = 300,
-              boundingBox = (25, 25),
-              graphic = enemySprite
-            }
- 
-o4 :: Object
-o4 = Object { position = (100, 100),
-              direction = (0, 0),
-              speed = 300,
-              boundingBox = (25, 25),
-              graphic = enemySprite
-            }
-o5 :: Object
-o5 = Object { position = (200, 200),
-              direction = (0, 0),
-              speed = 300,
-              boundingBox = (25, 49),
-              graphic = enemySprite
-            }
 
 gameOverObject :: Object
 gameOverObject = Object { position = (0, 0),
@@ -144,36 +107,4 @@ invisPlayer = Ship { ship_obj = gameOverObject,
                      isPlayer = False,
                      isFiring = False
                    }
-     
-enemyShipTest :: Ship
-enemyShipTest = Ship { ship_obj = o3,
-                       ship_health = 3,
-                       wep_cooldown = 2.0,
-                       projectile = enemyDefaultProj,
-                       last_fired_tick = 0,
-                       isPlayer = False,
-                       isFiring = True
-                     }
- 
-enemyShipTest1 :: Ship
-enemyShipTest1 = Ship { ship_obj = o4,
-                       ship_health = 3,
-                       wep_cooldown = 2.0,
-                       projectile = enemyDefaultProj,
-                       last_fired_tick = 0,
-                       isPlayer = False,
-                       isFiring = True
-                     }
- 
-enemyShipTest2 :: Ship
-enemyShipTest2 = Ship { ship_obj = o5,
-
-                       ship_health = 3,
-                       wep_cooldown = 2.0,
-                       projectile = enemyDefaultProj,
-                       last_fired_tick = 0,
-                       isPlayer = False,
-                       isFiring = True
-                     }
-
 

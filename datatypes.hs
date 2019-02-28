@@ -6,16 +6,22 @@ import Debug.Trace
 
 -- Preliminary, subject to change
 data Game = GameState
-  { objects         :: [Object], --use this for objects that aren't ships
-    enemies         :: [Ship],
-    playable_bounds :: BoundingBox,
-    randomGen       :: StdGen,
-    encounter       :: Encounter,
-    player          :: Ship,
-    ply_projectiles :: [Projectile],
-    npc_projectiles :: [Projectile],
-    ticker          :: Float,
-    showHitbox      :: Bool
+  { objects          :: [Object], --use this for objects that aren't ships
+    game_gfx         :: GameGFX,
+    enemies          :: [Ship],
+    playable_bounds  :: BoundingBox,
+    randomGen        :: StdGen,
+    encounter        :: Encounter,
+    player           :: Ship,
+    ply_projectiles  :: [Projectile],
+    npc_projectiles  :: [Projectile],
+    ticker           :: Float,
+    background       :: Object,
+    plyTemplate      :: Ship,
+    enmyTemplate     :: Ship,
+    plyProjTemplate  :: Projectile,
+    enmyProjTemplate :: Projectile,
+    showHitbox       :: Bool
   } deriving Show
 
 -- Preliminary, subject to change
@@ -49,6 +55,18 @@ data Encounter = Encounter
     last_pop      :: Float,
     ship_stack    :: [Ship]
   } deriving Show
+
+data GameGFX = GameGFX
+  {
+    player_gfx         :: Picture,
+    enemy_standard_gfx :: Picture,
+    player_proj_gfx    :: Picture,
+    enemy_proj_gfx     :: Picture,
+    heart_gfx          :: Picture,
+    gameOver_gfx       :: Picture,
+    background_gfx     :: Picture
+  } deriving Show
+
 data Effect = Damage Int | NoEffect deriving Show
 
 {- BoundingBox
@@ -86,6 +104,7 @@ class Drawable a where
   makeDrawable :: a -> Picture
   drawBounds :: a -> Picture
   drawWithBounds :: a -> Picture
+  setSprite :: a -> Picture -> a
 
 instance Drawable Object where
   makeDrawable (Object {position = pos, graphic=g}) =
@@ -94,13 +113,18 @@ instance Drawable Object where
     color red $ translate x y $ rectangleWire (2*bx) (2*by)
   drawWithBounds obj@(Object {position=(x,y), boundingBox=(bx,by)}) =
     pictures $ (makeDrawable obj):(drawBounds obj):[]
+  setSprite obj gfx = obj {graphic=gfx}
     
 instance Drawable Ship where
   makeDrawable (Ship {ship_obj=obj}) = makeDrawable obj
   drawBounds (Ship {ship_obj=obj}) = drawBounds obj
   drawWithBounds (Ship {ship_obj=obj}) = drawWithBounds obj
+  setSprite ship@(Ship {ship_obj=obj}) gfx =
+    ship {ship_obj=(setSprite obj gfx)}
 
 instance Drawable Projectile where
   makeDrawable (Projectile {proj_obj=obj}) = makeDrawable obj
   drawBounds (Projectile {proj_obj=obj}) = drawBounds obj
   drawWithBounds (Projectile {proj_obj=obj}) = drawWithBounds obj
+  setSprite proj@(Projectile {proj_obj=obj}) gfx =
+    proj {proj_obj=(setSprite obj gfx)}
