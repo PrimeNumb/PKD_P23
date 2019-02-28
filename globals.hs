@@ -36,34 +36,40 @@ enemy_spawn_initial_delay = 5.0
 --Sprites
 --function png taken from gloss-game (credit the author?)
 
+-- DELETE THIS
 png :: FilePath -> Picture
 png fname = maybe (text "PNG ERROR") id (unsafePerformIO $ loadJuicyPNG fname)
 
-playerSprite :: Picture
-playerSprite = png "./sprites/player2.png"
+playerSpritePath :: FilePath
+playerSpritePath = "./sprites/player2.png"
 
-enemySprite :: Picture
-enemySprite = png "./sprites/enemyShip.png"
+enemySpritePath :: FilePath
+enemySpritePath = "./sprites/enemyShip.png"
 
-plyProjSprite :: Picture
-plyProjSprite = png "./sprites/laserRed.png"
+plyProjSpritePath :: FilePath
+plyProjSpritePath = "./sprites/laserRed.png"
 
-npcProjSprite :: Picture
-npcProjSprite = png "./sprites/laserGreen.png"
+enemyProjSpritePath :: FilePath
+enemyProjSpritePath = "./sprites/laserGreen.png"
 
-heartSprite :: Picture
-heartSprite = png "./sprites/heart.png"
+heartSpritePath :: FilePath
+heartSpritePath = "./sprites/heart.png"
 
 gameOverSprite :: Picture
 gameOverSprite = png "./sprites/gameOver.png"
 
-background :: Object
-background =
+gameOverSpritePath :: FilePath
+gameOverSpritePath = "./sprites/gameOver.png"
+
+defaultBackground :: Object
+defaultBackground =
   Object { position = (0, 0),
            direction = (0, 0),
            speed = 0,
            boundingBox = (win_width/2, win_height/2),
-           graphic = png "./sprites/spacebackg.png"
+           graphic = Blank
          }
 
+backgroundPath :: FilePath
+backgroundPath = "./sprites/spacebackg.png"
 

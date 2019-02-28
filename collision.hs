@@ -42,6 +42,7 @@ checkRectCollision obj1@(Object {position=p1@(x1, y1), boundingBox=box1@(r1x, r1
     r2y1 = y2 + r2y
     r2y2 = y2 - r2y
 
+
 {-outOfBounds object
 Checks if an object is out of bounds
 PRE:
@@ -53,8 +54,9 @@ EXAMPLES: outOfBounds (Object { position = (700, 700),
                                graphic = Blank
                            }) == True
 -}
-outOfBounds :: Object -> Bool
-outOfBounds obj = not (checkRectCollision obj background)
+
+outOfBounds :: Object -> Object -> Bool
+outOfBounds obj obj2 = not (checkRectCollision obj obj2)
 
 {-colEnemProj
 Checks the list of enemy projectiles to see if any of them need to be despawned. This happens if a projectile collides with the player or if the projectile is out of bounds.
@@ -69,17 +71,17 @@ EXAMPLES: outOfBounds (Object { position = (700, 700),
 -}
 colEnemProj :: Game -> [Projectile] -> [Projectile]
 colEnemProj _ [] = []
-colEnemProj gameState@(GameState {player=ply@(Ship {ship_obj=ship_obj})}) (x@(Projectile {proj_obj=proj_obj}):xs) =
-  if checkRectCollision ship_obj proj_obj || outOfBounds proj_obj then colEnemProj gameState xs else x : colEnemProj gameState xs
+colEnemProj gameState@(GameState {player=ply@(Ship {ship_obj=ship_obj}),background=background}) (x@(Projectile {proj_obj=proj_obj}):xs) =
+  if checkRectCollision ship_obj proj_obj || (outOfBounds proj_obj background) then colEnemProj gameState xs else x : colEnemProj gameState xs
 
 colPlyProj :: Game -> [Projectile] -> [Projectile]
 colPlyProj _ [] = []
-colPlyProj gameState@(GameState {enemies=enemies}) (proj:xs) = colPlyProjAux proj enemies ++ colPlyProj gameState xs
+colPlyProj gameState@(GameState {enemies=enemies,background=background}) (proj:xs) = colPlyProjAux proj enemies ++ colPlyProj gameState xs
   where
     colPlyProjAux :: Projectile  -> [Ship] -> [Projectile]
     colPlyProjAux proj [] = [proj] 
     colPlyProjAux proj@(Projectile {proj_obj=proj_obj}) (x@(Ship{ship_obj=ship_obj}):xs) =
-      if checkRectCollision proj_obj ship_obj || outOfBounds proj_obj then [] else colPlyProjAux proj xs
+      if checkRectCollision proj_obj ship_obj || (outOfBounds proj_obj background) then [] else colPlyProjAux proj xs
 
 
 applyEffect :: Effect -> Ship -> Ship
@@ -134,10 +136,6 @@ invisPlayer = Ship { ship_obj = gameOverObject,
                      isPlayer = False,
                      isFiring = False
                    }
-     
-
-
-
 
 --Testcases and test Objects
 
@@ -163,6 +161,7 @@ objPoint = Object { position = (0, 0),
                   }
 
 
+-- Collisiontests
 
 test1 = TestCase $ assertEqual "bordering bounding boxes" False (checkRectCollision smallObj bigObj)
 

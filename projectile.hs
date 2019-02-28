@@ -22,7 +22,7 @@ enemyDefaultProjObj =
            direction = (-1,0),
            speed = projObjDefault_spd,
            boundingBox = (16.5,4.5),
-           graphic = npcProjSprite
+           graphic = projObjDefault_gfx
          }
 enemyDefaultProj = Projectile enemyDefaultProjObj (Damage 1)
 
