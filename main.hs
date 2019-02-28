@@ -129,7 +129,7 @@ update dt gameState@(GameState {ticker=currentTick,ply_projectiles=projList, ene
     -- Game related
     newTicker = currentTick+dt
     
-    --The final updated gamestate
+    -- The final updated gamestate
     newGameState = (gameState {player=newPlayer, ticker=newTicker, ply_projectiles=newPlyProjList, enemies=newEnemies, npc_projectiles=newEnemyProjList, encounter=newEncounter})
 
 updateEncounter :: Encounter -> Float -> [Ship] -> (Encounter,[Ship])
