@@ -5,13 +5,26 @@ import DataTypes
 import Globals
 import Debug.Trace
 import Projectile
+import Test.HUnit
 
 
-{- checkRectCollision
+{- checkRectCollision object1 object2
 Checks is two objects overlap (collide).
-PRE: The object's bounding boxes have their top left corner listed as the first 2-tuple. 
-RETURNS:
-EXAMPLES: 
+PRE: 
+RETURNS: True if the objects collide, otherwise False.
+EXAMPLES:
+checkRectCollision (Object { position = (10, 0),
+                             direction = (0, 0),
+                             speed = 300,
+                             boundingBox = (5, 5),
+                             graphic = Blank
+                           }) (Object { position = (0, 0),
+                                        direction = (0, 0),
+                                        speed = 300,
+                                        boundingBox = (0, 0),
+                                        graphic = Blank
+                                      }) == True
+
 -}
 
 checkRectCollision :: Object -> Object -> Bool
@@ -29,15 +42,31 @@ checkRectCollision obj1@(Object {position=p1@(x1, y1), boundingBox=box1@(r1x, r1
     r2y1 = y2 + r2y
     r2y2 = y2 - r2y
 
---TODO: Change enemy into enemies! We need more!
---TODO: Fix bunding boxes? It's a pretty wonky way to handle collision tbh...
---TODO: Make enemybullets and friendlybullets, they don't interact the same way.
-
-
+{-outOfBounds object
+Checks if an object is out of bounds
+PRE:
+RETURNS: True if the entire hitbox of the object is outside the screen, False otherwise.
+EXAMPLES: outOfBounds (Object { position = (700, 700),
+                               direction = (0, 0),
+                               speed = 300,
+                               boundingBox = (5, 5),
+                               graphic = Blank
+                           }) == True
+-}
 outOfBounds :: Object -> Bool
 outOfBounds obj = not (checkRectCollision obj background)
 
-
+{-colEnemProj
+Checks the list of enemy projectiles to see if any of them need to be despawned. This happens if a projectile collides with the player or if the projectile is out of bounds.
+PRE:
+RETURNS: A list where the projectiles that should be despawned are remooved.
+EXAMPLES: outOfBounds (Object { position = (700, 700),
+                               direction = (0, 0),
+                               speed = 300,
+                               boundingBox = (5, 5),
+                               graphic = Blank
+                           }) == True
+-}
 colEnemProj :: Game -> [Projectile] -> [Projectile]
 colEnemProj _ [] = []
 colEnemProj gameState@(GameState {player=ply@(Ship {ship_obj=ship_obj})}) (x@(Projectile {proj_obj=proj_obj}):xs) =
@@ -51,7 +80,6 @@ colPlyProj gameState@(GameState {enemies=enemies}) (proj:xs) = colPlyProjAux pro
     colPlyProjAux proj [] = [proj] 
     colPlyProjAux proj@(Projectile {proj_obj=proj_obj}) (x@(Ship{ship_obj=ship_obj}):xs) =
       if checkRectCollision proj_obj ship_obj || outOfBounds proj_obj then [] else colPlyProjAux proj xs
-
 
 
 applyEffect :: Effect -> Ship -> Ship
@@ -86,58 +114,20 @@ plyHandleDmg gameState@(GameState {enemies=enemies ,npc_projectiles=npc_projecti
   where
     enemy_collisions = map (checkRectCollision ply_obj) enemy_objs
     enemy_objs = map ship_obj enemies
+    
 
--- Collisiontests
-o1 :: Object
-o1 = Object { position = (2, 3),
-              direction = (0, 0),
-              speed = 0,
-              boundingBox = (1, 1),
-              graphic = color green $ rectangleSolid 50.0 50.0
-            }
-                                
-o2 :: Object
-o2 = Object { position = (0, 0),
-              direction = (0, 0),
-              speed = 0,
-              boundingBox = (1, 1),
-              graphic = color green $ rectangleSolid 50.0 50.0            }
-     
-o3 :: Object
-o3 = Object { position = (0, 0),
-              direction = (0, 0),
-              speed = 300,
-              boundingBox = (25, 25),
-              graphic = enemySprite
-            }
- 
-o4 :: Object
-o4 = Object { position = (100, 100),
-              direction = (0, 0),
-              speed = 300,
-              boundingBox = (25, 25),
-              graphic = enemySprite
-            }
-o5 :: Object
-o5 = Object { position = (200, 200),
-              direction = (0, 0),
-              speed = 300,
-              boundingBox = (25, 49),
-              graphic = enemySprite
-            }
 
+--GAME OVER OBJECTS
 gameOverObject :: Object
-gameOverObject = Object { position = (0, 0),
+gameOverObject = Object { position = (1000, 1000),
                           direction = (0, 0),
                           speed = 300,
                           boundingBox = (0, 0),
-                          graphic = rectangleSolid 1 1
+                          graphic = Blank
                         }
-
-  
 invisPlayer :: Ship
 invisPlayer = Ship { ship_obj = gameOverObject,
-                     ship_health = 1,
+                     ship_health = -1,
                      wep_cooldown = 200.0,
                      projectile = harmlessProj,
                      last_fired_tick = 0,
@@ -145,35 +135,38 @@ invisPlayer = Ship { ship_obj = gameOverObject,
                      isFiring = False
                    }
      
-enemyShipTest :: Ship
-enemyShipTest = Ship { ship_obj = o3,
-                       ship_health = 3,
-                       wep_cooldown = 2.0,
-                       projectile = enemyDefaultProj,
-                       last_fired_tick = 0,
-                       isPlayer = False,
-                       isFiring = True
-                     }
- 
-enemyShipTest1 :: Ship
-enemyShipTest1 = Ship { ship_obj = o4,
-                       ship_health = 3,
-                       wep_cooldown = 2.0,
-                       projectile = enemyDefaultProj,
-                       last_fired_tick = 0,
-                       isPlayer = False,
-                       isFiring = True
-                     }
- 
-enemyShipTest2 :: Ship
-enemyShipTest2 = Ship { ship_obj = o5,
 
-                       ship_health = 3,
-                       wep_cooldown = 2.0,
-                       projectile = enemyDefaultProj,
-                       last_fired_tick = 0,
-                       isPlayer = False,
-                       isFiring = True
-                     }
 
+
+
+--Testcases and test Objects
+
+smallObj = Object { position = (15, 0),
+                    direction = (0, 0),
+                    speed = 300,
+                    boundingBox = (5, 5),
+                    graphic = Blank
+                  }
+
+bigObj = Object { position = (0, 0),
+                  direction = (0, 0),
+                  speed = 300,
+                  boundingBox = (10, 10),
+                  graphic = Blank
+                }
+       
+objPoint = Object { position = (0, 0),
+                    direction = (0, 0),
+                    speed = 300,
+                    boundingBox = (0, 0),
+                    graphic = Blank
+                  }
+
+
+
+test1 = TestCase $ assertEqual "bordering bounding boxes" False (checkRectCollision smallObj bigObj)
+
+test2 = TestCase $ assertEqual "one object is a point (no area of the bounding box)" True (checkRectCollision bigObj objPoint)
+
+runCollisionTests = runTestTT $ TestList [test1, test2]
 

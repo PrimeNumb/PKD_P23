@@ -83,6 +83,11 @@ main = do
   play window win_background targetFramerate (initGameState {randomGen=newGen, encounter=initEncounter}) draw handleEvent update
   return ()
     
+newGame :: Game -> Game
+newGame gameState@(GameState{randomGen=randomGen}) = gameState{encounter=initEncounter, player=playerShip, npc_projectiles=[], ply_projectiles=[], ticker=0, randomGen=newGen, objects=[], enemies=[]}
+  where
+  (generatedShipStack, newGen) = generateEncounter randomGen 10 enemyShipTemplate
+  initEncounter = defaultEncounter {ship_stack=generatedShipStack}
 
 
 draw :: Game -> Picture
@@ -143,9 +148,15 @@ updateEncounter encounter currentTick enemyContainer
     newEncounter = updatedEncounter {ship_stack=newStack}
 
 updateHealthDisplay :: Ship -> [Object]
-updateHealthDisplay player@(Ship{ship_health=ship_health}) =
-  if ship_health <= 0 then []
-  else Object { position = (xpos, -250),
+updateHealthDisplay player@(Ship{ship_health=ship_health})
+  |ship_health == -1 = [Object { position = (0, 0),
+                                direction = (0, 0),
+                                speed = 0,
+                                boundingBox = (0, 0),
+                                graphic = png "./sprites/gameOver.png"
+                              }]
+  |ship_health <= 0 = []
+  |otherwise = Object { position = (xpos, -250),
                 direction = (0, 0),
                 speed = 0,
                 boundingBox = (0, 0),
@@ -180,7 +191,9 @@ handleEvent (EventKey key Down mod _) gameState =
             Just x  -> x:plyProjList
             Nothing -> plyProjList
     (SpecialKey KeyF1)    -> gameState { showHitbox = (not $ showHitbox gameState)}
+    (SpecialKey KeyF2)            -> newGame gameState
     _ -> gameState
+
 handleEvent (EventKey key Up _ _) gameState =
   case key of
     (SpecialKey KeyUp)    -> modPlyDirection gameState (0,-1)
@@ -189,6 +202,9 @@ handleEvent (EventKey key Up _ _) gameState =
     (SpecialKey KeyRight) -> modPlyDirection gameState (-1,0)
     (SpecialKey KeySpace) -> gameState { player = (player gameState) {isFiring=False}}
     _ -> gameState
+
+
+    
 -- Need to do something when the screen is resized
 handleEvent (EventResize (x, y)) gameState = gameState
 handleEvent _ gameState = gameState
