@@ -6,14 +6,22 @@ import Debug.Trace
 
 -- Preliminary, subject to change
 data Game = GameState
-  { objects         :: [Object], --use this for objects that aren't ships
-    enemies         :: [Ship],
-    player          :: Ship,
-    ply_projectiles :: [Projectile],
-    npc_projectiles :: [Projectile],
-    enemy           :: Ship,
-    ticker          :: Float,
-    playerIsFiring  :: Bool -- move to Ship datatype?
+  { objects          :: [Object], --use this for objects that aren't ships
+    game_gfx         :: GameGFX,
+    enemies          :: [Ship],
+    playable_bounds  :: BoundingBox,
+    randomGen        :: StdGen,
+    encounter        :: Encounter,
+    player           :: Ship,
+    ply_projectiles  :: [Projectile],
+    npc_projectiles  :: [Projectile],
+    ticker           :: Float,
+    background       :: Object,
+    plyTemplate      :: Ship,
+    enmyTemplate     :: Ship,
+    plyProjTemplate  :: Projectile,
+    enmyProjTemplate :: Projectile,
+    showHitbox       :: Bool
   } deriving Show
 
 -- Preliminary, subject to change
@@ -41,6 +49,24 @@ data Projectile = Projectile
     effect   :: Effect
   } deriving Show
 
+data Encounter = Encounter
+  {
+    pop_interval  :: Float,
+    last_pop      :: Float,
+    ship_stack    :: [Ship]
+  } deriving Show
+
+data GameGFX = GameGFX
+  {
+    player_gfx         :: Picture,
+    enemy_standard_gfx :: Picture,
+    player_proj_gfx    :: Picture,
+    enemy_proj_gfx     :: Picture,
+    heart_gfx          :: Picture,
+    gameOver_gfx       :: Picture,
+    background_gfx     :: Picture
+  } deriving Show
+
 data Effect = Damage Int | NoEffect deriving Show
 
 {- BoundingBox
@@ -52,3 +78,53 @@ type BoundingBox = (Float, Float)
 type Position = (Float, Float)
 type Direction = (Float, Float)
 
+
+
+-- TYPECLASS DOCS GO HERE
+class Movable a where
+  move :: a -> Vector -> a
+  setPos :: Vector -> a -> a
+
+instance Movable Object where
+  move obj@(Object {position=(x,y)}) (vx,vy) = obj { position = (x+vx,y+vy) }
+  setPos (x,y) obj@(Object {position=(obj_x,obj_y)}) =
+    move obj (x-obj_x,y-obj_y)
+instance Movable Ship where
+  move ship@(Ship {ship_obj=obj}) v = ship {ship_obj=(move obj v)}
+  setPos pos ship@(Ship {ship_obj=obj}) =
+    ship {ship_obj=(setPos pos obj)}
+
+instance Movable Projectile where
+  move proj@(Projectile {proj_obj=obj}) v = proj {proj_obj=(move obj v)}
+  setPos pos proj@(Projectile {proj_obj=obj}) =
+    proj {proj_obj=(setPos pos obj)}
+
+
+class Drawable a where
+  makeDrawable :: a -> Picture
+  drawBounds :: a -> Picture
+  drawWithBounds :: a -> Picture
+  setSprite :: a -> Picture -> a
+
+instance Drawable Object where
+  makeDrawable (Object {position = pos, graphic=g}) =
+    uncurry translate pos $ g
+  drawBounds (Object {position=(x,y), boundingBox=(bx,by)}) =
+    color red $ translate x y $ rectangleWire (2*bx) (2*by)
+  drawWithBounds obj@(Object {position=(x,y), boundingBox=(bx,by)}) =
+    pictures $ (makeDrawable obj):(drawBounds obj):[]
+  setSprite obj gfx = obj {graphic=gfx}
+    
+instance Drawable Ship where
+  makeDrawable (Ship {ship_obj=obj}) = makeDrawable obj
+  drawBounds (Ship {ship_obj=obj}) = drawBounds obj
+  drawWithBounds (Ship {ship_obj=obj}) = drawWithBounds obj
+  setSprite ship@(Ship {ship_obj=obj}) gfx =
+    ship {ship_obj=(setSprite obj gfx)}
+
+instance Drawable Projectile where
+  makeDrawable (Projectile {proj_obj=obj}) = makeDrawable obj
+  drawBounds (Projectile {proj_obj=obj}) = drawBounds obj
+  drawWithBounds (Projectile {proj_obj=obj}) = drawWithBounds obj
+  setSprite proj@(Projectile {proj_obj=obj}) gfx =
+    proj {proj_obj=(setSprite obj gfx)}

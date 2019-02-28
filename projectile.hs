@@ -5,10 +5,39 @@ import System.Random
 import Debug.Trace
 import DataTypes
 import Helpers
+import Globals
+
+-- Projectile templates
+projObjDefault_spd :: Float
+projObjDefault_spd = 600
+
+projObjDefault_bbox :: BoundingBox
+projObjDefault_bbox = (2.5,2.5)
+
+projObjDefault_gfx :: Picture
+projObjDefault_gfx = color red $ circleSolid 5
+
+enemyDefaultProjObj =
+  Object { position = (0,0),
+           direction = (-1,0),
+           speed = projObjDefault_spd,
+           boundingBox = (16.5,4.5),
+           graphic = projObjDefault_gfx
+         }
+enemyDefaultProj = Projectile enemyDefaultProjObj (Damage 1)
+
+harmlessProjObj = Object { position = (0,0),
+                        direction = (-1,0),
+                        speed = 0,
+                        boundingBox = (0,0),
+                        graphic = rectangleSolid 1 1
+                      }
+harmlessProj = Projectile harmlessProjObj (Damage 0)
+
 
 testProj =
   Projectile { proj_obj = testProjObj,
-               effect = NoEffect
+               effect = Damage 1
              }
 testProjObj =
   Object { position = (0,0),
@@ -49,10 +78,9 @@ spawnProjectile proj isPlayer gameState
     npcProjList = proj:(npc_projectiles gameState)
 
 updateProjectile :: Float -> Projectile -> Projectile
-updateProjectile dt proj@(Projectile {proj_obj=pObj}) = proj { proj_obj = newProjObj}
+updateProjectile dt proj@(Projectile {proj_obj=pObj}) = newProj
   where
-    testProjs = [] :: [Projectile]
     pSpeed = speed pObj
     (dx, dy) = direction pObj
-    newProjObj = moveObject pObj (dx*pSpeed*dt,dy*pSpeed*dt)
+    newProj = move proj (dx*pSpeed*dt,dy*pSpeed*dt)
     
