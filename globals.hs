@@ -54,6 +54,9 @@ npcProjSprite = png "./sprites/laserGreen.png"
 heartSprite :: Picture
 heartSprite = png "./sprites/heart.png"
 
+gameOverSprite :: Picture
+gameOverSprite = png "./sprites/gameOver.png"
+
 background :: Object
 background =
   Object { position = (0, 0),

@@ -130,14 +130,14 @@ gameOverObject :: Object
 gameOverObject = Object { position = (0, 0),
                           direction = (0, 0),
                           speed = 300,
-                          boundingBox = (25, 25),
+                          boundingBox = (0, 0),
                           graphic = rectangleSolid 1 1
                         }
 
   
 invisPlayer :: Ship
 invisPlayer = Ship { ship_obj = gameOverObject,
-                     ship_health = 500,
+                     ship_health = 1,
                      wep_cooldown = 200.0,
                      projectile = harmlessProj,
                      last_fired_tick = 0,
