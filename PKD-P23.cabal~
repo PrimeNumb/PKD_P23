@@ -19,6 +19,6 @@ executable PKD-P23
   main-is:             main.hs
   -- other-modules: Collision, DataTypes, Encounter, Enemies, Globals, Helpers, Player, Projectile, Rendering
   -- other-extensions:
-  build-depends:       base >=4.11 && <4.12, gloss, gloss-juicy
+  build-depends:       base >=4.11 && <4.12, gloss, gloss-juicy, random
   -- hs-source-dirs:
   default-language:    Haskell2010

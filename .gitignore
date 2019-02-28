@@ -3,3 +3,4 @@
 LICENSE
 dist/
 *.hs#
+*.cabal~

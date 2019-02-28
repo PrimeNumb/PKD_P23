@@ -198,11 +198,11 @@ draw gameState@(GameState {objects=objs, game_gfx=gameGFX, player=playerShip, pl
 -}
 
 update :: Float -> Game -> Game
-update dt gameState@(GameState {ticker=currentTick,ply_projectiles=projList, enemies=enemies,npc_projectiles=enemyProjList,encounter=encounter}) = newGameState 
+update dt gameState@(GameState {ticker=currentTick,ply_projectiles=projList, enemies=enemies,npc_projectiles=enemyProjList,encounter=encounter, player=player}) = newGameState 
   where
     -- Everything that should be updated each iteration goes here
     -- Player related
-    newPlayer = plyHandleDmg gameState (updatePlayer dt gameState)
+    newPlayer = (updatePlayer dt gameState{player=(plyHandleDmg gameState player)})
     updatePlyProjList =
       map (updateProjectile dt) (colPlyProj gameState projList)
     newPlyProjList = case (ship_fire (1,0) newTicker newPlayer) of
@@ -242,7 +242,7 @@ updateHealthDisplay player@(Ship{ship_health=ship_health}) heartGFX gameOverGFX
                                 graphic = gameOverGFX
                               }]
   |ship_health <= 0 = []
-  |otherwise = (Object { position = (xpos, -250),
+  |otherwise = (Object { position = (xpos, 250),
                          direction = (0, 0),
                          speed = 0,
                          boundingBox = (0, 0),
