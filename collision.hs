@@ -133,6 +133,7 @@ RETURNS: An updated list of Ships where the health values are adjusted and the s
 EXAMPLES:
 -}
 eneHandleDmg :: Game -> [Ship] -> [Ship]
+--VARIANT: length of ships
 eneHandleDmg _ [] = []
 eneHandleDmg gameState@(GameState {player=player, ply_projectiles=proj}) (ship:xs) =
   if ship_health ship <= 0  || playerCollideShip then eneHandleDmg gameState xs

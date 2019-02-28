@@ -106,7 +106,12 @@ main = do
       readyEncounter = defaultEncounter {ship_stack=generatedShipStack}
   play window win_background targetFramerate (readyGameState {randomGen=newGen, encounter=readyEncounter }) draw handleEvent update
   return ()
-    
+
+{-newGame gameState
+Takes in the current GameState and resets it to default values allowing the player to start over.
+PRE:
+RETURNS: A new game state with reset values.
+-}
 newGame :: Game -> Game
 newGame gameState@(GameState{randomGen=randomGen, enmyTemplate=enmyTemplate}) = gameState{encounter=initEncounter, player=(plyTemplate gameState), npc_projectiles=[], ply_projectiles=[], ticker=0, randomGen=newGen, objects=[], enemies=[]}
   where
@@ -153,9 +158,6 @@ loadGFX = do
 
   imgBuffer <- loadJuicyPNG gameOverSpritePath
   let gameOverGFX = processSprite imgBuffer
-
-  imgBuffer <- loadJuicyPNG backgroundPath
-  let backgroundGFX = processSprite imgBuffer
   
   imgBuffer <- loadJuicyPNG backgroundPath
   let backgroundGFX = processSprite imgBuffer
@@ -232,8 +234,14 @@ updateEncounter encounter currentTick enemyContainer
     (newStack, newEnemyContainer) =
       pop (ship_stack updatedEncounter) enemyContainer
     newEncounter = updatedEncounter {ship_stack=newStack}
-
+{-updateHealthDisplay ship heartGFX gameOverGFX
+Updates the health display of the Ship so it correlates with current health. Also displays a game over graphic when the player is dead.
+PRE:
+RETURNS: A list of the objects that are to be drawn. Either hearts corresponding to Ship health or a game over graphic.
+Examples:
+-}
 updateHealthDisplay :: Ship -> Picture -> Picture -> [Object]
+--VARIANT: ship_health ship
 updateHealthDisplay player@(Ship{ship_health=ship_health}) heartGFX gameOverGFX
   |ship_health == -1 = [Object { position = (0, 0),
                                 direction = (0, 0),
