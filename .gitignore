@@ -1,6 +1,9 @@
 *.hs~
+
 *.cabal
+
 LICENSE
+
 dist/
 *.hs#
 *.cabal~

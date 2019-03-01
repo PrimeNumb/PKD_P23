@@ -4,24 +4,34 @@ import Graphics.Gloss.Interface.Pure.Game
 import System.Random
 import Debug.Trace
 import DataTypes
-import Helpers
+import Utilities
 import Globals
 
 -- Projectile templates
 projObjDefault_spd :: Float
 projObjDefault_spd = 600
 
-projObjDefault_bbox :: BoundingBox
-projObjDefault_bbox = (2.5,2.5)
+projObjDefault_bounds :: Bounds
+projObjDefault_bounds = (2.5,2.5)
 
 projObjDefault_gfx :: Picture
 projObjDefault_gfx = color red $ circleSolid 5
+
+playerDefaultProjObj =
+  Object { position = (0,0),
+           direction = (1,0),
+           speed = projObjDefault_spd,
+           bounds = projObjDefault_bounds,
+           graphic = projObjDefault_gfx
+         }
+playerDefaultProj = Projectile playerDefaultProjObj (Damage 1)
+
 
 enemyDefaultProjObj =
   Object { position = (0,0),
            direction = (-1,0),
            speed = projObjDefault_spd,
-           boundingBox = (16.5,4.5),
+           bounds = (16.5,4.5),
            graphic = projObjDefault_gfx
          }
 enemyDefaultProj = Projectile enemyDefaultProjObj (Damage 1)
@@ -29,7 +39,7 @@ enemyDefaultProj = Projectile enemyDefaultProjObj (Damage 1)
 harmlessProjObj = Object { position = (0,0),
                         direction = (-1,0),
                         speed = 0,
-                        boundingBox = (0,0),
+                        bounds = (0,0),
                         graphic = rectangleSolid 1 1
                       }
 harmlessProj = Projectile harmlessProjObj (Damage 0)
@@ -43,22 +53,11 @@ testProjObj =
   Object { position = (0,0),
            direction = (1,0),
            speed = 100,
-           boundingBox = (0,0),
+           bounds = (0,0),
            graphic = testProjGraphic
          }
 
 testProjGraphic = color blue $ circleSolid 5
-
--- Spawns a player projectile
---DEPRECATED - DO NOT USE
---spawnPlyProjectile :: Object -> Effect -> Game -> Game
---spawnPlyProjectile obj fx gameState
---  | (direction obj) == (0,0) = gameState { ply_projectiles = (Projectile newObj fx):projList }
---  | otherwise = gameState { ply_projectiles = (Projectile obj fx):projList }
---  where
---    newObj = obj { direction = (1,0) }
---    projList = ply_projectiles gameState
---    newProjList = (Projectile obj fx):projList
 
 -- Adds a list of projectiles into the gamestate based on whether
 -- they belong to the player or not

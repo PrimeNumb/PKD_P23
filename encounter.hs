@@ -42,7 +42,7 @@ generateEncounterAux gen nrOfShips template acc =
 generateEnemyShip :: StdGen -> Ship -> (Ship, StdGen)
 generateEnemyShip gen shipTemplate = (setPos (pos_x,pos_y) $ shipTemplate {wep_cooldown=cooldown}, gen2)
   where
-    enemy_width = fst $ boundingBox $ ship_obj shipTemplate
+    enemy_width = fst $ bounds $ ship_obj shipTemplate
     pos_x = win_width/2 + enemy_width
     (pos_y, gen1) = randomR (-win_height/2,win_height/2) gen :: (Float, StdGen)
     (cooldown, gen2) = randomR (1.5, 2.0) gen1 :: (Float, StdGen)

@@ -1,20 +1,15 @@
--- NOTE: This module should probably renamed/discarded in the future.
 -- This module should only contain functions that might be useful in several
 -- modules but are problematic to categorize.
-module Helpers where
+module Utilities where
 import DataTypes
 
 changeDir :: Object -> (Float, Float) -> Object
 changeDir obj (x,y) = obj {direction = (x, y)}
 
---moveObject :: Object -> (Float, Float) -> Object
---moveObject obj@(Object {position = (x,y)}) (dx, dy) = obj { position = (nx,ny)}
---  where
---    (nx,ny) = (x+dx,y+dy)
-
 -- Clamp an object within the bounds of a given bounding box
-clampToBounds :: BoundingBox -> Object -> Object
-clampToBounds (bounds_width, bounds_height) obj@(Object { position = (pos_x, pos_y), boundingBox = (obj_width, obj_height)}) =
+
+clampToBounds :: Bounds -> Object -> Object
+clampToBounds (bounds_width, bounds_height) obj@(Object { position = (pos_x, pos_y), bounds = (obj_width, obj_height)}) =
   setPos (newPos_x,newPos_y) obj
   where
     -- There's a one-pixel border surrounding the game window.

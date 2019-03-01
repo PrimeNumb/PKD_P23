@@ -10,7 +10,7 @@ import Projectile
 import DataTypes
 import Globals
 import Rendering
-import Helpers
+import Utilities
 import Collision
 import Encounter
 
@@ -19,31 +19,7 @@ window :: Display
 window = InWindow win_title win_size win_offset
 
 -- CHANGE THIS
-playerObj :: Object
-playerObj = Object { position = (0, 0),
-                     direction = (0, 0),
-                     speed = 300,
-                     boundingBox = (25, 25),
-                     graphic = color green $ rectangleSolid 50 50
-                   }
-playerShip :: Ship
-playerShip = Ship { ship_obj = playerObj,
-                    ship_health = 3,
-                    wep_cooldown = 0.25,
-                    projectile = playerDefaultProj,
-                    last_fired_tick = 0,
-                    isFiring = False,
-                    isPlayer = True
-                  }
 
-playerDefaultProjObj =
-  Object { position = (0,0),
-           direction = (1,0),
-           speed = projObjDefault_spd,
-           boundingBox = projObjDefault_bbox,
-           graphic = projObjDefault_gfx
-         }
-playerDefaultProj = Projectile playerDefaultProjObj (Damage 1)
 
 defaultEncounter = Encounter
   { pop_interval = enemy_spawn_interval,
@@ -72,12 +48,12 @@ initGameState = GameState {
   playable_bounds = (win_width/2, win_height/2),
   randomGen = mkStdGen 1234,
   encounter = defaultEncounter,
-  player = playerShip,
+  player = playerShipDefault,
   ply_projectiles = [],
   npc_projectiles = [],
   ticker = 0,
   background = defaultBackground,
-  plyTemplate = playerShip,
+  plyTemplate = playerShipDefault,
   enmyTemplate = enemyShipDefaultTemplate,
   plyProjTemplate = playerDefaultProj,
   enmyProjTemplate = enemyDefaultProj,
@@ -246,14 +222,14 @@ updateHealthDisplay player@(Ship{ship_health=ship_health}) heartGFX gameOverGFX
   |ship_health == -1 = [Object { position = (0, 0),
                                 direction = (0, 0),
                                 speed = 0,
-                                boundingBox = (0, 0),
+                                bounds = (0, 0),
                                 graphic = gameOverGFX
                                }]
   |ship_health <= 0 = []
   |otherwise = (Object { position = (xpos, 250),
                          direction = (0, 0),
                          speed = 0,
-                         boundingBox = (0, 0),
+                         bounds = (0, 0),
                          graphic = heartGFX
                        }) : updateHealthDisplay newShip heartGFX gameOverGFX
   where
@@ -271,31 +247,31 @@ Calls a specific
    EXAMPLES:
 -}
 handleEvent :: Event -> Game -> Game
-handleEvent (EventKey key Down mod _) gameState =
+handleEvent (EventKey key Down mod _) gameState@(GameState {player=player}) =
   case key of
-    (SpecialKey KeyUp)    -> modPlyDirection gameState (0,1)
-    (SpecialKey KeyDown)  -> modPlyDirection gameState (0,-1)
-    (SpecialKey KeyLeft)  -> modPlyDirection gameState (-1,0)
-    (SpecialKey KeyRight) -> modPlyDirection gameState (1,0)
-    (SpecialKey KeySpace) -> gameState { player = (player gameState) {isFiring=True}, ply_projectiles = newPlyProjList }
+    (SpecialKey KeyUp)    -> gameState { player =  modDirection player(0,1)}
+    (SpecialKey KeyDown)  -> gameState { player =  modDirection player(0,-1)}
+    (SpecialKey KeyLeft)  -> gameState { player =  modDirection player(-1,0)}
+    (SpecialKey KeyRight) -> gameState { player =  modDirection player(1,0)}
+    (SpecialKey KeySpace) -> gameState { player = player {isFiring=True}, ply_projectiles = newPlyProjList }
       where
         currentTick = ticker gameState
         plyProjList = ply_projectiles gameState
         newPlyProjList =
-          case (ship_fire (1,0) currentTick (player gameState)) of
+          case (ship_fire (1,0) currentTick player) of
             Just x  -> x:plyProjList
             Nothing -> plyProjList
     (SpecialKey KeyF1)    -> gameState { showHitbox = (not $ showHitbox gameState)}
     (SpecialKey KeyF2)            -> newGame gameState
     _ -> gameState
 
-handleEvent (EventKey key Up _ _) gameState =
+handleEvent (EventKey key Up _ _) gameState@(GameState {player=player}) =
   case key of
-    (SpecialKey KeyUp)    -> modPlyDirection gameState (0,-1)
-    (SpecialKey KeyDown)  -> modPlyDirection gameState (0,1)
-    (SpecialKey KeyLeft)  -> modPlyDirection gameState (1,0)
-    (SpecialKey KeyRight) -> modPlyDirection gameState (-1,0)
-    (SpecialKey KeySpace) -> gameState { player = (player gameState) {isFiring=False}}
+    (SpecialKey KeyUp)    -> gameState { player =  modDirection player(0,-1)}
+    (SpecialKey KeyDown)  -> gameState { player =  modDirection player(0,1)}
+    (SpecialKey KeyLeft)  -> gameState { player =  modDirection player(1,0)}
+    (SpecialKey KeyRight) -> gameState { player =  modDirection player(-1,0)}
+    (SpecialKey KeySpace) -> gameState { player = player {isFiring=False}}
     _ -> gameState
 
 
@@ -336,7 +312,7 @@ testObject =
   Object { position = (-25,25),
            direction = (0, 0),
            speed = 0,
-           boundingBox = (0,0),
+           bounds = (0,0),
            graphic = testGraphic
          }
 
