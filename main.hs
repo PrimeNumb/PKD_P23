@@ -16,26 +16,26 @@ import Encounter
 
 -- The game window
 window :: Display
-window = InWindow win_title win_size win_offset
+window = InWindow winTitle winSize winOffset
 
 -- CHANGE THIS
 
 
 defaultEncounter = Encounter
-  { pop_interval = enemy_spawn_interval,
-    last_pop = enemy_spawn_initial_delay,
-    ship_stack = []
+  { popInterval = enemySpawnInterval,
+    lastPop = enemySpawnInitialDelay,
+    shipStack = []
   }
 
 defaultGameGFX = GameGFX
   {
-    player_gfx = color green $ rectangleSolid 50 50,
-    enemy_standard_gfx = color green $ rectangleSolid 50 50,
-    player_proj_gfx = color green $ rectangleSolid 50 50,
-    enemy_proj_gfx = color green $ rectangleSolid 50 50,
-    heart_gfx = color green $ rectangleSolid 50 50,
-    gameOver_gfx = color green $ rectangleSolid 50 50,
-    background_gfx = color green $ rectangleSolid 50 50
+    playerGfx = color green $ rectangleSolid 50 50,
+    enemyStandardGfx = color green $ rectangleSolid 50 50,
+    playerProjGfx = color green $ rectangleSolid 50 50,
+    enemyProjGfx = color green $ rectangleSolid 50 50,
+    heartGfx = color green $ rectangleSolid 50 50,
+    gameOverGfx = color green $ rectangleSolid 50 50,
+    backgroundGfx = color green $ rectangleSolid 50 50
   }
 
 
@@ -43,14 +43,14 @@ defaultGameGFX = GameGFX
 initGameState :: Game
 initGameState = GameState {
   objects = [],
-  game_gfx = defaultGameGFX,
+  gameGfx = defaultGameGFX,
   enemies = [],
-  playable_bounds = (win_width/2, win_height/2),
+  playableBounds = (winWidth/2, winHeight/2),
   randomGen = mkStdGen 1234,
   encounter = defaultEncounter,
   player = playerShipDefault,
-  ply_projectiles = [],
-  npc_projectiles = [],
+  plyProjectiles = [],
+  enemyProjectiles = [],
   ticker = 0,
   background = defaultBackground,
   plyTemplate = playerShipDefault,
@@ -70,17 +70,17 @@ EXAMPLES:
 -}
 main :: IO ()
 main = do
-  --display window win_background (makeDrawable playerObj)
+  --display window winBackground (makeDrawable playerObj)
   seed <- randomIO :: IO Int
   -- Load sprites
   gameGFX <- loadGFX
   -- Process sprites
   let gen = mkStdGen seed
-      readyGameState = refreshGFX $ initGameState {game_gfx=gameGFX,randomGen=newGen, encounter=defaultEncounter}
+      readyGameState = refreshGFX $ initGameState {gameGfx=gameGFX,randomGen=newGen, encounter=defaultEncounter}
       (generatedShipStack, newGen) =
         generateEncounter gen 10 (enmyTemplate readyGameState)
-      readyEncounter = defaultEncounter {ship_stack=generatedShipStack}
-  play window win_background targetFramerate (readyGameState {randomGen=newGen, encounter=readyEncounter }) draw handleEvent update
+      readyEncounter = defaultEncounter {shipStack=generatedShipStack}
+  play window winBackground targetFramerate (readyGameState {randomGen=newGen, encounter=readyEncounter }) draw handleEvent update
   return ()
 
 {-newGame gameState
@@ -89,30 +89,30 @@ PRE:
 RETURNS: A new game state with reset values.
 -}
 newGame :: Game -> Game
-newGame gameState@(GameState{randomGen=randomGen, enmyTemplate=enmyTemplate}) = gameState{encounter=initEncounter, player=(plyTemplate gameState), npc_projectiles=[], ply_projectiles=[], ticker=0, randomGen=newGen, objects=[], enemies=[]}
+newGame gameState@(GameState{randomGen=randomGen, enmyTemplate=enmyTemplate}) = gameState{encounter=initEncounter, player=(plyTemplate gameState), enemyProjectiles=[], plyProjectiles=[], ticker=0, randomGen=newGen, objects=[], enemies=[]}
   where
   (generatedShipStack, newGen) = generateEncounter randomGen 10 enmyTemplate
-  initEncounter = defaultEncounter {ship_stack=generatedShipStack}
+  initEncounter = defaultEncounter {shipStack=generatedShipStack}
 
 refreshGFX :: Game -> Game
-refreshGFX gameState@(GameState {game_gfx=gameGFX}) = newGameState
+refreshGFX gameState@(GameState {gameGfx=gameGFX}) = newGameState
   where
     newPlyProj =
-      setSprite (projectile $ player gameState) (player_proj_gfx gameGFX)
+      setSprite (projectile $ player gameState) (playerProjGfx gameGFX)
     newPlayerTemplate =
-      (setSprite (player gameState) (player_gfx gameGFX)) { projectile = newPlyProj }
+      (setSprite (player gameState) (playerGfx gameGFX)) { projectile = newPlyProj }
     newEnmyProj =
-      setSprite (projectile $ enmyTemplate gameState) (enemy_proj_gfx gameGFX)
+      setSprite (projectile $ enmyTemplate gameState) (enemyProjGfx gameGFX)
     newEnmyTemplate =
-      (setSprite (enmyTemplate gameState) (enemy_standard_gfx gameGFX)) { projectile = newEnmyProj }
+      (setSprite (enmyTemplate gameState) (enemyStandardGfx gameGFX)) { projectile = newEnmyProj }
     newGameState = gameState
       {
         player = newPlayerTemplate,
         plyTemplate = newPlayerTemplate,
         enmyTemplate = newEnmyTemplate,
-        plyProjTemplate = setSprite (plyProjTemplate gameState) (player_proj_gfx gameGFX),
-        enmyProjTemplate = setSprite (enmyProjTemplate gameState) (enemy_proj_gfx gameGFX),
-        background = setSprite (background gameState) (background_gfx gameGFX)
+        plyProjTemplate = setSprite (plyProjTemplate gameState) (playerProjGfx gameGFX),
+        enmyProjTemplate = setSprite (enmyProjTemplate gameState) (enemyProjGfx gameGFX),
+        background = setSprite (background gameState) (backgroundGfx gameGFX)
       }
 
 loadGFX :: IO GameGFX
@@ -140,13 +140,13 @@ loadGFX = do
   let gameGFX =
         defaultGameGFX
         {
-          player_gfx = playerGFX,
-          enemy_standard_gfx = enemyStandardGFX,
-          player_proj_gfx = playerProjGFX,
-          enemy_proj_gfx = enemyProjGFX,
-          heart_gfx = heartGFX,
-          gameOver_gfx = gameOverGFX,
-          background_gfx = backgroundGFX
+          playerGfx = playerGFX,
+          enemyStandardGfx = enemyStandardGFX,
+          playerProjGfx = playerProjGFX,
+          enemyProjGfx = enemyProjGFX,
+          heartGfx = heartGFX,
+          gameOverGfx = gameOverGFX,
+          backgroundGfx = backgroundGFX
         }
   return gameGFX
 
@@ -155,13 +155,13 @@ processSprite Nothing = color green $ rectangleSolid 50 50
 processSprite (Just pic) = pic
 
 draw :: Game -> Picture
-draw gameState@(GameState {objects=objs, game_gfx=gameGFX, player=playerShip, ply_projectiles=plyProjs, npc_projectiles=enemyProjs, enemies=enemies, showHitbox=showHitbox,background=background}) = newFrame
+draw gameState@(GameState {objects=objs, gameGfx=gameGFX, player=playerShip, plyProjectiles=plyProjs, enemyProjectiles=enemyProjs, enemies=enemies, showHitbox=showHitbox,background=background}) = newFrame
   where
     -- Everything that needs to be drawn goes here
-    heartPics = map makeDrawable (updateHealthDisplay playerShip (heart_gfx gameGFX) (gameOver_gfx gameGFX))
+    heartPics = map makeDrawable (updateHealthDisplay playerShip (heartGfx gameGFX) (gameOverGfx gameGFX))
     backgroundPic = makeDrawable background
     drawObjs =
-      (map proj_obj enemyProjs) ++ (map proj_obj plyProjs) ++ (map ship_obj enemies) ++ (ship_obj playerShip):objs
+      (map projObj enemyProjs) ++ (map projObj plyProjs) ++ (map shipObj enemies) ++ (shipObj playerShip):objs
     objPics = if showHitbox
       then (map drawWithBounds drawObjs)
       else (map makeDrawable drawObjs)
@@ -176,14 +176,14 @@ draw gameState@(GameState {objects=objs, game_gfx=gameGFX, player=playerShip, pl
 -}
 
 update :: Float -> Game -> Game
-update dt gameState@(GameState {ticker=currentTick,ply_projectiles=projList, enemies=enemies,npc_projectiles=enemyProjList,encounter=encounter, player=player}) = newGameState 
+update dt gameState@(GameState {ticker=currentTick,plyProjectiles=projList, enemies=enemies,enemyProjectiles=enemyProjList,encounter=encounter, player=player}) = newGameState 
   where
     -- Everything that should be updated each iteration goes here
     -- Player related
     newPlayer = (updatePlayer dt gameState{player=(plyHandleDmg gameState player)})
     updatePlyProjList =
       map (updateProjectile dt) (colPlyProj gameState projList)
-    newPlyProjList = case (ship_fire (1,0) newTicker newPlayer) of
+    newPlyProjList = case (shipFire (1,0) newTicker newPlayer) of
        Just x -> x:updatePlyProjList
        Nothing -> updatePlyProjList
        
@@ -199,17 +199,17 @@ update dt gameState@(GameState {ticker=currentTick,ply_projectiles=projList, ene
     newTicker = currentTick+dt
     
     -- The final updated gamestate
-    newGameState = (gameState {player=newPlayer, ticker=newTicker, ply_projectiles=newPlyProjList, enemies=newEnemies, npc_projectiles=newEnemyProjList, encounter=newEncounter})
+    newGameState = (gameState {player=newPlayer, ticker=newTicker, plyProjectiles=newPlyProjList, enemies=newEnemies, enemyProjectiles=newEnemyProjList, encounter=newEncounter})
 
 updateEncounter :: Encounter -> Float -> [Ship] -> (Encounter,[Ship])
 updateEncounter encounter currentTick enemyContainer
   | shouldPopEncounter currentTick encounter = (newEncounter, newEnemyContainer)
   | otherwise = (encounter, enemyContainer)
   where
-    updatedEncounter = encounter {last_pop=currentTick}
+    updatedEncounter = encounter {lastPop=currentTick}
     (newStack, newEnemyContainer) =
-      pop (ship_stack updatedEncounter) enemyContainer
-    newEncounter = updatedEncounter {ship_stack=newStack}
+      pop (shipStack updatedEncounter) enemyContainer
+    newEncounter = updatedEncounter {shipStack=newStack}
 {-updateHealthDisplay ship heartGFX gameOverGFX
 Updates the health display of the Ship so it correlates with current health. Also displays a game over graphic when the player is dead.
 PRE:
@@ -217,15 +217,15 @@ RETURNS: A list of the objects that are to be drawn. Either hearts corresponding
 Examples:
 -}
 updateHealthDisplay :: Ship -> Picture -> Picture -> [Object]
---VARIANT: ship_health ship
-updateHealthDisplay player@(Ship{ship_health=ship_health}) heartGFX gameOverGFX
-  |ship_health == -1 = [Object { position = (0, 0),
+--VARIANT: shipHealth ship
+updateHealthDisplay player@(Ship{shipHealth=shipHealth}) heartGFX gameOverGFX
+  |shipHealth == -1 = [Object { position = (0, 0),
                                 direction = (0, 0),
                                 speed = 0,
                                 bounds = (0, 0),
                                 graphic = gameOverGFX
                                }]
-  |ship_health <= 0 = []
+  |shipHealth <= 0 = []
   |otherwise = (Object { position = (xpos, 250),
                          direction = (0, 0),
                          speed = 0,
@@ -233,9 +233,9 @@ updateHealthDisplay player@(Ship{ship_health=ship_health}) heartGFX gameOverGFX
                          graphic = heartGFX
                        }) : updateHealthDisplay newShip heartGFX gameOverGFX
   where
-    newShip = player {ship_health=newHp}
-    newHp = ship_health - 1
-    xpos = fromIntegral (-500 + (40 * ship_health))
+    newShip = player {shipHealth=newHp}
+    newHp = shipHealth - 1
+    xpos = fromIntegral (-500 + (40 * shipHealth))
   
 updateEnemies :: [Ship] -> Float -> Game -> [Ship]
 updateEnemies enemies dt gameState = map (updateEnemy dt gameState) (eneHandleDmg gameState enemies)
@@ -253,12 +253,12 @@ handleEvent (EventKey key Down mod _) gameState@(GameState {player=player}) =
     (SpecialKey KeyDown)  -> gameState { player =  modDirection player(0,-1)}
     (SpecialKey KeyLeft)  -> gameState { player =  modDirection player(-1,0)}
     (SpecialKey KeyRight) -> gameState { player =  modDirection player(1,0)}
-    (SpecialKey KeySpace) -> gameState { player = player {isFiring=True}, ply_projectiles = newPlyProjList }
+    (SpecialKey KeySpace) -> gameState { player = player {isFiring=True}, plyProjectiles = newPlyProjList }
       where
         currentTick = ticker gameState
-        plyProjList = ply_projectiles gameState
+        plyProjList = plyProjectiles gameState
         newPlyProjList =
-          case (ship_fire (1,0) currentTick player) of
+          case (shipFire (1,0) currentTick player) of
             Just x  -> x:plyProjList
             Nothing -> plyProjList
     (SpecialKey KeyF1)    -> gameState { showHitbox = (not $ showHitbox gameState)}
@@ -281,23 +281,23 @@ handleEvent (EventResize (x, y)) gameState = gameState
 handleEvent _ gameState = gameState
 
 -- Fires a ship's projectile from its position, given a direction
-ship_fire :: Direction -> Float -> Ship -> Maybe Projectile
-ship_fire dir currentTick ship
+shipFire :: Direction -> Float -> Ship -> Maybe Projectile
+shipFire dir currentTick ship
   | canFire && (isFiring ship) = Just newShipProj
   | otherwise = Nothing
   where
-    canFire = (currentTick - (last_fired_tick ship)) > (wep_cooldown ship)
+    canFire = (currentTick - (lastFiredTick ship)) > (wepCooldown ship)
     -- Construct the projectile object
-    shipPos = position $ ship_obj ship
+    shipPos = position $ shipObj ship
     shipProj = (projectile ship)
-    shipProjObj = (proj_obj shipProj) { direction = dir, position = shipPos }
+    shipProjObj = (projObj shipProj) { direction = dir, position = shipPos }
     newShipProj = Projectile shipProjObj (effect shipProj)
 
 
 processEnemyFire :: Game -> [Projectile]
 processEnemyFire gameState@(GameState {enemies=enemies,ticker=t}) = newProjList
   where
-    newProjList = processEnemyFireAux (map (ship_fire (-1,0) t) enemies) []
+    newProjList = processEnemyFireAux (map (shipFire (-1,0) t) enemies) []
 
 processEnemyFireAux :: [Maybe Projectile] -> [Projectile] -> [Projectile]
 processEnemyFireAux [] acc = acc

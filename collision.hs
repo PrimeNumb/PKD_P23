@@ -62,7 +62,7 @@ outOfBounds obj obj2 = not (checkRectCollision obj obj2)
 Checks the list of enemy projectiles to see if any of them need to be despawned. This happens if a projectile collides with the player or if the projectile is out of bounds.
 PRE:
 RETURNS: A list where the projectiles that should be despawned are removed.
-EXAMPLES: colEnemProj gameState (Projectile {proj_obj = smallObj,
+EXAMPLES: colEnemProj gameState (Projectile {projObj = smallObj,
                                              effect = Damage 1}) == []
 (assuming the projectile in the list collides with the player in gameState)
 -}
@@ -70,14 +70,14 @@ EXAMPLES: colEnemProj gameState (Projectile {proj_obj = smallObj,
 colEnemProj :: Game -> [Projectile] -> [Projectile]
 --VARIANT: length of projs
 colEnemProj _ [] = []
-colEnemProj gameState@(GameState {player=ply@(Ship {ship_obj=ship_obj}),background=background}) (x@(Projectile {proj_obj=proj_obj}):xs) =
-  if checkRectCollision ship_obj proj_obj || (outOfBounds proj_obj background) then colEnemProj gameState xs else x : colEnemProj gameState xs
+colEnemProj gameState@(GameState {player=ply@(Ship {shipObj=shipObj}),background=background}) (x@(Projectile {projObj=projObj}):xs) =
+  if checkRectCollision shipObj projObj || (outOfBounds projObj background) then colEnemProj gameState xs else x : colEnemProj gameState xs
 
 {-colPlyProj gameState projs
 Checks the list of player projectiles to see if any of them need to be despawned. This happens if a projectile collides with an enemy or if the projectile is out of bounds.
 PRE:
 RETURNS: A list where the projectiles that should be despawned are removed.
-EXAMPLES:colPlyProj gameState [(Projectile {proj_obj = smallObj,
+EXAMPLES:colPlyProj gameState [(Projectile {projObj = smallObj,
                                             effect = Damage 1})] == [] 
 (assuming the projectile in the list collides with an enemy in gameState)
 -}
@@ -94,11 +94,11 @@ colPlyProj gameState@(GameState {enemies=enemies,background=background}) (proj:x
     colPlyProjAux :: Projectile  -> [Ship] -> [Projectile]
     --VARIANT: length of ships
     colPlyProjAux proj [] =
-      if (outOfBounds (proj_obj proj) background)
+      if (outOfBounds (projObj proj) background)
       then []
       else [proj]
-    colPlyProjAux proj@(Projectile {proj_obj=proj_obj}) (x@(Ship{ship_obj=ship_obj}):xs) =
-      if checkRectCollision proj_obj ship_obj then [] else colPlyProjAux proj xs
+    colPlyProjAux proj@(Projectile {projObj=projObj}) (x@(Ship{shipObj=shipObj}):xs) =
+      if checkRectCollision projObj shipObj then [] else colPlyProjAux proj xs
 
 {-applyEffect fx ship
 Applies an effect to a Ship.
@@ -110,10 +110,10 @@ EXAMPLES:
 applyEffect :: Effect -> Ship -> Ship
 applyEffect fx ship = 
   case fx of
-    Damage x -> ship { ship_health = (shipHealth - x)}
+    Damage x -> ship { shipHealth = (health - x)}
     NoEffect -> ship -- do nothing
     where
-      shipHealth = ship_health ship
+      health = shipHealth ship
 
 {-getEffect ship projs
 Checks if there is a Projectile colliding with a Ship and what effect it has.
@@ -123,8 +123,8 @@ EXAMPLES:
 -}
 getEffect :: Ship -> [Projectile] -> Effect
 getEffect _ [] = NoEffect
-getEffect ship@(Ship{ship_obj=ship_obj}) (x@(Projectile{effect=effect, proj_obj=proj_obj}):xs) =
-  if checkRectCollision ship_obj proj_obj then effect else getEffect ship xs
+getEffect ship@(Ship{shipObj=shipObj}) (x@(Projectile{effect=effect, projObj=projObj}):xs) =
+  if checkRectCollision shipObj projObj then effect else getEffect ship xs
 
 {-eneHandleDmg gameState ships
 Checks if any Ships collide with a player bullet and reduces their hp accordingly. Also checks if the player collides with any of the Ships; said Ships are removed. If a Ship has 0 or less health it is removed.
@@ -135,12 +135,12 @@ EXAMPLES:
 eneHandleDmg :: Game -> [Ship] -> [Ship]
 --VARIANT: length of ships
 eneHandleDmg _ [] = []
-eneHandleDmg gameState@(GameState {player=player, ply_projectiles=proj}) (ship:xs) =
-  if ship_health ship <= 0  || playerCollideShip then eneHandleDmg gameState xs
+eneHandleDmg gameState@(GameState {player=player, plyProjectiles=proj}) (ship:xs) =
+  if shipHealth ship <= 0  || playerCollideShip then eneHandleDmg gameState xs
   else newShip : eneHandleDmg gameState xs
   where
     newShip = applyEffect (getEffect ship proj) ship
-    playerCollideShip = checkRectCollision (ship_obj player) (ship_obj ship)
+    playerCollideShip = checkRectCollision (shipObj player) (shipObj ship)
 
 {-plyHandleDmg gameState ship
 Checks if a Ship collides with any of the enemy projectiles. If it does the hp of the ship is reduced accordingly. If the Ship collides with an enemy its health is reduced by 1. The Ship is replaced by an invisible Ship until the game is reset if health drops to 0.
@@ -149,13 +149,13 @@ RETURNS: The Ship with an updated health value.
 EXAMPLES:
 -}
 plyHandleDmg :: Game -> Ship -> Ship
-plyHandleDmg gameState@(GameState {enemies=enemies ,npc_projectiles=npc_projectiles}) player@(Ship{ship_obj=ply_obj})
-  | ship_health player <= 0 = invisPlayer
-  | foldl (||) False enemy_collisions = applyEffect (Damage 1) player
-  | otherwise = applyEffect (getEffect player npc_projectiles) player
+plyHandleDmg gameState@(GameState {enemies=enemies ,enemyProjectiles=enemyProjectiles}) player@(Ship{shipObj=plyObj})
+  | shipHealth player <= 0 = invisPlayer
+  | foldl (||) False enemyCollisions = applyEffect (Damage 1) player
+  | otherwise = applyEffect (getEffect player enemyProjectiles) player
   where
-    enemy_collisions = map (checkRectCollision ply_obj) enemy_objs
-    enemy_objs = map ship_obj enemies
+    enemyCollisions = map (checkRectCollision plyObj) enemyObjs
+    enemyObjs = map shipObj enemies
     
 
 
@@ -168,11 +168,11 @@ gameOverObject = Object { position = (1000, 1000),
                           graphic = Blank
                         }
 invisPlayer :: Ship
-invisPlayer = Ship { ship_obj = gameOverObject,
-                     ship_health = -1,
-                     wep_cooldown = 200.0,
+invisPlayer = Ship { shipObj = gameOverObject,
+                     shipHealth = -1,
+                     wepCooldown = 200.0,
                      projectile = harmlessProj,
-                     last_fired_tick = 0,
+                     lastFiredTick = 0,
                      isPlayer = False,
                      isFiring = False
                    }

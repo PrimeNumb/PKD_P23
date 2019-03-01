@@ -5,33 +5,33 @@ import DataTypes
 import System.IO.Unsafe
 
 -- Should these be kept in main?
-win_title :: String
-win_title = "Space Shooter"
+winTitle :: String
+winTitle = "Space Shooter"
 
 -- CHANGE WINDOW SIZE LATER BEFORE DEMO
-win_width :: Float
-win_width = 1024.0
+winWidth :: Float
+winWidth = 1024.0
 
-win_height :: Float
-win_height = 576.0
+winHeight :: Float
+winHeight = 576.0
 
-win_size :: (Int, Int)
-win_size = (floor win_width, floor win_height)
+winSize :: (Int, Int)
+winSize = (floor winWidth, floor winHeight)
 
-win_offset :: (Int, Int)
-win_offset = (0, 0)
+winOffset :: (Int, Int)
+winOffset = (0, 0)
 
-win_background :: Color
-win_background = black
+winBackground :: Color
+winBackground = black
 
 targetFramerate :: Int
 targetFramerate = 60
 
-enemy_spawn_interval :: Float
-enemy_spawn_interval = 2.0
+enemySpawnInterval :: Float
+enemySpawnInterval = 2.0
 
-enemy_spawn_initial_delay :: Float
-enemy_spawn_initial_delay = 5.0
+enemySpawnInitialDelay :: Float
+enemySpawnInitialDelay = 5.0
 
 --Sprites
 --function png taken from gloss-game (credit the author?)
@@ -66,7 +66,7 @@ defaultBackground =
   Object { position = (0, 0),
            direction = (0, 0),
            speed = 0,
-           bounds = (win_width/2, win_height/2),
+           bounds = (winWidth/2, winHeight/2),
            graphic = Blank
          }
 

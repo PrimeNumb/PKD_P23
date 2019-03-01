@@ -13,9 +13,9 @@ import Collision
 
 --Gives a default enemy spawning position
 enemyDefaultSpawnPos :: Position
-enemyDefaultSpawnPos = (win_width+enemy_width, 0)
+enemyDefaultSpawnPos = (winWidth+enemyWidth, 0)
   where
-    enemy_width = fst $ bounds $ ship_obj enemyShipDefaultTemplate
+    enemyWidth = fst $ bounds $ shipObj enemyShipDefaultTemplate
 
 
 --An enemy object
@@ -40,11 +40,11 @@ enemyObj1 = Object { position = (400, 250),
 
 --The enemy ships' default template that gives the object, health, weapon cooldown, projectile, last fired tick, information regarding if the ship is the player and if the ship is firing
 enemyShipDefaultTemplate :: Ship
-enemyShipDefaultTemplate = Ship { ship_obj = enemyObjTemplate,
-                           ship_health = 3,
-                           wep_cooldown = 2.0,
+enemyShipDefaultTemplate = Ship { shipObj = enemyObjTemplate,
+                           shipHealth = 3,
+                           wepCooldown = 2.0,
                            projectile = enemyDefaultProj,
-                           last_fired_tick = 0,
+                           lastFiredTick = 0,
                            isPlayer = False,
                            isFiring = True
                          }
@@ -63,12 +63,12 @@ updateEnemy :: Float -> Game -> Ship -> Ship
 updateEnemy dt gameState@(GameState {ticker=currentTick,background=background}) enemy = newEnemy
   where
     -- Update the last fired tick
-    canFire = (currentTick - (last_fired_tick enemy)) > (wep_cooldown enemy)
+    canFire = (currentTick - (lastFiredTick enemy)) > (wepCooldown enemy)
     updatedTick =
       case canFire of
-        False -> last_fired_tick enemy
+        False -> lastFiredTick enemy
         True  -> currentTick
-    enemyObj = ship_obj enemy
+    enemyObj = shipObj enemy
     --newEnemyObj = enemyMovement enemyObj
     newEnemyObj = enemyObj
     -- Movement

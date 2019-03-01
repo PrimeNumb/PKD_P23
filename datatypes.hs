@@ -11,14 +11,14 @@ import Debug.Trace
 -}
 data Game = GameState
   { objects          :: [Object], --use this for objects that aren't ships
-    game_gfx         :: GameGFX,
+    gameGfx         :: GameGFX,
     enemies          :: [Ship],
-    playable_bounds  :: Bounds,
+    playableBounds  :: Bounds,
     randomGen        :: StdGen,
     encounter        :: Encounter,
     player           :: Ship,
-    ply_projectiles  :: [Projectile],
-    npc_projectiles  :: [Projectile],
+    plyProjectiles  :: [Projectile],
+    enemyProjectiles  :: [Projectile],
     ticker           :: Float,
     background       :: Object,
     plyTemplate      :: Ship,
@@ -47,57 +47,57 @@ data Object = Object
    INVARIANT: 
 -}
 data Ship = Ship
-  { ship_obj        :: Object,
-    ship_health     :: Int,
-    wep_cooldown    :: Float,
+  { shipObj        :: Object,
+    shipHealth     :: Int,
+    wepCooldown    :: Float,
     projectile      :: Projectile,
-    last_fired_tick :: Float,
+    lastFiredTick :: Float,
     isFiring        :: Bool,
     isPlayer        :: Bool
   } deriving Show
 
 {- Projectile represents a (not necessarily) moving projectile in the game. 
-   proj_obj describes the object associated with the Projectile.
+   projObj describes the object associated with the Projectile.
    effect describes the effect that should be processed on a colliding object.
   INVARIANT: True
    -}
 data Projectile = Projectile
-  { proj_obj :: Object,
+  { projObj :: Object,
     effect   :: Effect
   } deriving Show
 
 {- Encounter describes a set of ships that should be generated into the game and how often.
-  pop_interval describes the interval with which a ship should be generated from the ship stack into the game.
-  last_pop is the time (in game ticks) since the last pop of the stack; the time since a ship was last generated into the game.
-  ship_stack is the set of ships that the encounter consists of.
-  INVARIANT: pop_interval > 0
+  popInterval describes the interval with which a ship should be generated from the ship stack into the game.
+  lastPop is the time (in game ticks) since the last pop of the stack; the time since a ship was last generated into the game.
+  shipStack is the set of ships that the encounter consists of.
+  INVARIANT: popInterval > 0
    -}
 data Encounter = Encounter
   {
-    pop_interval  :: Float,
-    last_pop      :: Float,
-    ship_stack    :: [Ship]
+    popInterval  :: Float,
+    lastPop      :: Float,
+    shipStack    :: [Ship]
   } deriving Show
 
 {- GameGFX represents a set of pictures (or images) used by different parts of a game. 
-  player_gfx is the player sprite.
-  enemy_standard_gfx is the default enemy sprite.
-  player_proj_gfx is the player projectile sprite.
-  enemy_proj_gfx is the enemy projectile sprite
-  heart_gfx is the heart sprite.
-  gameOver_gfx is the game over sprite.
-  background_gfx is the background image.
+  playerGfx is the player sprite.
+  enemyStandardGfx is the default enemy sprite.
+  playerProjGfx is the player projectile sprite.
+  enemyProjGfx is the enemy projectile sprite
+  heartGfx is the heart sprite.
+  gameOverGfx is the game over sprite.
+  backgroundGfx is the background image.
   INVARIANT: True
    -}
 data GameGFX = GameGFX
   {
-    player_gfx         :: Picture,
-    enemy_standard_gfx :: Picture,
-    player_proj_gfx    :: Picture,
-    enemy_proj_gfx     :: Picture,
-    heart_gfx          :: Picture,
-    gameOver_gfx       :: Picture,
-    background_gfx     :: Picture
+    playerGfx         :: Picture,
+    enemyStandardGfx :: Picture,
+    playerProjGfx    :: Picture,
+    enemyProjGfx     :: Picture,
+    heartGfx          :: Picture,
+    gameOverGfx       :: Picture,
+    backgroundGfx     :: Picture
   } deriving Show
 
 {- Effect represents how something should be affected when the effect is processed and applied to something in the game.
@@ -137,22 +137,22 @@ class Movable a where
   
 instance Movable Object where
   move obj@(Object {position=(x,y)}) (vx,vy) = obj { position = (x+vx,y+vy) }
-  setPos (x,y) obj@(Object {position=(obj_x,obj_y)}) =
-    move obj (x-obj_x,y-obj_y)
+  setPos (x,y) obj@(Object {position=(xObj,yObj)}) =
+    move obj (x-xObj,y-yObj)
   modDirection obj@(Object {direction=(x,y)}) (dx, dy) =
     obj { direction = (x+dx,y+dy)}
 instance Movable Ship where
-  move ship@(Ship {ship_obj=obj}) v = ship {ship_obj=(move obj v)}
-  setPos pos ship@(Ship {ship_obj=obj}) =
-    ship {ship_obj=(setPos pos obj)}
-  modDirection ship@(Ship {ship_obj=obj}) dir =
-    ship {ship_obj = (modDirection obj dir )}
+  move ship@(Ship {shipObj=obj}) v = ship {shipObj=(move obj v)}
+  setPos pos ship@(Ship {shipObj=obj}) =
+    ship {shipObj=(setPos pos obj)}
+  modDirection ship@(Ship {shipObj=obj}) dir =
+    ship {shipObj = (modDirection obj dir )}
 instance Movable Projectile where
-  move proj@(Projectile {proj_obj=obj}) v = proj {proj_obj=(move obj v)}
-  setPos pos proj@(Projectile {proj_obj=obj}) =
-    proj {proj_obj=(setPos pos obj)}
-  modDirection proj@(Projectile {proj_obj=obj}) dir =
-    proj {proj_obj = (modDirection obj dir)}
+  move proj@(Projectile {projObj=obj}) v = proj {projObj=(move obj v)}
+  setPos pos proj@(Projectile {projObj=obj}) =
+    proj {projObj=(setPos pos obj)}
+  modDirection proj@(Projectile {projObj=obj}) dir =
+    proj {projObj = (modDirection obj dir)}
 
 
 class Drawable a where
@@ -171,15 +171,15 @@ instance Drawable Object where
   setSprite obj gfx = obj {graphic=gfx}
     
 instance Drawable Ship where
-  makeDrawable (Ship {ship_obj=obj}) = makeDrawable obj
-  drawBounds (Ship {ship_obj=obj}) = drawBounds obj
-  drawWithBounds (Ship {ship_obj=obj}) = drawWithBounds obj
-  setSprite ship@(Ship {ship_obj=obj}) gfx =
-    ship {ship_obj=(setSprite obj gfx)}
+  makeDrawable (Ship {shipObj=obj}) = makeDrawable obj
+  drawBounds (Ship {shipObj=obj}) = drawBounds obj
+  drawWithBounds (Ship {shipObj=obj}) = drawWithBounds obj
+  setSprite ship@(Ship {shipObj=obj}) gfx =
+    ship {shipObj=(setSprite obj gfx)}
 
 instance Drawable Projectile where
-  makeDrawable (Projectile {proj_obj=obj}) = makeDrawable obj
-  drawBounds (Projectile {proj_obj=obj}) = drawBounds obj
-  drawWithBounds (Projectile {proj_obj=obj}) = drawWithBounds obj
-  setSprite proj@(Projectile {proj_obj=obj}) gfx =
-    proj {proj_obj=(setSprite obj gfx)}
+  makeDrawable (Projectile {projObj=obj}) = makeDrawable obj
+  drawBounds (Projectile {projObj=obj}) = drawBounds obj
+  drawWithBounds (Projectile {projObj=obj}) = drawWithBounds obj
+  setSprite proj@(Projectile {projObj=obj}) gfx =
+    proj {projObj=(setSprite obj gfx)}
