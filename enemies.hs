@@ -18,7 +18,7 @@ enemyDefaultSpawnPos = (winWidth+enemyWidth, 0)
     enemyWidth = fst $ bounds $ shipObj enemyShipDefaultTemplate
 
 
---An enemy object
+--An enemy object 
 
 enemyObjTemplate :: Object
 enemyObjTemplate = Object { position = enemyDefaultSpawnPos,
@@ -27,15 +27,6 @@ enemyObjTemplate = Object { position = enemyDefaultSpawnPos,
                             bounds = (25, 49),
                             graphic = color blue $ rectangleSolid 50 98
                           }
--- An enemy object
-
-enemyObj1 :: Object
-enemyObj1 = Object { position = (400, 250),
-                     direction = (-1.0, 0),
-                     speed = 50,
-                     bounds = (25,25),
-                     graphic = color enemyColor $ rectangleSolid (50.0) (50.0)
-                   }
 
 
 --The enemy ships' default template that gives the object, health, weapon cooldown, projectile, last fired tick, information regarding if the ship is the player and if the ship is firing
@@ -75,7 +66,7 @@ updateEnemy dt gameState@(GameState {ticker=currentTick,background=background}) 
     (dx,dy) = direction newEnemyObj
     enemySpeed = speed enemyObj
     deltaPos = (dx*enemySpeed*dt,dy*enemySpeed*dt)
-    newEnemy = enemy { ship_obj = (move newEnemyObj deltaPos), last_fired_tick = updatedTick, isFiring=(not $ outOfBounds newEnemyObj background) }
+    newEnemy = enemy { shipObj = (move newEnemyObj deltaPos), lastFiredTick = updatedTick, isFiring=(not $ outOfBounds newEnemyObj background) }
 
 
 --Function that changes direction, saved for possible future use
@@ -86,4 +77,16 @@ processDir (x,y) (dx,dy)
   | y < 0 = (dx, 1.0)
   | y > 100 = (dx, (-1.0))
   | otherwise = (dx, dy)
+-}
+
+-- An enemy test object
+
+{-
+enemyObj1 :: Object
+enemyObj1 = Object { position = (400, 250),
+                     direction = (-1.0, 0),
+                     speed = 50,
+                     bounds = (25,25),
+                     graphic = color enemyColor $ rectangleSolid (50.0) (50.0)
+                   }
 -}
