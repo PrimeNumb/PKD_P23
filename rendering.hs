@@ -25,4 +25,16 @@ Converts a game object into a picture ready to be drawn on the screen.
    EXAMPLES: 
 -}
 --makeDrawable :: Object -> Picture
---makeDrawable (Object {position = pos, graphic=g}) = uncurry translate pos $ g
+
+
+makeDrawable :: Object -> Picture
+makeDrawable (Object {position = pos, graphic=g}) = uncurry translate pos $ g
+
+drawWithBounds obj@(Object {position=(x,y), bounds=(bx,by)}) =
+    pictures $ (makeDrawable obj):(drawBounds obj):[]
+
+drawBounds (Object {position=(x,y), bounds=(bx,by)}) =
+    color red $ translate x y $ rectangleWire (2*bx) (2*by)
+
+setGraphic :: Object -> Picture -> Object
+setGraphic obj gfx = obj {graphic=gfx}

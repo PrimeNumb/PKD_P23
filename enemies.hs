@@ -66,27 +66,4 @@ updateEnemy dt gameState@(GameState {ticker=currentTick,background=background}) 
     (dx,dy) = direction newEnemyObj
     enemySpeed = speed enemyObj
     deltaPos = (dx*enemySpeed*dt,dy*enemySpeed*dt)
-    newEnemy = enemy { shipObj = (move newEnemyObj deltaPos), lastFiredTick = updatedTick, isFiring=(not $ outOfBounds newEnemyObj background) }
-
-
---Function that changes direction, saved for possible future use
-
-{-
-processDir :: Position -> Direction -> Direction
-processDir (x,y) (dx,dy)
-  | y < 0 = (dx, 1.0)
-  | y > 100 = (dx, (-1.0))
-  | otherwise = (dx, dy)
--}
-
--- An enemy test object
-
-{-
-enemyObj1 :: Object
-enemyObj1 = Object { position = (400, 250),
-                     direction = (-1.0, 0),
-                     speed = 50,
-                     bounds = (25,25),
-                     graphic = color enemyColor $ rectangleSolid (50.0) (50.0)
-                   }
--}
+    newEnemy = enemy { shipObj = (move deltaPos newEnemyObj), lastFiredTick = updatedTick, isFiring=(not $ outOfBounds newEnemyObj background) }

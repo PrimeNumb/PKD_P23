@@ -28,8 +28,7 @@ defaultEncounter = Encounter
   }
 
 --The default graphics before sprites
-
-defaultGameGFX = GameGFX
+defaultGameGfx = GameGfx
   {
     playerGfx = color green $ rectangleSolid 50 50,
     enemyStandardGfx = color green $ rectangleSolid 50 50,
@@ -45,7 +44,7 @@ defaultGameGFX = GameGFX
 initGameState :: Game
 initGameState = GameState {
   objects = [],
-  gameGfx = defaultGameGFX,
+  gameGfx = defaultGameGfx,
   enemies = [],
   playableBounds = (winWidth/2, winHeight/2),
   randomGen = mkStdGen 1234,
@@ -75,10 +74,10 @@ main = do
   --display window winBackground (makeDrawable playerObj)
   seed <- randomIO :: IO Int
   -- Load sprites
-  gameGFX <- loadGFX
+  gameGfx <- loadGfx
   -- Process sprites
   let gen = mkStdGen seed
-      readyGameState = refreshGFX $ initGameState {gameGfx=gameGFX,randomGen=newGen, encounter=defaultEncounter}
+      readyGameState = refreshGfx $ initGameState {gameGfx=gameGfx,randomGen=newGen, encounter=defaultEncounter}
       (generatedShipStack, newGen) =
         generateEncounter gen 10 (enmyTemplate readyGameState)
       readyEncounter = defaultEncounter {shipStack=generatedShipStack}
@@ -101,25 +100,26 @@ newGame gameState@(GameState{randomGen=randomGen, enmyTemplate=enmyTemplate}) = 
   PRE: True
   RETURNS: A new game state with reset values.
 -}
-refreshGFX :: Game -> Game
-refreshGFX gameState@(GameState {gameGfx=gameGFX}) = newGameState
+refreshGfx :: Game -> Game
+refreshGfx gameState@(GameState {gameGfx=gameGfx}) = newGameState
   where
     newPlyProj =
-      setSprite (projectile $ player gameState) (playerProjGfx gameGFX)
+      (projectile $ player gameState) {projObj = setGraphic (projObj $ projectile $ player gameState) (playerProjGfx gameGfx)}
+      --setGraphic (projObj $ projectile $ player gameState) (playerProjGfx gameGfx)
     newPlayerTemplate =
-      (setSprite (player gameState) (playerGfx gameGFX)) { projectile = newPlyProj }
+      (player gameState) {shipObj = setGraphic (shipObj $ player gameState) (playerGfx gameGfx), projectile = newPlyProj}
     newEnmyProj =
-      setSprite (projectile $ enmyTemplate gameState) (enemyProjGfx gameGFX)
+      (projectile $ enmyTemplate gameState) {projObj = setGraphic (projObj $ projectile $ enmyTemplate gameState) (enemyProjGfx gameGfx)}
     newEnmyTemplate =
-      (setSprite (enmyTemplate gameState) (enemyStandardGfx gameGFX)) { projectile = newEnmyProj }
+      (enmyTemplate gameState) {shipObj = (setGraphic (shipObj $ enmyTemplate gameState) (enemyStandardGfx gameGfx)), projectile = newEnmyProj }
     newGameState = gameState
       {
         player = newPlayerTemplate,
         plyTemplate = newPlayerTemplate,
         enmyTemplate = newEnmyTemplate,
-        plyProjTemplate = setSprite (plyProjTemplate gameState) (playerProjGfx gameGFX),
-        enmyProjTemplate = setSprite (enmyProjTemplate gameState) (enemyProjGfx gameGFX),
-        background = setSprite (background gameState) (backgroundGfx gameGFX)
+        plyProjTemplate = (plyProjTemplate gameState) {projObj = setGraphic (projObj $ plyProjTemplate gameState) (playerProjGfx gameGfx)},
+        enmyProjTemplate = (enmyProjTemplate gameState) {projObj = setGraphic (projObj $ enmyProjTemplate gameState) (enemyProjGfx gameGfx)},
+        background = setGraphic (background gameState) (backgroundGfx gameGfx)
       }
 {- loadGFX
    Loads pictures from predestined filepaths into a GameGFX.
@@ -127,41 +127,42 @@ refreshGFX gameState@(GameState {gameGfx=gameGFX}) = newGameState
    RETURNS: A GameGFX containing the pictures.
    SIDE EFFECTS: IO; loading images. The exception handling if a filepath is invalid is handled in loadJuicyPNG. It returns a Maybe Picture or Nothing. 
    EXAMPLES: 
--}  
-loadGFX :: IO GameGFX
-loadGFX = do
+-}
+loadGfx :: IO GameGfx
+loadGfx = do
   imgBuffer <- loadJuicyPNG playerSpritePath
-  let playerGFX = processSprite imgBuffer
+  let playerGfx = processSprite imgBuffer
   
   imgBuffer <- loadJuicyPNG enemySpritePath
-  let enemyStandardGFX = processSprite imgBuffer
+  let enemyStandardGfx = processSprite imgBuffer
 
   imgBuffer <- loadJuicyPNG plyProjSpritePath
-  let playerProjGFX = processSprite imgBuffer
+  let playerProjGfx = processSprite imgBuffer
 
   imgBuffer <- loadJuicyPNG enemyProjSpritePath
-  let enemyProjGFX = processSprite imgBuffer
+  let enemyProjGfx = processSprite imgBuffer
 
   imgBuffer <- loadJuicyPNG heartSpritePath
-  let heartGFX = processSprite imgBuffer
+  let heartGfx = processSprite imgBuffer
 
   imgBuffer <- loadJuicyPNG gameOverSpritePath
-  let gameOverGFX = processSprite imgBuffer
+  let gameOverGfx = processSprite imgBuffer
   
   imgBuffer <- loadJuicyPNG backgroundPath
-  let backgroundGFX = processSprite imgBuffer
-  let gameGFX =
-        defaultGameGFX
+  let backgroundGfx = processSprite imgBuffer
+  let gameGfx =
+        defaultGameGfx
         {
-          playerGfx = playerGFX,
-          enemyStandardGfx = enemyStandardGFX,
-          playerProjGfx = playerProjGFX,
-          enemyProjGfx = enemyProjGFX,
-          heartGfx = heartGFX,
-          gameOverGfx = gameOverGFX,
-          backgroundGfx = backgroundGFX
+          playerGfx = playerGfx,
+          enemyStandardGfx = enemyStandardGfx,
+          playerProjGfx = playerProjGfx,
+          enemyProjGfx = enemyProjGfx,
+          heartGfx = heartGfx,
+          gameOverGfx = gameOverGfx,
+          backgroundGfx = backgroundGfx
         }
-  return gameGFX
+  return gameGfx
+
 {- processSprite pic
    Processes a Maybe Picture into either a Picture or a placehoder graphic.
    PRE: True
@@ -179,15 +180,15 @@ processSprite (Just pic) = pic
    EXAMPLES:
 -}
 draw :: Game -> Picture
-draw gameState@(GameState {objects=objs, gameGfx=gameGFX, player=playerShip, plyProjectiles=plyProjs, enemyProjectiles=enemyProjs, enemies=enemies, showHitbox=showHitbox,background=background}) = newFrame
+draw gameState@(GameState {objects=objs, gameGfx=gameGfx, player=playerShip, plyProjectiles=plyProjs, enemyProjectiles=enemyProjs, enemies=enemies, showHitbox=showHitbox,background=background}) = newFrame
   where
     -- Everything that needs to be drawn goes here
-    heartPics = map makeDrawable (updateHealthDisplay playerShip (heartGfx gameGFX) (gameOverGfx gameGFX))
+    heartPics = map makeDrawable (updateHealthDisplay playerShip (heartGfx gameGfx) (gameOverGfx gameGfx))
     backgroundPic = makeDrawable background
     drawObjs =
       (map projObj enemyProjs) ++ (map projObj plyProjs) ++ (map shipObj enemies) ++ (shipObj playerShip):objs
     objPics = if showHitbox
-      then (map drawWithBounds drawObjs)
+      then (map makeDrawable drawObjs) ++ (map drawBounds drawObjs)
       else (map makeDrawable drawObjs)
     -- The final picture frame
     newFrame = pictures $ (backgroundPic:heartPics) ++ objPics
@@ -250,20 +251,20 @@ updateEncounter encounter currentTick enemyContainer
 
 updateHealthDisplay :: Ship -> Picture -> Picture -> [Object]
 --VARIANT: shipHealth ship
-updateHealthDisplay player@(Ship{shipHealth=shipHealth}) heartGFX gameOverGFX
+updateHealthDisplay player@(Ship{shipHealth=shipHealth}) heartGfx gameOverGfx
   |shipHealth == -1 = [Object { position = (0, 0),
                                 direction = (0, 0),
                                 speed = 0,
                                 bounds = (0, 0),
-                                graphic = gameOverGFX
+                                graphic = gameOverGfx
                                }]
   |shipHealth <= 0 = []
   |otherwise = (Object { position = (xpos, 250),
                          direction = (0, 0),
                          speed = 0,
                          bounds = (0, 0),
-                         graphic = heartGFX
-                       }) : updateHealthDisplay newShip heartGFX gameOverGFX
+                         graphic = heartGfx
+                       }) : updateHealthDisplay newShip heartGfx gameOverGfx
   where
     newShip = player {shipHealth=newHp}
     newHp = shipHealth - 1
@@ -287,10 +288,10 @@ updateEnemies enemies dt gameState = map (updateEnemy dt gameState) (eneHandleDm
 handleEvent :: Event -> Game -> Game
 handleEvent (EventKey key Down mod _) gameState@(GameState {player=player}) =
   case key of
-    (SpecialKey KeyUp)    -> gameState { player =  modDirection player(0,1)}
-    (SpecialKey KeyDown)  -> gameState { player =  modDirection player(0,-1)}
-    (SpecialKey KeyLeft)  -> gameState { player =  modDirection player(-1,0)}
-    (SpecialKey KeyRight) -> gameState { player =  modDirection player(1,0)}
+    (SpecialKey KeyUp)    -> gameState { player = player {shipObj = modDirection (0,1) (shipObj player)}}
+    (SpecialKey KeyDown)  -> gameState { player = player {shipObj = modDirection (0,-1) (shipObj player)}}
+    (SpecialKey KeyLeft)  -> gameState { player = player {shipObj = modDirection (-1,0) (shipObj player)}}
+    (SpecialKey KeyRight) -> gameState { player = player {shipObj = modDirection (1,0) (shipObj player)}}
     (SpecialKey KeySpace) -> gameState { player = player {isFiring=True}, plyProjectiles = newPlyProjList }
       where
         currentTick = ticker gameState
@@ -302,18 +303,14 @@ handleEvent (EventKey key Down mod _) gameState@(GameState {player=player}) =
     (SpecialKey KeyF1)    -> gameState { showHitbox = (not $ showHitbox gameState)}
     (SpecialKey KeyF2)            -> newGame gameState
     _ -> gameState
-
 handleEvent (EventKey key Up _ _) gameState@(GameState {player=player}) =
   case key of
-    (SpecialKey KeyUp)    -> gameState { player =  modDirection player(0,-1)}
-    (SpecialKey KeyDown)  -> gameState { player =  modDirection player(0,1)}
-    (SpecialKey KeyLeft)  -> gameState { player =  modDirection player(1,0)}
-    (SpecialKey KeyRight) -> gameState { player =  modDirection player(-1,0)}
+    (SpecialKey KeyUp)    -> gameState { player = player {shipObj = modDirection (0,-1) (shipObj player)}} 
+    (SpecialKey KeyDown)  -> gameState { player = player {shipObj = modDirection (0,1) (shipObj player)}} 
+    (SpecialKey KeyLeft)  -> gameState { player = player {shipObj = modDirection (1,0) (shipObj player)}} 
+    (SpecialKey KeyRight) -> gameState { player = player {shipObj = modDirection (-1,0) (shipObj player)}}
     (SpecialKey KeySpace) -> gameState { player = player {isFiring=False}}
     _ -> gameState
-
-
-    
 -- Need to do something when the screen is resized
 handleEvent (EventResize (x, y)) gameState = gameState
 handleEvent _ gameState = gameState
