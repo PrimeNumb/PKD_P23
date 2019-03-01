@@ -1,39 +1,32 @@
 module Player where
 import DataTypes
-import Helpers
+import Graphics.Gloss
+import Utilities
+import Projectile
 import Debug.Trace
 
--- Get the player position from a given game state
-getPlayerPos :: Game -> Position
-getPlayerPos gameState = position $ ship_obj $ player gameState
-
--- Get the player direction from a given game state
-getPlayerDir :: Game -> Direction
-getPlayerDir gameState = direction $ ship_obj $ player gameState
-
--- Returns a new game state where the player direction has been modified
-modPlyDirection :: Game -> (Float, Float) -> Game
-modPlyDirection gameState@(GameState {player=ply}) (x,y) = newGameState
-  where
-    plyObj = ship_obj (player gameState)
-    (px,py) = direction plyObj
-    (nx,ny) = (x+px,y+py)
-    newPlyObj = plyObj {direction = (nx,ny)}
-    newGameState = gameState {player = ply {ship_obj = newPlyObj}}
-
-{- movePlayer object gameState deltaVector
-   desc
-   PRE: 
-   RETURNS: 
-   EXAMPLES: 
+playerObj :: Object
+playerObj = Object { position = (0, 0),
+                     direction = (0, 0),
+                     speed = 300,
+                     bounds = (25, 25),
+                     graphic = color green $ rectangleSolid 50 50
+                   }
+playerShipDefault :: Ship
+playerShipDefault = Ship { ship_obj = playerObj,
+                    ship_health = 3,
+                    wep_cooldown = 0.25,
+                    projectile = playerDefaultProj,
+                    last_fired_tick = 0,
+                    isFiring = False,
+                    isPlayer = True
+                  }
+{- updatePlayer deltaTime gameState
+   Updates the player one iteration.
+   PRE: True
+   RETURNS: A new game state where the player record field has been updated, partially based on the deltatime.
+   EXAMPLES: Omitted
 -}
---movePlayer :: Game -> (Float, Float) -> Game
---movePlayer gameState@(GameState {player=ply}) (dx, dy) = gameState { player = newPly}
---  where
---    (x, y) = position ply
---    (nx, ny) = (x+dx, y+dy)
---    newPly = ply { position = (nx, ny) } 
-
 updatePlayer :: Float -> Game -> Ship
 updatePlayer dt gameState@(GameState {ticker=currentTick,player=ply}) =
   newPlayer

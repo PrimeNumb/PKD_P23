@@ -66,7 +66,7 @@ defaultBackground =
   Object { position = (0, 0),
            direction = (0, 0),
            speed = 0,
-           boundingBox = (win_width/2, win_height/2),
+           bounds = (win_width/2, win_height/2),
            graphic = Blank
          }
 

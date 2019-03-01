@@ -5,7 +5,7 @@ import System.Random
 import Debug.Trace
 import Rendering
 import DataTypes
-import Helpers
+import Utilities
 import Projectile
 import Globals
 import Collision
@@ -13,13 +13,13 @@ import Collision
 enemyDefaultSpawnPos :: Position
 enemyDefaultSpawnPos = (win_width+enemy_width, 0)
   where
-    enemy_width = fst $ boundingBox $ ship_obj enemyShipDefaultTemplate
+    enemy_width = fst $ bounds $ ship_obj enemyShipDefaultTemplate
 
 enemyObjTemplate :: Object
 enemyObjTemplate = Object { position = enemyDefaultSpawnPos,
                             direction = (-1, 0),
                             speed = 100,
-                            boundingBox = (25, 49),
+                            bounds = (25, 49),
                             graphic = color blue $ rectangleSolid 50 98
                           }
 
@@ -40,7 +40,7 @@ enemyObj1 :: Object
 enemyObj1 = Object { position = (400, 250),
                      direction = (-1.0, 0),
                      speed = 50,
-                     boundingBox = (25,25),
+                     bounds = (25,25),
                      graphic = color enemyColor $ rectangleSolid (50.0) (50.0)
                    }
                     
