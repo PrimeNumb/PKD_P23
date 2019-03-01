@@ -86,4 +86,4 @@ updateEnemy dt gameState@(GameState {ticker=currentTick,background=background}) 
     (dx,dy) = direction newEnemyObj
     enemySpeed = speed enemyObj
     deltaPos = (dx*enemySpeed*dt,dy*enemySpeed*dt)
-    newEnemy = enemy { shipObj = (move newEnemyObj deltaPos), lastFiredTick = updatedTick, isFiring=(not $ outOfBounds newEnemyObj background) }
+    newEnemy = enemy { shipObj = (move deltaPos newEnemyObj), lastFiredTick = updatedTick, isFiring=(not $ outOfBounds newEnemyObj background) }

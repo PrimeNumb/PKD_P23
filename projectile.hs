@@ -89,5 +89,5 @@ updateProjectile dt proj@(Projectile {projObj=pObj}) = newProj
   where
     pSpeed = speed pObj
     (dx, dy) = direction pObj
-    newProj = move proj (dx*pSpeed*dt,dy*pSpeed*dt)
+    newProj = proj {projObj = move (dx*pSpeed*dt,dy*pSpeed*dt) (projObj proj)}
     
