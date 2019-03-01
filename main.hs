@@ -63,7 +63,7 @@ initGameState = GameState {
 
 
 {- main
-Imports graphics and a random seed and then initializes a game state. 
+Imports graphics and a random seed and then initializes a game state. The 
 PRE: 
 RETURNS: 
 SIDE EFFECTS: 
