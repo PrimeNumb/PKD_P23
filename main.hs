@@ -64,7 +64,7 @@ initGameState = GameState {
 
 
 {- main
-desc.
+Imports graphics and a random seed and then initializes a game state. 
 PRE: 
 RETURNS: 
 SIDE EFFECTS: 
@@ -97,9 +97,9 @@ newGame gameState@(GameState{randomGen=randomGen, enmyTemplate=enmyTemplate}) = 
   initEncounter = defaultEncounter {shipStack=generatedShipStack}
 
 {-refreshGFX gameState
-  Takes in a 
+  Takes in a game state and updates the graphics of objects with pictures contained in the game state itself.
   PRE: True
-  RETURNS: A new game state with reset values.
+  RETURNS: A game state containing the updated graphics of objects.
 -}
 refreshGFX :: Game -> Game
 refreshGFX gameState@(GameState {gameGfx=gameGFX}) = newGameState
@@ -125,7 +125,7 @@ refreshGFX gameState@(GameState {gameGfx=gameGFX}) = newGameState
    Loads pictures from predestined filepaths into a GameGFX.
    PRE: True
    RETURNS: A GameGFX containing the pictures.
-   SIDE EFFECTS: IO; loading images. The exception handling if a filepath is invalid is handled in loadJuicyPNG. It returns a Maybe Picture or Nothing. 
+   SIDE EFFECTS: IO; loading images. The exception handling if a filepath is invalid is handled in loadJuicyPNG. It returns a Maybe Picture or Nothing. This is also handled in  
    EXAMPLES: 
 -}  
 loadGFX :: IO GameGFX
@@ -226,7 +226,7 @@ update dt gameState@(GameState {ticker=currentTick,plyProjectiles=projList, enem
 
 
 {-updateEncounter encounter currentTick enemyContainer
-  Checks if an enemy should spawn from an Encounter stack by looking at the current tick. If that is the case it is moved into a list if ships.
+  Checks if an enemy should spawn from an Encounter stack by looking at the current tick. If that is the case it is moved into a list of ships.
   PRE: True
   RETURNS: A 2-tuple of the updated encounter stack and the updated list of ships.
   Examples:
@@ -270,7 +270,7 @@ updateHealthDisplay player@(Ship{shipHealth=shipHealth}) heartGFX gameOverGFX
     xpos = fromIntegral (-500 + (40 * shipHealth))
 
 {- updateEnemies enemies dt gameState
-   Updates a list of enemies. The health, position and the time since they last    fired is updated. Enemies are also removed if their health is depleted.
+   Updates a list of enemies. The health, position and the time since they last fired is updated. Enemies are also removed if their health is depleted.
    PRE: True
    RETURNS: A list of updated enemies in regards to the given gameState.
    EXAMPLES: 
@@ -356,6 +356,7 @@ processEnemyFire gameState@(GameState {enemies=enemies,ticker=t}) = newProjList
      EXAMPLES: processEnemyFireAux [proj1, proj2] [proj3, proj4] = [proj2, proj1     ,proj3, proj4]
   -}
 processEnemyFireAux :: [Maybe Projectile] -> [Projectile] -> [Projectile]
+--VARIANT: length of xs
 processEnemyFireAux [] acc = acc
 processEnemyFireAux (Just x : xs) acc = processEnemyFireAux xs (x:acc)
 processEnemyFireAux (Nothing : xs) acc = processEnemyFireAux xs acc
