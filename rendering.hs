@@ -3,10 +3,9 @@ import Graphics.Gloss
 import DataTypes
 
 {- makeRectangle position width height
-   Constructs a drawable rectangle based on the given position and width, height.
-   PRE: 
-   RETURNS: 
-   EXAMPLES: 
+   Constructs a drawable rectangle based on the given position and width, height
+   PRE: True
+   RETURNS: A rectangle with given width and height
 -}
 makeRectangle :: Position -> Float -> Float -> Picture
 makeRectangle (x, y) width height = polygon [upperLeft, upperRight, lowerRight, lowerLeft]
