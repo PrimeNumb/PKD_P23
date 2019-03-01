@@ -62,6 +62,14 @@ testProjGraphic = color blue $ circleSolid 5
 
 -- Adds a list of projectiles into the gamestate based on whether
 -- they belong to the player or not
+
+  {- spawnProjectiles ListOfProjs PlayerCheck Gamestate
+     
+     PRE:  ... pre-condition on the arguments, if any ...
+     RETURNS: ... description of the result, in terms of the arguments ...
+     SIDE EFFECTS: ... side effects, if any, including exceptions ...
+     EXAMPLES: ... especially if useful to highlight delicate issues; also consider including counter-examples ...
+  -}
 spawnProjectiles :: [Projectile] -> Bool -> Game -> Game
 spawnProjectiles projList isPlayer gameState@(GameState {ply_projectiles=plyProjList, npc_projectiles=npcProjList})
   | isPlayer = gameState { ply_projectiles = (projList ++ plyProjList)}
