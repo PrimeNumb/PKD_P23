@@ -85,7 +85,7 @@ main = do
 
 {-newGame gameState
 Takes in the current GameState and resets it to default values allowing the player to start over.
-PRE:
+PRE: True
 RETURNS: A new game state with reset values.
 -}
 newGame :: Game -> Game
@@ -94,6 +94,12 @@ newGame gameState@(GameState{randomGen=randomGen, enmyTemplate=enmyTemplate}) = 
   (generatedShipStack, newGen) = generateEncounter randomGen 10 enmyTemplate
   initEncounter = defaultEncounter {shipStack=generatedShipStack}
 
+{-refreshGFX gameState
+Takes in a 
+
+PRE: True
+RETURNS: A new game state with reset values.
+-}
 refreshGFX :: Game -> Game
 refreshGFX gameState@(GameState {gameGfx=gameGFX}) = newGameState
   where
@@ -114,7 +120,13 @@ refreshGFX gameState@(GameState {gameGfx=gameGFX}) = newGameState
         enmyProjTemplate = setSprite (enmyProjTemplate gameState) (enemyProjGfx gameGFX),
         background = setSprite (background gameState) (backgroundGfx gameGFX)
       }
-
+{- loadGFX
+   Loads pictures from predestined filepaths into a GameGFX.
+   PRE: True
+   RETURNS: A GameGFX containing the pictures.
+   SIDE EFFECTS: IO; loading images. The exception handling if a filepath is invalid is handled in loadJuicyPNG. It returns a Maybe Picture or Nothing. 
+   EXAMPLES: 
+-}  
 loadGFX :: IO GameGFX
 loadGFX = do
   imgBuffer <- loadJuicyPNG playerSpritePath
@@ -149,11 +161,22 @@ loadGFX = do
           backgroundGfx = backgroundGFX
         }
   return gameGFX
-
+{- processSprite pic
+   Processes a Maybe Picture into either a Picture or a placehoder graphic.
+   PRE: True
+   RETURNS: The Picture if there is one. Otherwise a placeholder graphic.
+   EXAMPLES: processSprite Nothing == Color (RGBA 0.0 1.0 0.0 1.0) (Polygon [(-25.0,-25.0),(-25.0,25.0),(25.0,25.0),(25.0,-25.0)])
+-}
 processSprite :: Maybe Picture -> Picture
 processSprite Nothing = color green $ rectangleSolid 50 50
 processSprite (Just pic) = pic
 
+{- draw gameState
+   Takes in all objects that need to be drawn from a game state and combines them into a picture.
+   PRE: True
+   RETURNS: The Picture if there is one. Otherwise a placeholder graphic.
+   EXAMPLES: processSprite Nothing == Color (RGBA 0.0 1.0 0.0 1.0) (Polygon [(-25.0,-25.0),(-25.0,25.0),(25.0,25.0),(25.0,-25.0)])
+-}
 draw :: Game -> Picture
 draw gameState@(GameState {objects=objs, gameGfx=gameGFX, player=playerShip, plyProjectiles=plyProjs, enemyProjectiles=enemyProjs, enemies=enemies, showHitbox=showHitbox,background=background}) = newFrame
   where
@@ -168,13 +191,12 @@ draw gameState@(GameState {objects=objs, gameGfx=gameGFX, player=playerShip, ply
     -- The final picture frame
     newFrame = pictures $ (backgroundPic:heartPics) ++ objPics
 
-{- update
+{- update dt gameState
    Updates a given game state one iteration.
-   PRE:
-   RETURNS:
+   PRE: True
+   RETURNS: An updated gameState.
    EXAMPLES:
 -}
-
 update :: Float -> Game -> Game
 update dt gameState@(GameState {ticker=currentTick,plyProjectiles=projList, enemies=enemies,enemyProjectiles=enemyProjList,encounter=encounter, player=player}) = newGameState 
   where
@@ -236,14 +258,20 @@ updateHealthDisplay player@(Ship{shipHealth=shipHealth}) heartGFX gameOverGFX
     newShip = player {shipHealth=newHp}
     newHp = shipHealth - 1
     xpos = fromIntegral (-500 + (40 * shipHealth))
-  
+
+{- updateEnemies enemies dt gameState
+   Updates a list of enemies. The health, position and the time since they last fired is updated. Enemies are also removed if their health is depleted.
+   PRE: True
+   RETURNS: A list of updated enemies in regards to the given gameState.
+   EXAMPLES: 
+-}  
 updateEnemies :: [Ship] -> Float -> Game -> [Ship]
 updateEnemies enemies dt gameState = map (updateEnemy dt gameState) (eneHandleDmg gameState enemies)
 
-{- handleEvent gameState
-Calls a specific
-   PRE:
-   RETURNS:
+{- handleEvent event gameState
+   Takes in an event and modifies a given gameState according to the Event (input).
+   PRE: True
+   RETURNS: A gameState with changed values depending on the Event.
    EXAMPLES:
 -}
 handleEvent :: Event -> Game -> Game
