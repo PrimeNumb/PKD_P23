@@ -84,9 +84,9 @@ main = do
   return ()
 
 {-newGame gameState
-Takes in the current GameState and resets it to default values allowing the player to start over.
-PRE: True
-RETURNS: A new game state with reset values.
+  Takes in the current GameState and resets it to default values allowing the player to start over.
+  PRE: True
+  RETURNS: A new game state with reset values.
 -}
 newGame :: Game -> Game
 newGame gameState@(GameState{randomGen=randomGen, enmyTemplate=enmyTemplate}) = gameState{encounter=initEncounter, player=(plyTemplate gameState), enemyProjectiles=[], plyProjectiles=[], ticker=0, randomGen=newGen, objects=[], enemies=[]}
@@ -95,10 +95,9 @@ newGame gameState@(GameState{randomGen=randomGen, enmyTemplate=enmyTemplate}) = 
   initEncounter = defaultEncounter {shipStack=generatedShipStack}
 
 {-refreshGFX gameState
-Takes in a 
-
-PRE: True
-RETURNS: A new game state with reset values.
+  Takes in a 
+  PRE: True
+  RETURNS: A new game state with reset values.
 -}
 refreshGFX :: Game -> Game
 refreshGFX gameState@(GameState {gameGfx=gameGFX}) = newGameState
@@ -174,8 +173,8 @@ processSprite (Just pic) = pic
 {- draw gameState
    Takes in all objects that need to be drawn from a game state and combines them into a picture.
    PRE: True
-   RETURNS: The Picture if there is one. Otherwise a placeholder graphic.
-   EXAMPLES: processSprite Nothing == Color (RGBA 0.0 1.0 0.0 1.0) (Polygon [(-25.0,-25.0),(-25.0,25.0),(25.0,25.0),(25.0,-25.0)])
+   RETURNS: A combined picture of all pictures that are to be drawn.
+   EXAMPLES:
 -}
 draw :: Game -> Picture
 draw gameState@(GameState {objects=objs, gameGfx=gameGFX, player=playerShip, plyProjectiles=plyProjs, enemyProjectiles=enemyProjs, enemies=enemies, showHitbox=showHitbox,background=background}) = newFrame
@@ -223,6 +222,12 @@ update dt gameState@(GameState {ticker=currentTick,plyProjectiles=projList, enem
     -- The final updated gamestate
     newGameState = (gameState {player=newPlayer, ticker=newTicker, plyProjectiles=newPlyProjList, enemies=newEnemies, enemyProjectiles=newEnemyProjList, encounter=newEncounter})
 
+{-updateEncounter encounter currentTick enemyContainer
+  Checks if an enemy should spawn from an Encounter stack by looking at the current tick. If that is the case it is moved into a list if ships.
+  PRE: True
+  RETURNS: A 2-tuple of the updated encounter stack and the updated list of ships.
+  Examples:
+-}
 updateEncounter :: Encounter -> Float -> [Ship] -> (Encounter,[Ship])
 updateEncounter encounter currentTick enemyContainer
   | shouldPopEncounter currentTick encounter = (newEncounter, newEnemyContainer)
@@ -232,11 +237,12 @@ updateEncounter encounter currentTick enemyContainer
     (newStack, newEnemyContainer) =
       pop (shipStack updatedEncounter) enemyContainer
     newEncounter = updatedEncounter {shipStack=newStack}
+
 {-updateHealthDisplay ship heartGFX gameOverGFX
-Updates the health display of the Ship so it correlates with current health. Also displays a game over graphic when the player is dead.
-PRE:
-RETURNS: A list of the objects that are to be drawn. Either hearts corresponding to Ship health or a game over graphic.
-Examples:
+  Updates the health display of the Ship so it correlates with current health. Also displays a game over graphic when the player is dead.
+  PRE:
+  RETURNS: A list of the objects that are to be drawn. Either hearts corresponding to Ship health or a game over graphic.
+  Examples:
 -}
 updateHealthDisplay :: Ship -> Picture -> Picture -> [Object]
 --VARIANT: shipHealth ship
@@ -308,7 +314,7 @@ handleEvent (EventKey key Up _ _) gameState@(GameState {player=player}) =
 handleEvent (EventResize (x, y)) gameState = gameState
 handleEvent _ gameState = gameState
 
--- Fires a ship's projectile from its position, given a direction
+
 shipFire :: Direction -> Float -> Ship -> Maybe Projectile
 shipFire dir currentTick ship
   | canFire && (isFiring ship) = Just newShipProj
