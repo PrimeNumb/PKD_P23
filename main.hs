@@ -79,7 +79,7 @@ main = do
   let gen = mkStdGen seed
       readyGameState = refreshGfx $ initGameState {gameGfx=gameGfx,randomGen=newGen, encounter=defaultEncounter}
       (generatedShipStack, newGen) =
-        generateEncounter gen 10 (enmyTemplate readyGameState)
+        generateShips gen 10 (enmyTemplate readyGameState)
       readyEncounter = defaultEncounter {shipStack=generatedShipStack}
   play window winBackground targetFramerate (readyGameState {randomGen=newGen, encounter=readyEncounter }) draw handleEvent update
   return ()
@@ -92,7 +92,7 @@ main = do
 newGame :: Game -> Game
 newGame gameState@(GameState{randomGen=randomGen, enmyTemplate=enmyTemplate}) = gameState{encounter=initEncounter, player=(plyTemplate gameState), enemyProjectiles=[], plyProjectiles=[], ticker=0, randomGen=newGen, objects=[], enemies=[]}
   where
-  (generatedShipStack, newGen) = generateEncounter randomGen 10 enmyTemplate
+  (generatedShipStack, newGen) = generateShips randomGen 10 enmyTemplate
   initEncounter = defaultEncounter {shipStack=generatedShipStack}
 
 {-refreshGFX gameState
