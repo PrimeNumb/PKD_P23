@@ -4,6 +4,7 @@ import DataTypes
 import Enemies
 import System.Random
 import Globals
+import Utilities
 
 -- Pops the first element from the stack and puts it into a container
 --popEncounter :: Encounter -> [Ship] -> (Encounter,[Ship])
@@ -40,7 +41,7 @@ generateEncounterAux gen nrOfShips template acc =
     (newShip, newGen) = generateEnemyShip gen template
 
 generateEnemyShip :: StdGen -> Ship -> (Ship, StdGen)
-generateEnemyShip gen shipTemplate = (setPos (xPos,yPos) $ shipTemplate {wepCooldown=cooldown}, gen2)
+generateEnemyShip gen shipTemplate = (shipTemplate {shipObj=setPos (xPos,yPos) (shipObj shipTemplate),wepCooldown=cooldown}, gen2)
   where
     enemyWidth = fst $ bounds $ shipObj shipTemplate
     xPos = winWidth/2 + enemyWidth

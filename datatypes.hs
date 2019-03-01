@@ -11,7 +11,7 @@ import Debug.Trace
 -}
 data Game = GameState
   { objects          :: [Object], --use this for objects that aren't ships
-    gameGfx         :: GameGFX,
+    gameGfx         :: GameGfx,
     enemies          :: [Ship],
     playableBounds  :: Bounds,
     randomGen        :: StdGen,
@@ -28,10 +28,13 @@ data Game = GameState
     showHitbox       :: Bool
   } deriving Show
 
-{- Object
-
-
-   INVARIANT: 
+{- Object represents a physical object in the game that logic should be processed on.
+   position describes a 2D point where the object physically resides.
+   direction describes the direction the object is currently moving in.
+   speed describes the magnitude with which the object should move in its current direction.
+   bounds describes the dimensions of the object, how much it extends from its center to any of its edges.
+   graphic describes the picture, sprite or image associated with the object; how it should be drawn.
+   INVARIANT: position is the center of the object
 -}
 data Object = Object
   { position    :: (Float, Float),
@@ -41,10 +44,14 @@ data Object = Object
     graphic     :: Picture
   } deriving Show
 
-{- Ship
-
-
-   INVARIANT: 
+{- Ship represents a ship in the game.
+   shipObj describes the physical object associated with the Ship.
+   wepCooldown describes the minimum time (in seconds) that must pass before the ship can fire its weapon again.
+   projectile describes the projectile (and its properties) that the ship should fire its weapon.
+   lastFiredTick describes the time stamp (in seconds) when the ship last fired its weapon.
+   isFiring describes whether the ship is currently trying to fire its weapon.
+   isPlayer describes whether or not the ship is a player character.
+   INVARIANT: wepCooldown > 0
 -}
 data Ship = Ship
   { shipObj        :: Object,
@@ -57,7 +64,7 @@ data Ship = Ship
   } deriving Show
 
 {- Projectile represents a (not necessarily) moving projectile in the game. 
-   projObj describes the object associated with the Projectile.
+   projObj describes the physical object associated with the Projectile.
    effect describes the effect that should be processed on a colliding object.
   INVARIANT: True
    -}
@@ -79,7 +86,7 @@ data Encounter = Encounter
     shipStack    :: [Ship]
   } deriving Show
 
-{- GameGFX represents a set of pictures (or images) used by different parts of a game. 
+{- GameGfx represents a set of pictures (or images) used by different parts of a game. 
   playerGfx is the player sprite.
   enemyStandardGfx is the default enemy sprite.
   playerProjGfx is the player projectile sprite.
@@ -89,7 +96,7 @@ data Encounter = Encounter
   backgroundGfx is the background image.
   INVARIANT: True
    -}
-data GameGFX = GameGFX
+data GameGfx = GameGfx
   {
     playerGfx         :: Picture,
     enemyStandardGfx :: Picture,
@@ -101,7 +108,7 @@ data GameGFX = GameGFX
   } deriving Show
 
 {- Effect represents how something should be affected when the effect is processed and applied to something in the game.
-   Damage x, where x is the amount of damage that should be applied (including negative damage)
+   Damage x, where x is the amount of damage that should be applied (including negative damage, which could be regarded as healing).
    NoEffect, where NoEffect is simply a lack of effect.
    INVARIANT: True
 -}
@@ -126,60 +133,3 @@ type Position = (Float, Float)
    INVARIANT: Either element's value must be between -1.0 and 1.0.
 -}
 type Direction = (Float, Float)
-
-
-
--- TYPECLASS DOCS GO HERE
-class Movable a where
-  move :: a -> Vector -> a
-  setPos :: Vector -> a -> a
-  modDirection :: a -> Direction -> a
-  
-instance Movable Object where
-  move obj@(Object {position=(x,y)}) (vx,vy) = obj { position = (x+vx,y+vy) }
-  setPos (x,y) obj@(Object {position=(xObj,yObj)}) =
-    move obj (x-xObj,y-yObj)
-  modDirection obj@(Object {direction=(x,y)}) (dx, dy) =
-    obj { direction = (x+dx,y+dy)}
-instance Movable Ship where
-  move ship@(Ship {shipObj=obj}) v = ship {shipObj=(move obj v)}
-  setPos pos ship@(Ship {shipObj=obj}) =
-    ship {shipObj=(setPos pos obj)}
-  modDirection ship@(Ship {shipObj=obj}) dir =
-    ship {shipObj = (modDirection obj dir )}
-instance Movable Projectile where
-  move proj@(Projectile {projObj=obj}) v = proj {projObj=(move obj v)}
-  setPos pos proj@(Projectile {projObj=obj}) =
-    proj {projObj=(setPos pos obj)}
-  modDirection proj@(Projectile {projObj=obj}) dir =
-    proj {projObj = (modDirection obj dir)}
-
-
-class Drawable a where
-  makeDrawable :: a -> Picture
-  drawBounds :: a -> Picture
-  drawWithBounds :: a -> Picture
-  setSprite :: a -> Picture -> a
-
-instance Drawable Object where
-  makeDrawable (Object {position = pos, graphic=g}) =
-    uncurry translate pos $ g
-  drawBounds (Object {position=(x,y), bounds=(bx,by)}) =
-    color red $ translate x y $ rectangleWire (2*bx) (2*by)
-  drawWithBounds obj@(Object {position=(x,y), bounds=(bx,by)}) =
-    pictures $ (makeDrawable obj):(drawBounds obj):[]
-  setSprite obj gfx = obj {graphic=gfx}
-    
-instance Drawable Ship where
-  makeDrawable (Ship {shipObj=obj}) = makeDrawable obj
-  drawBounds (Ship {shipObj=obj}) = drawBounds obj
-  drawWithBounds (Ship {shipObj=obj}) = drawWithBounds obj
-  setSprite ship@(Ship {shipObj=obj}) gfx =
-    ship {shipObj=(setSprite obj gfx)}
-
-instance Drawable Projectile where
-  makeDrawable (Projectile {projObj=obj}) = makeDrawable obj
-  drawBounds (Projectile {projObj=obj}) = drawBounds obj
-  drawWithBounds (Projectile {projObj=obj}) = drawWithBounds obj
-  setSprite proj@(Projectile {projObj=obj}) gfx =
-    proj {projObj=(setSprite obj gfx)}

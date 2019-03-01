@@ -46,4 +46,4 @@ updatePlayer dt gameState@(GameState {ticker=currentTick,player=ply}) =
     -- The new player 
     newPlayer =
       ply { shipObj =
-           (clampToBounds (playableBounds gameState) $ move plyObj deltaPos), lastFiredTick = updatedTick }
+           (clampToBounds (playableBounds gameState) $ move deltaPos plyObj), lastFiredTick = updatedTick }
