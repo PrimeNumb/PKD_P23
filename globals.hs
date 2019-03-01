@@ -36,7 +36,7 @@ enemySpawnInitialDelay = 5.0
 --Sprites
 --function png taken from gloss-game (credit the author?)
 
--- DELETE THIS
+-- D
 png :: FilePath -> Picture
 png fname = maybe (text "PNG ERROR") id (unsafePerformIO $ loadJuicyPNG fname)
 
@@ -61,6 +61,11 @@ gameOverSprite = png "./sprites/gameOver.png"
 gameOverSpritePath :: FilePath
 gameOverSpritePath = "./sprites/gameOver.png"
 
+backgroundPath :: FilePath
+backgroundPath = "./sprites/spacebackg.png"
+
+----------------------------------------------------------------------------
+
 defaultBackground :: Object
 defaultBackground =
   Object { position = (0, 0),
@@ -69,7 +74,4 @@ defaultBackground =
            bounds = (winWidth/2, winHeight/2),
            graphic = Blank
          }
-
-backgroundPath :: FilePath
-backgroundPath = "./sprites/spacebackg.png"
 

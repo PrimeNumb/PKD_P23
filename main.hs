@@ -18,14 +18,16 @@ import Encounter
 window :: Display
 window = InWindow winTitle winSize winOffset
 
--- CHANGE THIS
 
+--The default encounters
 
 defaultEncounter = Encounter
   { popInterval = enemySpawnInterval,
     lastPop = enemySpawnInitialDelay,
     shipStack = []
   }
+
+--The default graphics before sprites
 
 defaultGameGFX = GameGFX
   {
@@ -223,6 +225,8 @@ update dt gameState@(GameState {ticker=currentTick,plyProjectiles=projList, enem
     -- The final updated gamestate
     newGameState = (gameState {player=newPlayer, ticker=newTicker, plyProjectiles=newPlyProjList, enemies=newEnemies, enemyProjectiles=newEnemyProjList, encounter=newEncounter})
 
+
+  
 updateEncounter :: Encounter -> Float -> [Ship] -> (Encounter,[Ship])
 updateEncounter encounter currentTick enemyContainer
   | shouldPopEncounter currentTick encounter = (newEncounter, newEnemyContainer)
@@ -232,12 +236,14 @@ updateEncounter encounter currentTick enemyContainer
     (newStack, newEnemyContainer) =
       pop (shipStack updatedEncounter) enemyContainer
     newEncounter = updatedEncounter {shipStack=newStack}
-{-updateHealthDisplay ship heartGFX gameOverGFX
-Updates the health display of the Ship so it correlates with current health. Also displays a game over graphic when the player is dead.
-PRE: True
-RETURNS: A list of the objects that are to be drawn. Either hearts corresponding to Ship health or a game over graphic.
-Examples:
--}
+
+    
+  {-updateHealthDisplay ship heartGFX gameOverGFX
+    Updates the health display of the Ship so it correlates with current health.    Also displays a game over graphic when the player is dead.
+    PRE: True
+    RETURNS: A list of the objects that are to be drawn. Either hearts              corresponding to Ship health or a game over graphic.
+    Examples:
+  -}
 updateHealthDisplay :: Ship -> Picture -> Picture -> [Object]
 --VARIANT: shipHealth ship
 updateHealthDisplay player@(Ship{shipHealth=shipHealth}) heartGFX gameOverGFX
@@ -260,7 +266,7 @@ updateHealthDisplay player@(Ship{shipHealth=shipHealth}) heartGFX gameOverGFX
     xpos = fromIntegral (-500 + (40 * shipHealth))
 
 {- updateEnemies enemies dt gameState
-   Updates a list of enemies. The health, position and the time since they last fired is updated. Enemies are also removed if their health is depleted.
+   Updates a list of enemies. The health, position and the time since they last    fired is updated. Enemies are also removed if their health is depleted.
    PRE: True
    RETURNS: A list of updated enemies in regards to the given gameState.
    EXAMPLES: 
@@ -269,7 +275,7 @@ updateEnemies :: [Ship] -> Float -> Game -> [Ship]
 updateEnemies enemies dt gameState = map (updateEnemy dt gameState) (eneHandleDmg gameState enemies)
 
 {- handleEvent event gameState
-   Takes in an event and modifies a given gameState according to the Event (input).
+   Takes in an event and modifies a given gameState according to the               Event (input).
    PRE: True
    RETURNS: A gameState with changed values depending on the Event.
    EXAMPLES:
@@ -345,7 +351,7 @@ processEnemyFire gameState@(GameState {enemies=enemies,ticker=t}) = newProjList
      PRE: True
      VARIANT: length xs
      RETURNS: A new or unchanged list of projectiles
-     EXAMPLES: processEnemyFireAux [proj1, proj2] [proj3, proj4] = [proj2, proj1 ,proj3, proj4]
+     EXAMPLES: processEnemyFireAux [proj1, proj2] [proj3, proj4] = [proj2, proj1     ,proj3, proj4]
   -}
 processEnemyFireAux :: [Maybe Projectile] -> [Projectile] -> [Projectile]
 processEnemyFireAux [] acc = acc
