@@ -314,7 +314,12 @@ handleEvent (EventKey key Up _ _) gameState@(GameState {player=player}) =
 handleEvent (EventResize (x, y)) gameState = gameState
 handleEvent _ gameState = gameState
 
-
+  {- shipFire arguments
+     Fires a ship's projectile from its position, given a direction
+     PRE: True
+     RETURNS: Just projectile where the projectile appears at a ship with given direction or Nothing
+     EXAMPLES:
+  -}
 shipFire :: Direction -> Float -> Ship -> Maybe Projectile
 shipFire dir currentTick ship
   | canFire && (isFiring ship) = Just newShipProj
@@ -327,12 +332,25 @@ shipFire dir currentTick ship
     shipProjObj = (projObj shipProj) { direction = dir, position = shipPos }
     newShipProj = Projectile shipProjObj (effect shipProj)
 
+  {- processEnemyFire gamestate
+     Gives a list of projectiles that are allowed in the current gamestate
+     PRE: True
+     RETURNS: A list of all current enemy projectiles
+     EXAMPLES:
+  -}
 
 processEnemyFire :: Game -> [Projectile]
 processEnemyFire gameState@(GameState {enemies=enemies,ticker=t}) = newProjList
   where
     newProjList = processEnemyFireAux (map (shipFire (-1,0) t) enemies) []
 
+  {- processEnemyFireAux list1 list2
+     Merges two lists of projectiles into one
+     PRE: True
+     VARIANT: length xs
+     RETURNS: A new or unchanged list of projectiles
+     EXAMPLES: processEnemyFireAux [proj1, proj2] [proj3, proj4] = [proj2, proj1 ,proj3, proj4]
+  -}
 processEnemyFireAux :: [Maybe Projectile] -> [Projectile] -> [Projectile]
 processEnemyFireAux [] acc = acc
 processEnemyFireAux (Just x : xs) acc = processEnemyFireAux xs (x:acc)
