@@ -7,16 +7,19 @@ import DataTypes
 import Utilities
 import Globals
 
--- Projectile templates
+-- The default projectile speed
 projObjDefaultSpeed :: Float
 projObjDefaultSpeed = 600
 
+--The default projectile bounds
 projObjDefaultBounds :: Bounds
 projObjDefaultBounds = (2.5,2.5)
 
+--The default projectile graphic
 projObjDefaultGfx :: Picture
 projObjDefaultGfx = color red $ circleSolid 5
 
+--The default player projectile object
 playerDefaultProjObj =
   Object { position = (0,0),
            direction = (1,0),
@@ -24,9 +27,12 @@ playerDefaultProjObj =
            bounds = projObjDefaultBounds,
            graphic = projObjDefaultGfx
          }
+
+--The default player projectile damage
 playerDefaultProj = Projectile playerDefaultProjObj (Damage 1)
 
 
+--The default enemy projectile object
 enemyDefaultProjObj =
   Object { position = (0,0),
            direction = (-1,0),
@@ -34,41 +40,28 @@ enemyDefaultProjObj =
            bounds = (16.5,4.5),
            graphic = projObjDefaultGfx
          }
+
+--The default enemy projectile damage
 enemyDefaultProj = Projectile enemyDefaultProjObj (Damage 1)
 
+
+--The post-game ship (invisShip) projectile object
 harmlessProjObj = Object { position = (0,0),
                         direction = (-1,0),
                         speed = 0,
                         bounds = (0,0),
                         graphic = rectangleSolid 1 1
-                      }
+
+                         }
+
+--The post-game ship (invisShip) projectile damage
 harmlessProj = Projectile harmlessProjObj (Damage 0)
 
-
-testProj =
-  Projectile { projObj = testProjObj,
-               effect = Damage 1
-             }
-testProjObj =
-  Object { position = (0,0),
-           direction = (1,0),
-           speed = 100,
-           bounds = (0,0),
-           graphic = testProjGraphic
-         }
-
-testProjGraphic = color blue $ circleSolid 5
 
 -- Adds a list of projectiles into the gamestate based on whether
 -- they belong to the player or not
 
-  {- spawnProjectiles ListOfProjs PlayerCheck Gamestate
-     
-     PRE:  ... pre-condition on the arguments, if any ...
-     RETURNS: ... description of the result, in terms of the arguments ...
-     SIDE EFFECTS: ... side effects, if any, including exceptions ...
-     EXAMPLES: ... especially if useful to highlight delicate issues; also consider including counter-examples ...
-  -}
+
 spawnProjectiles :: [Projectile] -> Bool -> Game -> Game
 spawnProjectiles projList isPlayer gameState@(GameState {plyProjectiles=plyProjList, enemyProjectiles=npcProjList})
   | isPlayer = gameState { plyProjectiles = (projList ++ plyProjList)}
@@ -84,6 +77,15 @@ spawnProjectile proj isPlayer gameState
     plyProjList = proj:(plyProjectiles gameState)
     npcProjList = proj:(enemyProjectiles gameState)
 
+
+
+  {- updateProjectile deltaTime proj1
+     Updates a projectile.
+     PRE: dt >= 0
+     RETURNS: An updated projectile based on deltaTime and proj1.
+     EXAMPLES:
+  -}
+  
 updateProjectile :: Float -> Projectile -> Projectile
 updateProjectile dt proj@(Projectile {projObj=pObj}) = newProj
   where
@@ -91,3 +93,23 @@ updateProjectile dt proj@(Projectile {projObj=pObj}) = newProj
     (dx, dy) = direction pObj
     newProj = proj {projObj = move (dx*pSpeed*dt,dy*pSpeed*dt) (projObj proj)}
     
+
+
+
+
+
+{-
+testProj =
+  Projectile { projObj = testProjObj,
+               effect = Damage 1
+             }
+testProjObj =
+  Object { position = (0,0),
+           direction = (1,0),
+           speed = 100,
+           bounds = (0,0),
+           graphic = testProjGraphic
+         }
+
+testProjGraphic = color blue $ circleSolid 5
+-}
