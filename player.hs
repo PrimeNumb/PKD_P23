@@ -5,6 +5,8 @@ import Utilities
 import Projectile
 import Debug.Trace
 
+--The default player object
+
 playerObj :: Object
 playerObj = Object { position = (0, 0),
                      direction = (0, 0),
@@ -12,6 +14,9 @@ playerObj = Object { position = (0, 0),
                      bounds = (25, 25),
                      graphic = color green $ rectangleSolid 50 50
                    }
+
+--The default player ship
+
 playerShipDefault :: Ship
 playerShipDefault = Ship { shipObj = playerObj,
                     shipHealth = 3,
