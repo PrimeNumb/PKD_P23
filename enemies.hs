@@ -11,15 +11,14 @@ import Globals
 import Collision
 
 
---Gives a default enemy spawning position
+-- The default spawn position for enemy ships.
 enemyDefaultSpawnPos :: Position
 enemyDefaultSpawnPos = (winWidth+enemyWidth, 0)
   where
     enemyWidth = fst $ bounds $ shipObj enemyShipDefaultTemplate
 
 
---An enemy object 
-
+-- The default template for an enemy object
 enemyObjTemplate :: Object
 enemyObjTemplate = Object { position = enemyDefaultSpawnPos,
                             direction = (-1, 0),
@@ -28,8 +27,7 @@ enemyObjTemplate = Object { position = enemyDefaultSpawnPos,
                             graphic = color blue $ rectangleSolid 50 98
                           }
 
-
---The enemy ships' default template that gives the object, health, weapon cooldown, projectile, last fired tick, information regarding if the ship is the player and if the ship is firing
+-- The default template for an enemy ship.
 enemyShipDefaultTemplate :: Ship
 enemyShipDefaultTemplate = Ship { shipObj = enemyObjTemplate,
                            shipHealth = 3,
@@ -39,17 +37,12 @@ enemyShipDefaultTemplate = Ship { shipObj = enemyObjTemplate,
                            isPlayer = False,
                            isFiring = True
                          }
--- Enemy color
-enemyColor :: Color
-enemyColor = blue
-
-
-  {- updateEnemy time gamestate enemyship
-     Takes the time since the last tick, the current game state and an enemy ship and returns an      updated version of the given ship
-     PRE: True
-     RETURNS: An updated version of the given ship with an updated tick, position and information     regarding if its firing or not
-     EXAMPLES: ...
-  -}
+{- updateEnemy deltaTime gameState ship1
+   Updates an enemy one iteration.
+   PRE: deltaTime >= 0
+   RETURNS: A ship based on ship1 with updated properties based on deltaTime & gameState.
+   EXAMPLES: updateEnemy 1.0 defaultGameState enemyShipDefaultTemplate == Ship {...}
+-}
 updateEnemy :: Float -> Game -> Ship -> Ship               
 updateEnemy dt gameState@(GameState {ticker=currentTick,background=background}) enemy = newEnemy
   where
@@ -60,7 +53,6 @@ updateEnemy dt gameState@(GameState {ticker=currentTick,background=background}) 
         False -> lastFiredTick enemy
         True  -> currentTick
     enemyObj = shipObj enemy
-    --newEnemyObj = enemyMovement enemyObj
     newEnemyObj = enemyObj
     -- Movement
     (dx,dy) = direction newEnemyObj

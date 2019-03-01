@@ -6,57 +6,75 @@ import System.Random
 import Globals
 import Utilities
 
--- Pops the first element from the stack and puts it into a container
---popEncounter :: Encounter -> [Ship] -> (Encounter,[Ship])
---popEncounter encounter@(Encounter {shipStack=[]}) container = (encounter,container)
---popEncounter encounter@(Encounter {shipStack=(x:xs)}) container =
---  ((encounter {shipStack=xs}),x:container)
-
-
-  {- pop list1 list2
-     Takes the head of a list, put it as a head on another list and makes a          tuple containing the two lists.
-     PRE: True
-     RETURNS: A tuple cotaining two lists, where the head from the first list        has been put on the second list
-     EXAMPLES: pop [1,2] [3,4] = ([2], [1,3,4])
-  -}
-  
+{- pop list1 list2
+   Takes the head of a list and prepends it to another list.
+   PRE: True
+   RETURNS: A 2-tuple cotaining two lists, where the first element of the tuple is the tail of list1
+   and the second element of the tuple is the head of list1 prepended to list2.
+   EXAMPLES: pop [1,2] [3,4] = ([2], [1,3,4])
+-}
 pop :: [a] -> [a] -> ([a],[a])
 pop [] container = ([],container)
 pop (x:xs) container = (xs, x:container)
 
 
- {-  push list elem
-     Takes a list and an element and puts the element first in the list
-     PRE: True
-     RETURNS: A list with with the given element first in the list.
-     EXAMPLES: push [a, b] c = [c, a, b]
-  -}
+{- push list1 elem
+   Prepends an element to a list.
+   PRE: True
+   RETURNS: A list with elem prepended to list1. 
+   EXAMPLES: push [1,2] 3 = [3,1,2]
+-}
 push :: [a] -> a -> [a]
 push stack element = element:stack
 
---pushEncounter :: Encounter -> Ship -> Encounter
---pushEncounter encounter@(Encounter {shipStack=shipStack}) ship =
---  encounter {shipStack=(ship:shipStack)}
 
+{- shouldPopEncounter tick encounter
+   Checks if an encounter should occur based on when it last occured.
+   PRE: True
+   RETURNS: True if the interval between tick and the last occurence is greater than the interval of encounters, otherwise False.
+   EXAMPLES: shouldPopEncounter 15.0 defaultEncounter == True
+-}
 shouldPopEncounter :: Float -> Encounter -> Bool
 shouldPopEncounter currentTick (Encounter {popInterval=popInterval,lastPop=lastPop}) =
   (currentTick - lastPop) >= popInterval
 
--- WORK IN PROGRESS
-generateEncounter :: StdGen -> Int -> Ship -> ([Ship], StdGen)
-generateEncounter gen nrOfShips template = (ships, newGen)
+{- generateShips randomGen nrOfShips shipTemplate
+   Generates a set of ships and a new random generator.
+   PRE: nrOfShips >= 0
+   RETURNS: A 2-tuple where the first element is a list of generated ships based on nrOfShips and shipTemplate,
+   and the second element is a new random generator based on randomGen.
+   If nrOfShips == 0 then the first element is simply the empty list.
+   EXAMPLES: generateShips (mkStdGen 123) 0 == ([], 124 1)
+-}
+generateShips :: StdGen -> Int -> Ship -> ([Ship], StdGen)
+generateShips gen nrOfShips template = (ships, newGen)
   where
-    (ships, newGen) = generateEncounterAux gen nrOfShips template []
+    (ships, newGen) = generateShipsAux gen nrOfShips template []
 
-generateEncounterAux :: StdGen -> Int -> Ship -> [Ship] -> ([Ship], StdGen)
-generateEncounterAux gen 0 template acc = (acc, gen)
-generateEncounterAux gen nrOfShips template acc =
-  generateEncounterAux newGen (nrOfShips-1) template (newShip:acc)
+{- generateShipsAux randomGen nrOfShips shipTemplate acc
+   Generates a set of ships and a new random generator.
+   PRE: nrOfShips >= 0
+   RETURNS: A 2-tuple where the first element is a list of generated ships
+   (based on nrOfShips & shipTemplate) prepended to acc, and the second element is a new random generator based on randomGen.
+   EXAMPLES: generateShips (mkStdGen 123) 0 [] == ([], 124 1)
+-}
+generateShipsAux :: StdGen -> Int -> Ship -> [Ship] -> ([Ship], StdGen)
+generateShipsAux gen 0 template acc = (acc, gen)
+generateShipsAux gen nrOfShips template acc =
+  generateShipsAux newGen (nrOfShips-1) template (newShip:acc)
   where
-    (newShip, newGen) = generateEnemyShip gen template
+    (newShip, newGen) = generateShip gen template
 
-generateEnemyShip :: StdGen -> Ship -> (Ship, StdGen)
-generateEnemyShip gen shipTemplate = (shipTemplate {shipObj=setPos (xPos,yPos) (shipObj shipTemplate),wepCooldown=cooldown}, gen2)
+
+{- generateShip randomGen shipTemplate
+   Generates a ship and a new random generator.
+   PRE: True
+   RETURNS: A 2-tuple where the first element is a new ship based on randomGen and shipTemplate,
+   and the second element is a new random generator based on randomGen.
+   EXAMPLES: generateShip (mkStdGen 123) playerShipDefault == (Ship {...}, 858493321 1872071452)
+-}
+generateShip :: StdGen -> Ship -> (Ship, StdGen)
+generateShip gen shipTemplate = (shipTemplate {shipObj=setPos (xPos,yPos) (shipObj shipTemplate),wepCooldown=cooldown}, gen2)
   where
     enemyWidth = fst $ bounds $ shipObj shipTemplate
     xPos = winWidth/2 + enemyWidth
