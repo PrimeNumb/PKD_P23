@@ -7,9 +7,9 @@ import Globals
 
 -- Pops the first element from the stack and puts it into a container
 --popEncounter :: Encounter -> [Ship] -> (Encounter,[Ship])
---popEncounter encounter@(Encounter {ship_stack=[]}) container = (encounter,container)
---popEncounter encounter@(Encounter {ship_stack=(x:xs)}) container =
---  ((encounter {ship_stack=xs}),x:container)
+--popEncounter encounter@(Encounter {shipStack=[]}) container = (encounter,container)
+--popEncounter encounter@(Encounter {shipStack=(x:xs)}) container =
+--  ((encounter {shipStack=xs}),x:container)
 
 pop :: [a] -> [a] -> ([a],[a])
 pop [] container = ([],container)
@@ -19,12 +19,12 @@ push :: [a] -> a -> [a]
 push stack element = element:stack
 
 --pushEncounter :: Encounter -> Ship -> Encounter
---pushEncounter encounter@(Encounter {ship_stack=ship_stack}) ship =
---  encounter {ship_stack=(ship:ship_stack)}
+--pushEncounter encounter@(Encounter {shipStack=shipStack}) ship =
+--  encounter {shipStack=(ship:shipStack)}
 
 shouldPopEncounter :: Float -> Encounter -> Bool
-shouldPopEncounter currentTick (Encounter {pop_interval=pop_interval,last_pop=last_pop}) =
-  (currentTick - last_pop) >= pop_interval
+shouldPopEncounter currentTick (Encounter {popInterval=popInterval,lastPop=lastPop}) =
+  (currentTick - lastPop) >= popInterval
 
 -- WORK IN PROGRESS
 generateEncounter :: StdGen -> Int -> Ship -> ([Ship], StdGen)
@@ -40,9 +40,9 @@ generateEncounterAux gen nrOfShips template acc =
     (newShip, newGen) = generateEnemyShip gen template
 
 generateEnemyShip :: StdGen -> Ship -> (Ship, StdGen)
-generateEnemyShip gen shipTemplate = (setPos (pos_x,pos_y) $ shipTemplate {wep_cooldown=cooldown}, gen2)
+generateEnemyShip gen shipTemplate = (setPos (xPos,yPos) $ shipTemplate {wepCooldown=cooldown}, gen2)
   where
-    enemy_width = fst $ bounds $ ship_obj shipTemplate
-    pos_x = win_width/2 + enemy_width
-    (pos_y, gen1) = randomR (-win_height/2,win_height/2) gen :: (Float, StdGen)
+    enemyWidth = fst $ bounds $ shipObj shipTemplate
+    xPos = winWidth/2 + enemyWidth
+    (yPos, gen1) = randomR (-winHeight/2,winHeight/2) gen :: (Float, StdGen)
     (cooldown, gen2) = randomR (1.5, 2.0) gen1 :: (Float, StdGen)

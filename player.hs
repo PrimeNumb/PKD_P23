@@ -13,11 +13,11 @@ playerObj = Object { position = (0, 0),
                      graphic = color green $ rectangleSolid 50 50
                    }
 playerShipDefault :: Ship
-playerShipDefault = Ship { ship_obj = playerObj,
-                    ship_health = 3,
-                    wep_cooldown = 0.25,
+playerShipDefault = Ship { shipObj = playerObj,
+                    shipHealth = 3,
+                    wepCooldown = 0.25,
                     projectile = playerDefaultProj,
-                    last_fired_tick = 0,
+                    lastFiredTick = 0,
                     isFiring = False,
                     isPlayer = True
                   }
@@ -32,12 +32,12 @@ updatePlayer dt gameState@(GameState {ticker=currentTick,player=ply}) =
   newPlayer
   where
     -- Update the last fired tick
-    canFire = (currentTick - (last_fired_tick ply)) > (wep_cooldown ply)
+    canFire = (currentTick - (lastFiredTick ply)) > (wepCooldown ply)
     updatedTick =
       case canFire of
-        False -> last_fired_tick ply
+        False -> lastFiredTick ply
         True  -> currentTick
-    plyObj = ship_obj ply
+    plyObj = shipObj ply
     -- Movement
     (dx,dy) = direction plyObj
     plySpeed = speed plyObj
@@ -45,5 +45,5 @@ updatePlayer dt gameState@(GameState {ticker=currentTick,player=ply}) =
     
     -- The new player 
     newPlayer =
-      ply { ship_obj =
-           (clampToBounds (playable_bounds gameState) $ move plyObj deltaPos), last_fired_tick = updatedTick }
+      ply { shipObj =
+           (clampToBounds (playableBounds gameState) $ move plyObj deltaPos), lastFiredTick = updatedTick }

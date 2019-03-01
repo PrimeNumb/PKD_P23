@@ -13,9 +13,9 @@ import Collision
 
   --Gives a  standard enemy spawning position
 enemyDefaultSpawnPos :: Position
-enemyDefaultSpawnPos = (win_width+enemy_width, 0)
+enemyDefaultSpawnPos = (winWidth+enemyWidth, 0)
   where
-    enemy_width = fst $ bounds $ ship_obj enemyShipDefaultTemplate
+    enemyWidth = fst $ bounds $ shipObj enemyShipDefaultTemplate
 
 
 --Gives a standard enemy object
@@ -29,11 +29,11 @@ enemyObjTemplate = Object { position = enemyDefaultSpawnPos,
 
 --The enemy template that decide the stats of the enemy
 enemyShipDefaultTemplate :: Ship
-enemyShipDefaultTemplate = Ship { ship_obj = enemyObjTemplate,
-                           ship_health = 3,
-                           wep_cooldown = 2.0,
+enemyShipDefaultTemplate = Ship { shipObj = enemyObjTemplate,
+                           shipHealth = 3,
+                           wepCooldown = 2.0,
                            projectile = enemyDefaultProj,
-                           last_fired_tick = 0,
+                           lastFiredTick = 0,
                            isPlayer = False,
                            isFiring = True
                          }
@@ -74,16 +74,16 @@ updateEnemy :: Float -> Game -> Ship -> Ship
 updateEnemy dt gameState@(GameState {ticker=currentTick,background=background}) enemy = newEnemy
   where
     -- Update the last fired tick
-    canFire = (currentTick - (last_fired_tick enemy)) > (wep_cooldown enemy)
+    canFire = (currentTick - (lastFiredTick enemy)) > (wepCooldown enemy)
     updatedTick =
       case canFire of
-        False -> last_fired_tick enemy
+        False -> lastFiredTick enemy
         True  -> currentTick
-    enemyObj = ship_obj enemy
+    enemyObj = shipObj enemy
     --newEnemyObj = enemyMovement enemyObj
     newEnemyObj = enemyObj --if we need to change something in the obj, do that here
     -- Movement
     (dx,dy) = direction newEnemyObj
     enemySpeed = speed enemyObj
     deltaPos = (dx*enemySpeed*dt,dy*enemySpeed*dt)
-    newEnemy = enemy { ship_obj = (move newEnemyObj deltaPos), last_fired_tick = updatedTick, isFiring=(not $ outOfBounds newEnemyObj background) }
+    newEnemy = enemy { shipObj = (move newEnemyObj deltaPos), lastFiredTick = updatedTick, isFiring=(not $ outOfBounds newEnemyObj background) }

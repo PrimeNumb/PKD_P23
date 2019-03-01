@@ -8,21 +8,21 @@ import Utilities
 import Globals
 
 -- Projectile templates
-projObjDefault_spd :: Float
-projObjDefault_spd = 600
+projObjDefaultSpeed :: Float
+projObjDefaultSpeed = 600
 
-projObjDefault_bounds :: Bounds
-projObjDefault_bounds = (2.5,2.5)
+projObjDefaultBounds :: Bounds
+projObjDefaultBounds = (2.5,2.5)
 
-projObjDefault_gfx :: Picture
-projObjDefault_gfx = color red $ circleSolid 5
+projObjDefaultGfx :: Picture
+projObjDefaultGfx = color red $ circleSolid 5
 
 playerDefaultProjObj =
   Object { position = (0,0),
            direction = (1,0),
-           speed = projObjDefault_spd,
-           bounds = projObjDefault_bounds,
-           graphic = projObjDefault_gfx
+           speed = projObjDefaultSpeed,
+           bounds = projObjDefaultBounds,
+           graphic = projObjDefaultGfx
          }
 playerDefaultProj = Projectile playerDefaultProjObj (Damage 1)
 
@@ -30,9 +30,9 @@ playerDefaultProj = Projectile playerDefaultProjObj (Damage 1)
 enemyDefaultProjObj =
   Object { position = (0,0),
            direction = (-1,0),
-           speed = projObjDefault_spd,
+           speed = projObjDefaultSpeed,
            bounds = (16.5,4.5),
-           graphic = projObjDefault_gfx
+           graphic = projObjDefaultGfx
          }
 enemyDefaultProj = Projectile enemyDefaultProjObj (Damage 1)
 
@@ -46,7 +46,7 @@ harmlessProj = Projectile harmlessProjObj (Damage 0)
 
 
 testProj =
-  Projectile { proj_obj = testProjObj,
+  Projectile { projObj = testProjObj,
                effect = Damage 1
              }
 testProjObj =
@@ -70,22 +70,22 @@ testProjGraphic = color blue $ circleSolid 5
      EXAMPLES: ... especially if useful to highlight delicate issues; also consider including counter-examples ...
   -}
 spawnProjectiles :: [Projectile] -> Bool -> Game -> Game
-spawnProjectiles projList isPlayer gameState@(GameState {ply_projectiles=plyProjList, npc_projectiles=npcProjList})
-  | isPlayer = gameState { ply_projectiles = (projList ++ plyProjList)}
-  | otherwise = gameState { npc_projectiles = (projList ++ npcProjList)}
+spawnProjectiles projList isPlayer gameState@(GameState {plyProjectiles=plyProjList, enemyProjectiles=npcProjList})
+  | isPlayer = gameState { plyProjectiles = (projList ++ plyProjList)}
+  | otherwise = gameState { enemyProjectiles = (projList ++ npcProjList)}
   
 -- Adds a projectile into the gamestate based on whether they
 -- belong to the player or not
 spawnProjectile :: Projectile -> Bool -> Game -> Game
 spawnProjectile proj isPlayer gameState
-  | isPlayer = gameState { ply_projectiles = plyProjList }
-  | otherwise = gameState { npc_projectiles = npcProjList }
+  | isPlayer = gameState { plyProjectiles = plyProjList }
+  | otherwise = gameState { enemyProjectiles = npcProjList }
   where
-    plyProjList = proj:(ply_projectiles gameState)
-    npcProjList = proj:(npc_projectiles gameState)
+    plyProjList = proj:(plyProjectiles gameState)
+    npcProjList = proj:(enemyProjectiles gameState)
 
 updateProjectile :: Float -> Projectile -> Projectile
-updateProjectile dt proj@(Projectile {proj_obj=pObj}) = newProj
+updateProjectile dt proj@(Projectile {projObj=pObj}) = newProj
   where
     pSpeed = speed pObj
     (dx, dy) = direction pObj
