@@ -18,8 +18,8 @@ import Encounter
 window :: Display
 window = InWindow winTitle winSize winOffset
 
--- CHANGE THIS
 
+--The default encounters
 
 defaultEncounter = Encounter
   { popInterval = enemySpawnInterval,
@@ -27,6 +27,7 @@ defaultEncounter = Encounter
     shipStack = []
   }
 
+--The default graphics before sprites
 defaultGameGfx = GameGfx
   {
     playerGfx = color green $ rectangleSolid 50 50,
@@ -84,9 +85,9 @@ main = do
   return ()
 
 {-newGame gameState
-Takes in the current GameState and resets it to default values allowing the player to start over.
-PRE:
-RETURNS: A new game state with reset values.
+  Takes in the current GameState and resets it to default values allowing the player to start over.
+  PRE: True
+  RETURNS: A new game state with reset values.
 -}
 newGame :: Game -> Game
 newGame gameState@(GameState{randomGen=randomGen, enmyTemplate=enmyTemplate}) = gameState{encounter=initEncounter, player=(plyTemplate gameState), enemyProjectiles=[], plyProjectiles=[], ticker=0, randomGen=newGen, objects=[], enemies=[]}
@@ -94,6 +95,11 @@ newGame gameState@(GameState{randomGen=randomGen, enmyTemplate=enmyTemplate}) = 
   (generatedShipStack, newGen) = generateEncounter randomGen 10 enmyTemplate
   initEncounter = defaultEncounter {shipStack=generatedShipStack}
 
+{-refreshGFX gameState
+  Takes in a 
+  PRE: True
+  RETURNS: A new game state with reset values.
+-}
 refreshGfx :: Game -> Game
 refreshGfx gameState@(GameState {gameGfx=gameGfx}) = newGameState
   where
@@ -115,7 +121,13 @@ refreshGfx gameState@(GameState {gameGfx=gameGfx}) = newGameState
         enmyProjTemplate = (enmyProjTemplate gameState) {projObj = setGraphic (projObj $ enmyProjTemplate gameState) (enemyProjGfx gameGfx)},
         background = setGraphic (background gameState) (backgroundGfx gameGfx)
       }
-
+{- loadGFX
+   Loads pictures from predestined filepaths into a GameGFX.
+   PRE: True
+   RETURNS: A GameGFX containing the pictures.
+   SIDE EFFECTS: IO; loading images. The exception handling if a filepath is invalid is handled in loadJuicyPNG. It returns a Maybe Picture or Nothing. 
+   EXAMPLES: 
+-}
 loadGfx :: IO GameGfx
 loadGfx = do
   imgBuffer <- loadJuicyPNG playerSpritePath
@@ -151,10 +163,22 @@ loadGfx = do
         }
   return gameGfx
 
+{- processSprite pic
+   Processes a Maybe Picture into either a Picture or a placehoder graphic.
+   PRE: True
+   RETURNS: The Picture if there is one. Otherwise a placeholder graphic.
+   EXAMPLES: processSprite Nothing == Color (RGBA 0.0 1.0 0.0 1.0) (Polygon [(-25.0,-25.0),(-25.0,25.0),(25.0,25.0),(25.0,-25.0)])
+-}
 processSprite :: Maybe Picture -> Picture
 processSprite Nothing = color green $ rectangleSolid 50 50
 processSprite (Just pic) = pic
 
+{- draw gameState
+   Takes in all objects that need to be drawn from a game state and combines them into a picture.
+   PRE: True
+   RETURNS: A combined picture of all pictures that are to be drawn.
+   EXAMPLES:
+-}
 draw :: Game -> Picture
 draw gameState@(GameState {objects=objs, gameGfx=gameGfx, player=playerShip, plyProjectiles=plyProjs, enemyProjectiles=enemyProjs, enemies=enemies, showHitbox=showHitbox,background=background}) = newFrame
   where
@@ -169,13 +193,12 @@ draw gameState@(GameState {objects=objs, gameGfx=gameGfx, player=playerShip, ply
     -- The final picture frame
     newFrame = pictures $ (backgroundPic:heartPics) ++ objPics
 
-{- update
+{- update dt gameState
    Updates a given game state one iteration.
-   PRE:
-   RETURNS:
+   PRE: True
+   RETURNS: An updated gameState.
    EXAMPLES:
 -}
-
 update :: Float -> Game -> Game
 update dt gameState@(GameState {ticker=currentTick,plyProjectiles=projList, enemies=enemies,enemyProjectiles=enemyProjList,encounter=encounter, player=player}) = newGameState 
   where
@@ -202,6 +225,13 @@ update dt gameState@(GameState {ticker=currentTick,plyProjectiles=projList, enem
     -- The final updated gamestate
     newGameState = (gameState {player=newPlayer, ticker=newTicker, plyProjectiles=newPlyProjList, enemies=newEnemies, enemyProjectiles=newEnemyProjList, encounter=newEncounter})
 
+
+{-updateEncounter encounter currentTick enemyContainer
+  Checks if an enemy should spawn from an Encounter stack by looking at the current tick. If that is the case it is moved into a list if ships.
+  PRE: True
+  RETURNS: A 2-tuple of the updated encounter stack and the updated list of ships.
+  Examples:
+-}
 updateEncounter :: Encounter -> Float -> [Ship] -> (Encounter,[Ship])
 updateEncounter encounter currentTick enemyContainer
   | shouldPopEncounter currentTick encounter = (newEncounter, newEnemyContainer)
@@ -211,12 +241,14 @@ updateEncounter encounter currentTick enemyContainer
     (newStack, newEnemyContainer) =
       pop (shipStack updatedEncounter) enemyContainer
     newEncounter = updatedEncounter {shipStack=newStack}
-{-updateHealthDisplay ship heartGfx gameOverGfx
-Updates the health display of the Ship so it correlates with current health. Also displays a game over graphic when the player is dead.
-PRE:
-RETURNS: A list of the objects that are to be drawn. Either hearts corresponding to Ship health or a game over graphic.
-Examples:
+
+{-updateHealthDisplay ship heartGFX gameOverGFX
+  Updates the health display of the Ship so it correlates with current health. Also displays a game over graphic when the player is dead.
+  PRE:
+  RETURNS: A list of the objects that are to be drawn. Either hearts corresponding to Ship health or a game over graphic.
+  Examples:
 -}
+
 updateHealthDisplay :: Ship -> Picture -> Picture -> [Object]
 --VARIANT: shipHealth ship
 updateHealthDisplay player@(Ship{shipHealth=shipHealth}) heartGfx gameOverGfx
@@ -237,14 +269,20 @@ updateHealthDisplay player@(Ship{shipHealth=shipHealth}) heartGfx gameOverGfx
     newShip = player {shipHealth=newHp}
     newHp = shipHealth - 1
     xpos = fromIntegral (-500 + (40 * shipHealth))
-  
+
+{- updateEnemies enemies dt gameState
+   Updates a list of enemies. The health, position and the time since they last    fired is updated. Enemies are also removed if their health is depleted.
+   PRE: True
+   RETURNS: A list of updated enemies in regards to the given gameState.
+   EXAMPLES: 
+-}  
 updateEnemies :: [Ship] -> Float -> Game -> [Ship]
 updateEnemies enemies dt gameState = map (updateEnemy dt gameState) (eneHandleDmg gameState enemies)
 
-{- handleEvent gameState
-Calls a specific
-   PRE:
-   RETURNS:
+{- handleEvent event gameState
+   Takes in an event and modifies a given gameState according to the               Event (input).
+   PRE: True
+   RETURNS: A gameState with changed values depending on the Event.
    EXAMPLES:
 -}
 handleEvent :: Event -> Game -> Game
@@ -277,7 +315,12 @@ handleEvent (EventKey key Up _ _) gameState@(GameState {player=player}) =
 handleEvent (EventResize (x, y)) gameState = gameState
 handleEvent _ gameState = gameState
 
--- Fires a ship's projectile from its position, given a direction
+  {- shipFire arguments
+     Fires a ship's projectile from its position, given a direction
+     PRE: True
+     RETURNS: Just projectile where the projectile appears at a ship with given direction or Nothing
+     EXAMPLES:
+  -}
 shipFire :: Direction -> Float -> Ship -> Maybe Projectile
 shipFire dir currentTick ship
   | canFire && (isFiring ship) = Just newShipProj
@@ -290,12 +333,25 @@ shipFire dir currentTick ship
     shipProjObj = (projObj shipProj) { direction = dir, position = shipPos }
     newShipProj = Projectile shipProjObj (effect shipProj)
 
+  {- processEnemyFire gamestate
+     Gives a list of projectiles that are allowed in the current gamestate
+     PRE: True
+     RETURNS: A list of all current enemy projectiles
+     EXAMPLES:
+  -}
 
 processEnemyFire :: Game -> [Projectile]
 processEnemyFire gameState@(GameState {enemies=enemies,ticker=t}) = newProjList
   where
     newProjList = processEnemyFireAux (map (shipFire (-1,0) t) enemies) []
 
+  {- processEnemyFireAux list1 list2
+     Merges two lists of projectiles into one
+     PRE: True
+     VARIANT: length xs
+     RETURNS: A new or unchanged list of projectiles
+     EXAMPLES: processEnemyFireAux [proj1, proj2] [proj3, proj4] = [proj2, proj1     ,proj3, proj4]
+  -}
 processEnemyFireAux :: [Maybe Projectile] -> [Projectile] -> [Projectile]
 processEnemyFireAux [] acc = acc
 processEnemyFireAux (Just x : xs) acc = processEnemyFireAux xs (x:acc)

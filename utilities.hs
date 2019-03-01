@@ -3,10 +3,22 @@
 module Utilities where
 import DataTypes
 
+  {- changeDir object newDirection
+     Changes the direction of an object
+     PRE: True
+     RETURNS: An object with a new direction
+     EXAMPLE: 
+  -}
 changeDir :: Object -> (Float, Float) -> Object
 changeDir obj (x,y) = obj {direction = (x, y)}
 
--- Clamp an object within the bounds of a given bounding box
+
+  {- clampToBounds bounds object
+     Clamp an object within the bounds of a given bounding box
+     PRE: True
+     RETURNS: An object that is within desriable bounds
+     EXAMPLE: 
+  -}
 
 move :: Position -> Object -> Object
 move (vx,vy) obj@(Object {position=(x,y)}) = obj { position = (x+vx,y+vy) }
