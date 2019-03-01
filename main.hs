@@ -248,7 +248,7 @@ updateHealthDisplay player@(Ship{ship_health=ship_health}) heartGFX gameOverGFX
                                 speed = 0,
                                 boundingBox = (0, 0),
                                 graphic = gameOverGFX
-                              }]
+                               }]
   |ship_health <= 0 = []
   |otherwise = (Object { position = (xpos, 250),
                          direction = (0, 0),
@@ -262,7 +262,7 @@ updateHealthDisplay player@(Ship{ship_health=ship_health}) heartGFX gameOverGFX
     xpos = fromIntegral (-500 + (40 * ship_health))
   
 updateEnemies :: [Ship] -> Float -> Game -> [Ship]
-updateEnemies enemies dt gameState = eneHandleDmg gameState (map (updateEnemy dt gameState) enemies)
+updateEnemies enemies dt gameState = map (updateEnemy dt gameState) (eneHandleDmg gameState enemies)
 
 {- handleEvent gameState
 Calls a specific
