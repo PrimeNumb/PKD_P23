@@ -5,23 +5,24 @@ import DataTypes
 import Globals
 import Debug.Trace
 import Projectile
+import Test.HUnit
 --import Test.HUnit
 
 
 {- checkRectCollision object1 object2
 Checks is two objects overlap (collide).
 PRE: 
-RETURNS: True if the objects collide, otherwise False.
+RETURNS: True if object1 and object2 overlap in any way. Otherwise False.
 EXAMPLES:
 checkRectCollision (Object { position = (10, 0),
                              direction = (0, 0),
                              speed = 300,
-                             boundingBox = (5, 5),
+                             bounds = (5, 5),
                              graphic = Blank
                            }) (Object { position = (0, 0),
                                         direction = (0, 0),
                                         speed = 300,
-                                        boundingBox = (0, 0),
+                                        bounds = (0, 0),
                                         graphic = Blank
                                       }) == True
 
@@ -204,9 +205,9 @@ objPoint = Object { position = (0, 0),
 
 -- Collisiontests
 
---test1 = TestCase $ assertEqual "bordering bounding boxes" False (checkRectCollision smallObj bigObj)
--- 
---test2 = TestCase $ assertEqual "one object is a point (no area of the bounding box)" True (checkRectCollision bigObj objPoint)
--- 
---runCollisionTests = runTestTT $ TestList [test1, test2]
+test1 = TestCase $ assertEqual "bordering bounding boxes" False (checkRectCollision smallObj bigObj)
+ 
+test2 = TestCase $ assertEqual "one object is a point (no area of the bounding box)" True (checkRectCollision bigObj objPoint)
+ 
+runCollisionTests = runTestTT $ TestList [test1, test2]
 

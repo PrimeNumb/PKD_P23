@@ -26,6 +26,7 @@ playerShipDefault = Ship { shipObj = playerObj,
                     isFiring = False,
                     isPlayer = True
                   }
+
 {- updatePlayer deltaTime gameState
    Updates the player one iteration.
    PRE: True
