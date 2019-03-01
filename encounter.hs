@@ -12,10 +12,25 @@ import Utilities
 --popEncounter encounter@(Encounter {shipStack=(x:xs)}) container =
 --  ((encounter {shipStack=xs}),x:container)
 
+
+  {- pop list1 list2
+     Takes the head of a list, put it as a head on another list and makes a          tuple containing the two lists.
+     PRE: True
+     RETURNS: A tuple cotaining two lists, where the head from the first list        has been put on the second list
+     EXAMPLES: pop [1,2] [3,4] = ([2], [1,3,4])
+  -}
+  
 pop :: [a] -> [a] -> ([a],[a])
 pop [] container = ([],container)
 pop (x:xs) container = (xs, x:container)
 
+
+ {-  push list elem
+     Takes a list and an element and puts the element first in the list
+     PRE: True
+     RETURNS: A list with with the given element first in the list.
+     EXAMPLES: push [a, b] c = [c, a, b]
+  -}
 push :: [a] -> a -> [a]
 push stack element = element:stack
 
