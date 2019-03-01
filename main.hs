@@ -63,10 +63,10 @@ initGameState = GameState {
 
 
 {- main
-Imports graphics and a random seed and then initializes a game state. The 
+Imports graphics and a random seed and then initializes a game state. The game state is then used to start the game loop.
 PRE: 
 RETURNS: 
-SIDE EFFECTS: 
+SIDE EFFECTS: IO ...?
 EXAMPLES: 
 -}
 main :: IO ()
@@ -85,9 +85,9 @@ main = do
   return ()
 
 {-newGame gameState
-  Takes in the current GameState and resets it to default values allowing the player to start over.
+  Takes in the current game state and resets it to starting values. 
   PRE: True
-  RETURNS: A new game state with reset values.
+  RETURNS: a new GameState based on gameState with its values reset.
 -}
 newGame :: Game -> Game
 newGame gameState@(GameState{randomGen=randomGen, enmyTemplate=enmyTemplate}) = gameState{encounter=initEncounter, player=(plyTemplate gameState), enemyProjectiles=[], plyProjectiles=[], ticker=0, randomGen=newGen, objects=[], enemies=[]}
@@ -96,9 +96,9 @@ newGame gameState@(GameState{randomGen=randomGen, enmyTemplate=enmyTemplate}) = 
   initEncounter = defaultEncounter {shipStack=generatedShipStack}
 
 {-refreshGFX gameState
-  Takes in a game state and updates the graphics of objects with pictures contained in the game state itself.
+  Takes in a game state and updates the graphics of objects.
   PRE: True
-  RETURNS: A game state containing the updated graphics of objects.
+  RETURNS: A game state based on gameState with graphics applied to object templates used to generate objects. The graphics are taken from gameState.  
 -}
 refreshGfx :: Game -> Game
 refreshGfx gameState@(GameState {gameGfx=gameGfx}) = newGameState
@@ -122,9 +122,9 @@ refreshGfx gameState@(GameState {gameGfx=gameGfx}) = newGameState
         background = setGraphic (background gameState) (backgroundGfx gameGfx)
       }
 {- loadGFX
-   Loads pictures from predestined filepaths into a GameGFX.
+   Loads pictures from predestined filepaths.
    PRE: True
-   RETURNS: A GameGFX containing the pictures.
+   RETURNS: A container containing the pictures.
    SIDE EFFECTS: IO; loading images. The exception handling if a filepath is invalid is handled in loadJuicyPNG. It returns a Maybe Picture or Nothing. This is also handled in  
    EXAMPLES: 
 -}
@@ -164,9 +164,9 @@ loadGfx = do
   return gameGfx
 
 {- processSprite pic
-   Processes a Maybe Picture into either a Picture or a placehoder graphic.
+   Processes a potential picture.
    PRE: True
-   RETURNS: The Picture if there is one. Otherwise a placeholder graphic.
+   RETURNS: A picture if pic is a picture. Otherwise a placeholder graphic.
    EXAMPLES: processSprite Nothing == Color (RGBA 0.0 1.0 0.0 1.0) (Polygon [(-25.0,-25.0),(-25.0,25.0),(25.0,25.0),(25.0,-25.0)])
 -}
 processSprite :: Maybe Picture -> Picture
@@ -176,7 +176,7 @@ processSprite (Just pic) = pic
 {- draw gameState
    Takes in all objects that need to be drawn from a game state and combines them into a picture.
    PRE: True
-   RETURNS: A combined picture of all pictures that are to be drawn.
+   RETURNS: A combined picture of all pictures in gameState that are to be drawn.
    EXAMPLES:
 -}
 draw :: Game -> Picture
@@ -229,7 +229,7 @@ update dt gameState@(GameState {ticker=currentTick,plyProjectiles=projList, enem
 {-updateEncounter encounter currentTick enemyContainer
   Checks if an enemy should spawn from an Encounter stack by looking at the current tick. If that is the case it is moved into a list of ships.
   PRE: True
-  RETURNS: A 2-tuple of the updated encounter stack and the updated list of ships.
+  RETURNS: A 2-tuple of the updated encounter.
   Examples:
 -}
 updateEncounter :: Encounter -> Float -> [Ship] -> (Encounter,[Ship])
