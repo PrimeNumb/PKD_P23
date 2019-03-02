@@ -4,34 +4,42 @@ import Graphics.Gloss
 import Utilities
 import Projectile
 import Debug.Trace
+import Globals
 
---The default player object
 
-playerObj :: Object
-playerObj = Object { position = (0, 0),
-                     direction = (0, 0),
-                     speed = 300,
-                     bounds = (25, 25),
-                     graphic = color green $ rectangleSolid 50 50
-                   }
+{-updateHealthDisplay ship heartGFX gameOverGFX
+  Updates the health display of the Ship so it correlates with current health. Also displays a game over graphic when the player is dead.
+  PRE:
+  RETURNS: A list of the objects that are to be drawn. Either hearts corresponding to Ship health or a game over graphic.
+  EXAMPLES:
+-}
+updateHealthDisplay :: Ship -> Picture -> Picture -> [Object]
+--VARIANT: shipHealth ship
+updateHealthDisplay player@(Ship{shipHealth=shipHealth}) heartGfx gameOverGfx
+  |shipHealth == -1 = [Object { position = (0, 0),
+                                direction = (0, 0),
+                                speed = 0,
+                                bounds = (0, 0),
+                                graphic = gameOverGfx
+                               }]
+  |shipHealth <= 0 = []
+  |otherwise = (Object { position = (xpos, 250),
+                         direction = (0, 0),
+                         speed = 0,
+                         bounds = (0, 0),
+                         graphic = heartGfx
+                       }) : updateHealthDisplay newShip heartGfx gameOverGfx
+  where
+    newShip = player {shipHealth=newHp}
+    newHp = shipHealth - 1
+    xpos = fromIntegral (-500 + (40 * shipHealth))
 
---The default player ship
-
-playerShipDefault :: Ship
-playerShipDefault = Ship { shipObj = playerObj,
-                    shipHealth = 3,
-                    wepCooldown = 0.25,
-                    projectile = playerDefaultProj,
-                    lastFiredTick = 0,
-                    isFiring = False,
-                    isPlayer = True
-                  }
 
 {- updatePlayer deltaTime gameState
    Updates the player one iteration.
    PRE: True
-   RETURNS: A new game state where the player record field has been updated, partially based on the deltatime.
-   EXAMPLES: Omitted
+   RETURNS: A new player ship based on the player ship in gameState, where its properties have been updated based (partially) on deltaTime.
+   EXAMPLES: updatePlayer 0.16 defaultGameState == playerDefaultShip
 -}
 updatePlayer :: Float -> Game -> Ship
 updatePlayer dt gameState@(GameState {ticker=currentTick,player=ply}) =
@@ -52,4 +60,4 @@ updatePlayer dt gameState@(GameState {ticker=currentTick,player=ply}) =
     -- The new player 
     newPlayer =
       ply { shipObj =
-           (clampToBounds (playableBounds gameState) $ move deltaPos plyObj), lastFiredTick = updatedTick }
+           (clampToBounds (bounds $ background gameState) $ move deltaPos plyObj), lastFiredTick = updatedTick }

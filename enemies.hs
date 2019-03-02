@@ -11,37 +11,45 @@ import Globals
 import Collision
 
 
--- The default spawn position for enemy ships.
-enemyDefaultSpawnPos :: Position
-enemyDefaultSpawnPos = (winWidth+enemyWidth, 0)
+{- processEnemyFire gamestate
+   Processes whether all active enemies in a given game state should fire their weapons.
+   PRE: True
+   RETURNS: A list of fired enemy projectiles.
+   EXAMPLES: processEnemyFire defaultGameState == []
+-}
+processEnemyFire :: Game -> [Projectile]
+processEnemyFire gameState@(GameState {enemies=enemies,ticker=t}) = newProjList
   where
-    enemyWidth = fst $ bounds $ shipObj enemyShipDefaultTemplate
+    newProjList = processEnemyFireAux (map (shipFire (-1,0) t) enemies) []
+
+{- processEnemyFireAux maybeProjs acc
+   Processes a list of potential projectiles.
+   PRE: True
+   RETURNS: The accumulator acc with the Just elements from maybeProjs prepended to acc.
+   EXAMPLES: processEnemyFireAux [] [playerDefaultProj] == [playerDefaultProj]
+-}
+processEnemyFireAux :: [Maybe Projectile] -> [Projectile] -> [Projectile]
+--VARIANT: length of xs
+processEnemyFireAux [] acc = acc
+processEnemyFireAux (Just x : xs) acc = processEnemyFireAux xs (x:acc)
+processEnemyFireAux (Nothing : xs) acc = processEnemyFireAux xs acc
 
 
--- The default template for an enemy object
-enemyObjTemplate :: Object
-enemyObjTemplate = Object { position = enemyDefaultSpawnPos,
-                            direction = (-1, 0),
-                            speed = 100,
-                            bounds = (25, 49),
-                            graphic = color blue $ rectangleSolid 50 98
-                          }
+{- updateEnemies deltaTime gameState
+   Updates the list of active enemies in a game state.
+   PRE: True
+   RETURNS: A list of updated enemies based on the list of enemies in gameStateand deltaTime.
+   EXAMPLES: updateEnemies ()
+-}
+updateEnemies :: Float -> Game -> [Ship]
+updateEnemies dt gameState = map (updateEnemy dt gameState) (eneHandleDmg gameState (enemies gameState))
 
--- The default template for an enemy ship.
-enemyShipDefaultTemplate :: Ship
-enemyShipDefaultTemplate = Ship { shipObj = enemyObjTemplate,
-                           shipHealth = 3,
-                           wepCooldown = 2.0,
-                           projectile = enemyDefaultProj,
-                           lastFiredTick = 0,
-                           isPlayer = False,
-                           isFiring = True
-                         }
 {- updateEnemy deltaTime gameState ship1
    Updates an enemy one iteration.
    PRE: deltaTime >= 0
    RETURNS: A ship based on ship1 with updated properties based on deltaTime & gameState.
-   EXAMPLES: updateEnemy 1.0 defaultGameState enemyShipDefaultTemplate == Ship {...}
+   EXAMPLES: updateEnemy 1.0 defaultGameState enemyShipDefaultTemplate ==
+   enemyShipDefaultTemplate {shipObj=(shipObj enemyShipDefaultTemplate) {position=(949,0)},isFiring=False}
 -}
 updateEnemy :: Float -> Game -> Ship -> Ship               
 updateEnemy dt gameState@(GameState {ticker=currentTick,background=background}) enemy = newEnemy
