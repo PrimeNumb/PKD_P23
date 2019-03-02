@@ -4,10 +4,7 @@ import Graphics.Gloss
 import DataTypes
 import System.Random
 
-<<<<<<< HEAD
-=======
 -- Window bindings
->>>>>>> 2c502669dbc110933c3d4e93a12c2d912b11e550
 winTitle :: String
 winTitle = "Space Shooter"
 
