@@ -13,6 +13,7 @@ import Rendering
 import Utilities
 import Collision
 import Encounter
+import Test.HUnit
 
 -- The game window
 window :: Display
@@ -372,3 +373,71 @@ testObject =
 
   
 
+
+
+--TESTCASES AND TEST OBJECTS
+
+
+
+--Collision
+farObj = Object { position = (700, 0),
+                  direction = (0, 0),
+                  speed = 300,
+                  bounds = (10, 10),
+                  graphic = Blank
+                }
+
+
+smallObj = Object { position = (15, 0),
+                    direction = (0, 0),
+                    speed = 300,
+                    bounds = (5, 5),
+                    graphic = Blank
+                  }
+
+bigObj = Object { position = (0, 0),
+                  direction = (0, 0),
+                  speed = 300,
+                  bounds = (10, 10),
+                  graphic = Blank
+                }
+       
+objPoint = Object { position = (0, 0),
+                    direction = (0, 0),
+                    speed = 300,
+                    bounds = (0, 0),
+                    graphic = Blank
+                  }
+
+testShip = Ship { shipObj = bigObj,
+                  wepCooldown = 1,
+                  isFiring = False,
+                  isPlayer = False,
+                  shipHealth = 1,
+                  lastFiredTick = 0,
+                  projectile = testProj
+                }
+
+testProj = Projectile { projObj = bigObj,
+                        effect = Damage 1
+                      }
+
+
+-- Collisiontests
+
+
+test1 = TestCase $ assertEqual "No contact boxes" False (checkRectCollision farObj bigObj)
+ 
+test2 = TestCase $ assertEqual "bordering bounding boxes" False (checkRectCollision smallObj bigObj)
+ 
+test3 = TestCase $ assertEqual "One object is a point (no area of the boundings)" True (checkRectCollision bigObj objPoint)
+
+test4 = TestCase $ assertEqual "Testing enemy damage despawn handling" [] (eneHandleDmg (initGameState {plyProjectiles = [testProj]}) [testShip])
+
+test5 = TestCase $ assertEqual "Testing enemy damage despawn handling" [testShip] (eneHandleDmg (initGameState {plyProjectiles = [testProj]}) [testShip{shipHealth=2}])
+        
+
+ 
+
+
+runCollisionTests = runTestTT $ TestList [test1, test2, test3, test4]

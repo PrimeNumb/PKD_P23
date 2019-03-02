@@ -5,7 +5,7 @@ import DataTypes
 import Globals
 import Debug.Trace
 import Projectile
-import Test.HUnit
+
 --import Test.HUnit
 
 
@@ -123,6 +123,7 @@ RETURNS: The Effect of the bullet that collides with the ship. Otherwise NoEffec
 EXAMPLES:
 -}
 getEffect :: Ship -> [Projectile] -> Effect
+--VARIANT: length of projs
 getEffect _ [] = NoEffect
 getEffect ship@(Ship{shipObj=shipObj}) (x@(Projectile{effect=effect, projObj=projObj}):xs) =
   if checkRectCollision shipObj projObj then effect else getEffect ship xs
@@ -161,6 +162,8 @@ plyHandleDmg gameState@(GameState {enemies=enemies ,enemyProjectiles=enemyProjec
 
 
 --GAME OVER OBJECTS
+
+--The object assigned to the player while the game is over.
 gameOverObject :: Object
 gameOverObject = Object { position = (1000, 1000),
                           direction = (0, 0),
@@ -168,6 +171,7 @@ gameOverObject = Object { position = (1000, 1000),
                           bounds = (0, 0),
                           graphic = Blank
                         }
+--The player becomes an invisible ship while the game is over.                 
 invisPlayer :: Ship
 invisPlayer = Ship { shipObj = gameOverObject,
                      shipHealth = -1,
@@ -177,37 +181,4 @@ invisPlayer = Ship { shipObj = gameOverObject,
                      isPlayer = False,
                      isFiring = False
                    }
-
---Testcases and test Objects
-
-
-smallObj = Object { position = (15, 0),
-                    direction = (0, 0),
-                    speed = 300,
-                    bounds = (5, 5),
-                    graphic = Blank
-                  }
-
-bigObj = Object { position = (0, 0),
-                  direction = (0, 0),
-                  speed = 300,
-                  bounds = (10, 10),
-                  graphic = Blank
-                }
-       
-objPoint = Object { position = (0, 0),
-                    direction = (0, 0),
-                    speed = 300,
-                    bounds = (0, 0),
-                    graphic = Blank
-                  }
-
-
--- Collisiontests
-
-test1 = TestCase $ assertEqual "bordering bounding boxes" False (checkRectCollision smallObj bigObj)
- 
-test2 = TestCase $ assertEqual "one object is a point (no area of the bounding box)" True (checkRectCollision bigObj objPoint)
- 
-runCollisionTests = runTestTT $ TestList [test1, test2]
 
