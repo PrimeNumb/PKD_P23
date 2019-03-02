@@ -5,7 +5,6 @@ import System.Random
 import Debug.Trace
 
 {- Game represents the state of a game.
-   objects is a collection of primitive physical objects that are currently present in the game state.
    gameGfx describes a collection of game-related pictures (or images/sprites).
    enemies is a collection of enemies that are currently active in the game state.
    randomGen is a random number generator.
@@ -16,16 +15,15 @@ import Debug.Trace
    ticker is the time (in seconds) since the game state was initialized.
    background is the object representing the game's playable area.
    plyTemplate describes a template of the player character.
-   enmyTemplate describes a template of an enemy character.
+   enemyTemplate describes a template of an enemy character.
    plyProjTemplate describes a template of a player projectile.
-   enmyProjTemplate describes a template of an enemy projectile.
+   enemyProjTemplate describes a template of an enemy projectile.
    showHitbox describes whether or not hitboxes (or "bounding boxes") should be drawn.
    INVARIANT:
    player must be within the bounds of background
 -}
 data Game = GameState
-  { objects          :: [Object], --use this for objects that aren't ships
-    gameGfx          :: GameGfx,
+  { gameGfx          :: GameGfx,
     enemies          :: [Ship],
     randomGen        :: StdGen,
     encounter        :: Encounter,
@@ -35,9 +33,9 @@ data Game = GameState
     ticker           :: Float,
     background       :: Object,
     plyTemplate      :: Ship,
-    enmyTemplate     :: Ship,
+    enemyTemplate     :: Ship,
     plyProjTemplate  :: Projectile,
-    enmyProjTemplate :: Projectile,
+    enemyProjTemplate :: Projectile,
     showHitbox       :: Bool
   } deriving (Show, Eq)
 

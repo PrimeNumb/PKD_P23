@@ -4,7 +4,7 @@ import Graphics.Gloss
 import Utilities
 import Projectile
 import Debug.Trace
-import Globals
+import Presets
 
 
 {-updateHealthDisplay ship heartGFX gameOverGFX

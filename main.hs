@@ -8,7 +8,7 @@ import Enemies
 import Player
 import Projectile
 import DataTypes
-import Globals
+import Presets
 import Rendering
 import Utilities
 import Collision
@@ -36,7 +36,7 @@ main = do
   let gen = mkStdGen seed
       readyGameState = refreshGfx $ defaultGameState {gameGfx=gameGfx,randomGen=newGen, encounter=defaultEncounter}
       (generatedShipStack, newGen) =
-        generateShips gen 10 (enmyTemplate readyGameState)
+        generateShips gen 10 (enemyTemplate readyGameState)
       readyEncounter = defaultEncounter {shipStack=generatedShipStack}
   play window winBackground targetFramerate (readyGameState {randomGen=newGen, encounter=readyEncounter }) draw handleEvent update
   return ()
@@ -47,9 +47,9 @@ main = do
    RETURNS: a new game state based on gameState with some of its values reset.
 -}
 newGame :: Game -> Game
-newGame gameState@(GameState{randomGen=randomGen, enmyTemplate=enmyTemplate}) = gameState{encounter=initEncounter, player=(plyTemplate gameState), enemyProjectiles=[], plyProjectiles=[], ticker=0, randomGen=newGen, objects=[], enemies=[]}
+newGame gameState@(GameState{randomGen=randomGen, enemyTemplate=enemyTemplate}) = gameState{encounter=initEncounter, player=(plyTemplate gameState), enemyProjectiles=[], plyProjectiles=[], ticker=0, randomGen=newGen,  enemies=[]}
   where
-  (generatedShipStack, newGen) = generateShips randomGen 10 enmyTemplate
+  (generatedShipStack, newGen) = generateShips randomGen 10 enemyTemplate
   initEncounter = defaultEncounter {shipStack=generatedShipStack}
 
 
@@ -61,13 +61,13 @@ newGame gameState@(GameState{randomGen=randomGen, enmyTemplate=enmyTemplate}) = 
    Example omitted (can't properly represent pictures in an example).
 -}
 draw :: Game -> Picture
-draw gameState@(GameState {objects=objs, gameGfx=gameGfx, player=playerShip, plyProjectiles=plyProjs, enemyProjectiles=enemyProjs, enemies=enemies, showHitbox=showHitbox,background=background}) = newFrame
+draw gameState@(GameState {gameGfx=gameGfx, player=playerShip, plyProjectiles=plyProjs, enemyProjectiles=enemyProjs, enemies=enemies, showHitbox=showHitbox,background=background}) = newFrame
   where
     -- Everything that needs to be drawn goes here
     heartPics = map makeDrawable (updateHealthDisplay playerShip (heartGfx gameGfx) (gameOverGfx gameGfx))
     backgroundPic = makeDrawable background
     drawObjs =
-      (map projObj enemyProjs) ++ (map projObj plyProjs) ++ (map shipObj enemies) ++ (shipObj playerShip):objs
+      (map projObj enemyProjs) ++ (map projObj plyProjs) ++ (map shipObj enemies) ++ (shipObj playerShip):[]
     objPics = if showHitbox
       then (map makeDrawable drawObjs) ++ (map drawBounds drawObjs)
       else (map makeDrawable drawObjs)

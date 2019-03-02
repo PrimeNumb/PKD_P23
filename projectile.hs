@@ -5,7 +5,7 @@ import System.Random
 import Debug.Trace
 import DataTypes
 import Utilities
-import Globals
+import Presets
 
   
 {- updateProjectile deltaTime proj1
