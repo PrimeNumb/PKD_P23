@@ -39,7 +39,7 @@ data Game = GameState
     plyProjTemplate  :: Projectile,
     enmyProjTemplate :: Projectile,
     showHitbox       :: Bool
-  } deriving Show
+  } deriving (Show, Eq)
 
 {- Object represents a physical object in the game.
    position describes a 2D point where the object physically resides.
@@ -55,7 +55,7 @@ data Object = Object
     speed       :: Float,
     bounds      :: Bounds,
     graphic     :: Picture
-  } deriving Show
+  } deriving (Show, Eq)
 
 {- Ship represents a ship in the game.
    shipObj describes the physical object associated with the Ship.
@@ -74,7 +74,7 @@ data Ship = Ship
     lastFiredTick :: Float,
     isFiring        :: Bool,
     isPlayer        :: Bool
-  } deriving Show
+  } deriving (Show, Eq)
 
 {- Projectile represents a (not necessarily) moving projectile in the game. 
    projObj describes the physical object associated with the Projectile.
@@ -84,7 +84,7 @@ data Ship = Ship
 data Projectile = Projectile
   { projObj :: Object,
     effect   :: Effect
-  } deriving Show
+  } deriving (Show, Eq)
 
 {- Encounter describes a set of ships that should be generated into the game and how often.
   popInterval describes the interval with which a ship should be generated from the ship stack into the game.
@@ -97,7 +97,7 @@ data Encounter = Encounter
     popInterval  :: Float,
     lastPop      :: Float,
     shipStack    :: [Ship]
-  } deriving Show
+  } deriving (Show, Eq)
 
 {- GameGfx represents a set of pictures (or images) used by different parts of a game. 
   playerGfx is the player sprite.
@@ -118,14 +118,14 @@ data GameGfx = GameGfx
     heartGfx          :: Picture,
     gameOverGfx       :: Picture,
     backgroundGfx     :: Picture
-  } deriving Show
+  } deriving (Show, Eq)
 
 {- Effect represents how something should be affected when the effect is processed and applied to something in the game.
    Damage x, where x is the amount of damage that should be applied (including negative damage, which could be regarded as healing).
    NoEffect, where NoEffect is simply a lack of effect.
    INVARIANT: True
 -}
-data Effect = Damage Int | NoEffect deriving Show
+data Effect = Damage Int | NoEffect deriving (Show, Eq)
 
 {- Bounds represents the (rectangular) bounds around some point, and describes how far the bounds extend from that point in two dimensions.
    The first element of the tuple is the width with which the bounds extend in both directions of the x-coordinate plane, meaning the width * 2 would be the width of a bounding box.
@@ -147,4 +147,9 @@ type Position = (Float, Float)
    A direction (1,1) would be treated as a direction pointing north-east.
    INVARIANT: Either element's value must be between -1.0 and 1.0.
 -}
-type Direction = (Float, Float)
+type Direction = (Float, Float) 
+
+
+--Since StdGen doesn't derive from Eq this was necessary in order to compare game states.
+instance Eq StdGen where
+  (==) a b = True
