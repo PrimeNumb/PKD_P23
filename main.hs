@@ -409,7 +409,7 @@ objPoint = Object { position = (0, 0),
                     graphic = Blank
                   }
 
-testShip = Ship { shipObj = bigObj,
+testShip = Ship { shipObj = testShipObj,
                   wepCooldown = 1,
                   isFiring = False,
                   isPlayer = False,
@@ -418,12 +418,20 @@ testShip = Ship { shipObj = bigObj,
                   projectile = testProj
                 }
 
-testProj = Projectile { projObj = bigObj,
+testShipObj = Object { position = (200, 200),
+                       direction = (0, 0),
+                       speed = 300,
+                       bounds = (10, 10),
+                       graphic = Blank
+                     }
+
+
+testProj = Projectile { projObj = testShipObj,
                         effect = Damage 1
                       }
 
 
--- Collisiontests
+-- Collision tests
 
 
 test1 = TestCase $ assertEqual "No contact boxes" False (checkRectCollision farObj bigObj)
@@ -432,12 +440,14 @@ test2 = TestCase $ assertEqual "bordering bounding boxes" False (checkRectCollis
  
 test3 = TestCase $ assertEqual "One object is a point (no area of the boundings)" True (checkRectCollision bigObj objPoint)
 
-test4 = TestCase $ assertEqual "Testing enemy damage despawn handling" [] (eneHandleDmg (initGameState {plyProjectiles = [testProj]}) [testShip])
+test4 = TestCase $ assertEqual "Testing enemy damage despawn handling" [] (eneHandleDmg (initGameState {plyProjectiles = [testProj]}) [testShip{shipHealth=0}])
 
-test5 = TestCase $ assertEqual "Testing enemy damage despawn handling" [testShip] (eneHandleDmg (initGameState {plyProjectiles = [testProj]}) [testShip{shipHealth=2}])
-        
+test5 = TestCase $ assertEqual "Testing enemy damage handling" [testShip] (eneHandleDmg (initGameState {plyProjectiles = [testProj]}) [testShip{shipHealth=2}])
+
+runCollisionTests = runTestTT $ TestList [test1, test2, test3, test4, test5]
+
+
+
+
 
  
-
-
-runCollisionTests = runTestTT $ TestList [test1, test2, test3, test4]
