@@ -4,7 +4,6 @@ import Graphics.Gloss
 import DataTypes
 import System.IO.Unsafe
 
--- Should these be kept in main?
 winTitle :: String
 winTitle = "Space Shooter"
 
@@ -34,7 +33,7 @@ enemySpawnInitialDelay :: Float
 enemySpawnInitialDelay = 5.0
 
 --Sprites
---function png taken from gloss-game (credit the author?)
+--function png taken from gloss-game (credit to Kenney.nl)
 
 -- D
 png :: FilePath -> Picture
