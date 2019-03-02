@@ -19,56 +19,12 @@ import Test.HUnit
 window :: Display
 window = InWindow winTitle winSize winOffset
 
-
---The default encounters
-
-defaultEncounter = Encounter
-  { popInterval = enemySpawnInterval,
-    lastPop = enemySpawnInitialDelay,
-    shipStack = []
-  }
-
---The default graphics before sprites
-defaultGameGfx = GameGfx
-  {
-    playerGfx = color green $ rectangleSolid 50 50,
-    enemyStandardGfx = color green $ rectangleSolid 50 50,
-    playerProjGfx = color green $ rectangleSolid 50 50,
-    enemyProjGfx = color green $ rectangleSolid 50 50,
-    heartGfx = color green $ rectangleSolid 50 50,
-    gameOverGfx = color green $ rectangleSolid 50 50,
-    backgroundGfx = color green $ rectangleSolid 50 50
-  }
-
-
--- The initial game state
-initGameState :: Game
-initGameState = GameState {
-  objects = [],
-  gameGfx = defaultGameGfx,
-  enemies = [],
-  playableBounds = (winWidth/2, winHeight/2),
-  randomGen = mkStdGen 1234,
-  encounter = defaultEncounter,
-  player = playerShipDefault,
-  plyProjectiles = [],
-  enemyProjectiles = [],
-  ticker = 0,
-  background = defaultBackground,
-  plyTemplate = playerShipDefault,
-  enmyTemplate = enemyShipDefaultTemplate,
-  plyProjTemplate = playerDefaultProj,
-  enmyProjTemplate = enemyDefaultProj,
-  showHitbox  = False
-  }
-
-
 {- main
-Imports graphics and a random seed and then initializes a game state. The game state is then used to start the game loop.
-PRE: 
-RETURNS: 
-SIDE EFFECTS: IO ...?
-EXAMPLES: 
+   Initializes a game state and plays the game.
+   PRE: True
+   RETURNS: return ()
+   SIDE EFFECTS: Initializes a game with a random number generator (generated with the global random number generator) and images loaded from disk.
+   EXAMPLES: main
 -}
 main :: IO ()
 main = do
@@ -78,17 +34,17 @@ main = do
   gameGfx <- loadGfx
   -- Process sprites
   let gen = mkStdGen seed
-      readyGameState = refreshGfx $ initGameState {gameGfx=gameGfx,randomGen=newGen, encounter=defaultEncounter}
+      readyGameState = refreshGfx $ defaultGameState {gameGfx=gameGfx,randomGen=newGen, encounter=defaultEncounter}
       (generatedShipStack, newGen) =
         generateShips gen 10 (enmyTemplate readyGameState)
       readyEncounter = defaultEncounter {shipStack=generatedShipStack}
   play window winBackground targetFramerate (readyGameState {randomGen=newGen, encounter=readyEncounter }) draw handleEvent update
   return ()
 
-{-newGame gameState
-  Takes in the current game state and resets it to starting values. 
-  PRE: True
-  RETURNS: a new GameState based on gameState with its values reset.
+{- newGame gameState
+   Resets parts of a game state to starting values.
+   PRE: True
+   RETURNS: a new game state based on gameState with some of its values reset.
 -}
 newGame :: Game -> Game
 newGame gameState@(GameState{randomGen=randomGen, enmyTemplate=enmyTemplate}) = gameState{encounter=initEncounter, player=(plyTemplate gameState), enemyProjectiles=[], plyProjectiles=[], ticker=0, randomGen=newGen, objects=[], enemies=[]}
@@ -96,89 +52,13 @@ newGame gameState@(GameState{randomGen=randomGen, enmyTemplate=enmyTemplate}) = 
   (generatedShipStack, newGen) = generateShips randomGen 10 enmyTemplate
   initEncounter = defaultEncounter {shipStack=generatedShipStack}
 
-{-refreshGFX gameState
-  Takes in a game state and updates the graphics of objects.
-  PRE: True
-  RETURNS: A game state based on gameState with graphics applied to object templates used to generate objects. The graphics are taken from gameState.  
--}
-refreshGfx :: Game -> Game
-refreshGfx gameState@(GameState {gameGfx=gameGfx}) = newGameState
-  where
-    newPlyProj =
-      (projectile $ player gameState) {projObj = setGraphic (projObj $ projectile $ player gameState) (playerProjGfx gameGfx)}
-      --setGraphic (projObj $ projectile $ player gameState) (playerProjGfx gameGfx)
-    newPlayerTemplate =
-      (player gameState) {shipObj = setGraphic (shipObj $ player gameState) (playerGfx gameGfx), projectile = newPlyProj}
-    newEnmyProj =
-      (projectile $ enmyTemplate gameState) {projObj = setGraphic (projObj $ projectile $ enmyTemplate gameState) (enemyProjGfx gameGfx)}
-    newEnmyTemplate =
-      (enmyTemplate gameState) {shipObj = (setGraphic (shipObj $ enmyTemplate gameState) (enemyStandardGfx gameGfx)), projectile = newEnmyProj }
-    newGameState = gameState
-      {
-        player = newPlayerTemplate,
-        plyTemplate = newPlayerTemplate,
-        enmyTemplate = newEnmyTemplate,
-        plyProjTemplate = (plyProjTemplate gameState) {projObj = setGraphic (projObj $ plyProjTemplate gameState) (playerProjGfx gameGfx)},
-        enmyProjTemplate = (enmyProjTemplate gameState) {projObj = setGraphic (projObj $ enmyProjTemplate gameState) (enemyProjGfx gameGfx)},
-        background = setGraphic (background gameState) (backgroundGfx gameGfx)
-      }
-{- loadGFX
-   Loads pictures from predestined filepaths.
-   PRE: True
-   RETURNS: A container containing the pictures.
-   SIDE EFFECTS: IO; loading images. The exception handling if a filepath is invalid is handled in loadJuicyPNG. It returns a Maybe Picture or Nothing. This is also handled in  
-   EXAMPLES: 
--}
-loadGfx :: IO GameGfx
-loadGfx = do
-  imgBuffer <- loadJuicyPNG playerSpritePath
-  let playerGfx = processSprite imgBuffer
-  
-  imgBuffer <- loadJuicyPNG enemySpritePath
-  let enemyStandardGfx = processSprite imgBuffer
-
-  imgBuffer <- loadJuicyPNG plyProjSpritePath
-  let playerProjGfx = processSprite imgBuffer
-
-  imgBuffer <- loadJuicyPNG enemyProjSpritePath
-  let enemyProjGfx = processSprite imgBuffer
-
-  imgBuffer <- loadJuicyPNG heartSpritePath
-  let heartGfx = processSprite imgBuffer
-
-  imgBuffer <- loadJuicyPNG gameOverSpritePath
-  let gameOverGfx = processSprite imgBuffer
-  
-  imgBuffer <- loadJuicyPNG backgroundPath
-  let backgroundGfx = processSprite imgBuffer
-  let gameGfx =
-        defaultGameGfx
-        {
-          playerGfx = playerGfx,
-          enemyStandardGfx = enemyStandardGfx,
-          playerProjGfx = playerProjGfx,
-          enemyProjGfx = enemyProjGfx,
-          heartGfx = heartGfx,
-          gameOverGfx = gameOverGfx,
-          backgroundGfx = backgroundGfx
-        }
-  return gameGfx
-
-{- processSprite pic
-   Processes a potential picture.
-   PRE: True
-   RETURNS: A picture if pic is a picture. Otherwise a placeholder graphic.
-   EXAMPLES: processSprite Nothing == Color (RGBA 0.0 1.0 0.0 1.0) (Polygon [(-25.0,-25.0),(-25.0,25.0),(25.0,25.0),(25.0,-25.0)])
--}
-processSprite :: Maybe Picture -> Picture
-processSprite Nothing = color green $ rectangleSolid 50 50
-processSprite (Just pic) = pic
 
 {- draw gameState
-   Takes in all objects that need to be drawn from a game state and combines them into a picture.
+   Constructs a drawable picture out of drawable game objects in a given game state.
    PRE: True
-   RETURNS: A combined picture of all pictures in gameState that are to be drawn.
-   EXAMPLES:
+   RETURNS: A final picture based on everything that can and should be drawn in gameState.
+   EXAMPLES: draw defaultGameState
+   Example omitted (can't properly represent pictures in an example).
 -}
 draw :: Game -> Picture
 draw gameState@(GameState {objects=objs, gameGfx=gameGfx, player=playerShip, plyProjectiles=plyProjs, enemyProjectiles=enemyProjs, enemies=enemies, showHitbox=showHitbox,background=background}) = newFrame
@@ -194,11 +74,11 @@ draw gameState@(GameState {objects=objs, gameGfx=gameGfx, player=playerShip, ply
     -- The final picture frame
     newFrame = pictures $ (backgroundPic:heartPics) ++ objPics
 
-{- update dt gameState
+{- update deltaTime gameState
    Updates a given game state one iteration.
    PRE: True
-   RETURNS: An updated gameState.
-   EXAMPLES:
+   RETURNS: An updated game state based on gameState and deltaTime.
+   EXAMPLES: update 0 defaultGameState == defaultGameState
 -}
 update :: Float -> Game -> Game
 update dt gameState@(GameState {ticker=currentTick,plyProjectiles=projList, enemies=enemies,enemyProjectiles=enemyProjList,encounter=encounter, player=player}) = newGameState 
@@ -215,7 +95,7 @@ update dt gameState@(GameState {ticker=currentTick,plyProjectiles=projList, enem
     -- Enemy related
     (newEncounter, spawnedEnemies) =
       updateEncounter encounter currentTick enemies
-    newEnemies = updateEnemies spawnedEnemies dt gameState
+    newEnemies = updateEnemies dt gameState {enemies=spawnedEnemies}
     updatedEnemyProjList =
       map (updateProjectile dt) (colEnemProj gameState enemyProjList)
     newEnemyProjList = (processEnemyFire gameState) ++ updatedEnemyProjList
@@ -227,64 +107,11 @@ update dt gameState@(GameState {ticker=currentTick,plyProjectiles=projList, enem
     newGameState = (gameState {player=newPlayer, ticker=newTicker, plyProjectiles=newPlyProjList, enemies=newEnemies, enemyProjectiles=newEnemyProjList, encounter=newEncounter})
 
 
-{-updateEncounter encounter currentTick enemyContainer
-  Checks if an enemy should spawn from an Encounter stack by looking at the current tick. If that is the case it is moved into a list of ships.
-  PRE: True
-  RETURNS: A 2-tuple of the updated encounter.
-  Examples:
--}
-updateEncounter :: Encounter -> Float -> [Ship] -> (Encounter,[Ship])
-updateEncounter encounter currentTick enemyContainer
-  | shouldPopEncounter currentTick encounter = (newEncounter, newEnemyContainer)
-  | otherwise = (encounter, enemyContainer)
-  where
-    updatedEncounter = encounter {lastPop=currentTick}
-    (newStack, newEnemyContainer) =
-      pop (shipStack updatedEncounter) enemyContainer
-    newEncounter = updatedEncounter {shipStack=newStack}
-
-{-updateHealthDisplay ship heartGFX gameOverGFX
-  Updates the health display of the Ship so it correlates with current health. Also displays a game over graphic when the player is dead.
-  PRE:
-  RETURNS: A list of the objects that are to be drawn. Either hearts corresponding to Ship health or a game over graphic.
-  Examples:
--}
-
-updateHealthDisplay :: Ship -> Picture -> Picture -> [Object]
---VARIANT: shipHealth ship
-updateHealthDisplay player@(Ship{shipHealth=shipHealth}) heartGfx gameOverGfx
-  |shipHealth == -1 = [Object { position = (0, 0),
-                                direction = (0, 0),
-                                speed = 0,
-                                bounds = (0, 0),
-                                graphic = gameOverGfx
-                               }]
-  |shipHealth <= 0 = []
-  |otherwise = (Object { position = (xpos, 250),
-                         direction = (0, 0),
-                         speed = 0,
-                         bounds = (0, 0),
-                         graphic = heartGfx
-                       }) : updateHealthDisplay newShip heartGfx gameOverGfx
-  where
-    newShip = player {shipHealth=newHp}
-    newHp = shipHealth - 1
-    xpos = fromIntegral (-500 + (40 * shipHealth))
-
-{- updateEnemies enemies dt gameState
-   Updates a list of enemies. The health, position and the time since they last fired is updated. Enemies are also removed if their health is depleted.
-   PRE: True
-   RETURNS: A list of updated enemies in regards to the given gameState.
-   EXAMPLES: 
--}  
-updateEnemies :: [Ship] -> Float -> Game -> [Ship]
-updateEnemies enemies dt gameState = map (updateEnemy dt gameState) (eneHandleDmg gameState enemies)
-
 {- handleEvent event gameState
-   Takes in an event and modifies a given gameState according to the               Event (input).
+   Modifies a game state based on an event.
    PRE: True
-   RETURNS: A gameState with changed values depending on the Event.
-   EXAMPLES:
+   RETURNS: A new game state based on gameState and event. The new game state might differ from gameState depending on what event transpired.
+   EXAMPLES: handleEvent (EventResize (0,0)) defaultGameState == defaultGameState
 -}
 handleEvent :: Event -> Game -> Game
 handleEvent (EventKey key Down mod _) gameState@(GameState {player=player}) =
@@ -316,51 +143,9 @@ handleEvent (EventKey key Up _ _) gameState@(GameState {player=player}) =
 handleEvent (EventResize (x, y)) gameState = gameState
 handleEvent _ gameState = gameState
 
-  {- shipFire arguments
-     Fires a ship's projectile from its position, given a direction
-     PRE: True
-     RETURNS: Just projectile where the projectile appears at a ship with given direction or Nothing
-     EXAMPLES:
-  -}
-shipFire :: Direction -> Float -> Ship -> Maybe Projectile
-shipFire dir currentTick ship
-  | canFire && (isFiring ship) = Just newShipProj
-  | otherwise = Nothing
-  where
-    canFire = (currentTick - (lastFiredTick ship)) > (wepCooldown ship)
-    -- Construct the projectile object
-    shipPos = position $ shipObj ship
-    shipProj = (projectile ship)
-    shipProjObj = (projObj shipProj) { direction = dir, position = shipPos }
-    newShipProj = Projectile shipProjObj (effect shipProj)
-
-  {- processEnemyFire gamestate
-     Gives a list of projectiles that are allowed in the current gamestate
-     PRE: True
-     RETURNS: A list of all current enemy projectiles
-     EXAMPLES:
-  -}
-
-processEnemyFire :: Game -> [Projectile]
-processEnemyFire gameState@(GameState {enemies=enemies,ticker=t}) = newProjList
-  where
-    newProjList = processEnemyFireAux (map (shipFire (-1,0) t) enemies) []
-
-  {- processEnemyFireAux list1 list2
-     Merges two lists of projectiles into one
-     PRE: True
-     VARIANT: length xs
-     RETURNS: A new or unchanged list of projectiles
-     EXAMPLES: processEnemyFireAux [proj1, proj2] [proj3, proj4] = [proj2, proj1     ,proj3, proj4]
-  -}
-processEnemyFireAux :: [Maybe Projectile] -> [Projectile] -> [Projectile]
---VARIANT: length of xs
-processEnemyFireAux [] acc = acc
-processEnemyFireAux (Just x : xs) acc = processEnemyFireAux xs (x:acc)
-processEnemyFireAux (Nothing : xs) acc = processEnemyFireAux xs acc
     
 -- Test cases and test related functions go here for now
-testGameState = initGameState -- this will change to more advanced test gamestates in the future
+testGameState = defaultGameState -- this will change to more advanced test gamestates in the future
 
 testGraphic = translate (-25) 25 $ circle 30
 testObject =
@@ -371,12 +156,7 @@ testObject =
            graphic = testGraphic
          }
 
-  
-
-
-
 --TESTCASES AND TEST OBJECTS
-
 
 
 --Collision
@@ -440,11 +220,9 @@ test2 = TestCase $ assertEqual "bordering bounding boxes" False (checkRectCollis
  
 test3 = TestCase $ assertEqual "One object is a point (no area of the boundings)" True (checkRectCollision bigObj objPoint)
 
-test4 = TestCase $ assertEqual "Testing enemy damage despawn handling" [] (eneHandleDmg (initGameState {plyProjectiles = [testProj]}) [testShip{shipHealth=0}])
+test4 = TestCase $ assertEqual "Testing enemy damage despawn handling" [] (eneHandleDmg (defaultGameState {plyProjectiles = [testProj]}) [testShip])
 
-test5 = TestCase $ assertEqual "Testing enemy damage handling" [testShip] (eneHandleDmg (initGameState {plyProjectiles = [testProj]}) [testShip{shipHealth=2}])
-
-runCollisionTests = runTestTT $ TestList [test1, test2, test3, test4, test5]
+test5 = TestCase $ assertEqual "Testing enemy damage despawn handling" [testShip] (eneHandleDmg (defaultGameState {plyProjectiles = [testProj]}) [testShip{shipHealth=2}])
 
 
 
