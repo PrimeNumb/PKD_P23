@@ -25,13 +25,13 @@ import Debug.Trace
 -}
 data Game = GameState
   { objects          :: [Object], --use this for objects that aren't ships
-    gameGfx         :: GameGfx,
+    gameGfx          :: GameGfx,
     enemies          :: [Ship],
     randomGen        :: StdGen,
     encounter        :: Encounter,
     player           :: Ship,
-    plyProjectiles  :: [Projectile],
-    enemyProjectiles  :: [Projectile],
+    plyProjectiles   :: [Projectile],
+    enemyProjectiles :: [Projectile],
     ticker           :: Float,
     background       :: Object,
     plyTemplate      :: Ship,
@@ -70,10 +70,10 @@ data Ship = Ship
   { shipObj        :: Object,
     shipHealth     :: Int,
     wepCooldown    :: Float,
-    projectile      :: Projectile,
-    lastFiredTick :: Float,
-    isFiring        :: Bool,
-    isPlayer        :: Bool
+    projectile     :: Projectile,
+    lastFiredTick  :: Float,
+    isFiring       :: Bool,
+    isPlayer       :: Bool
   } deriving (Show, Eq)
 
 {- Projectile represents a (not necessarily) moving projectile in the game. 
@@ -82,7 +82,7 @@ data Ship = Ship
   INVARIANT: True
    -}
 data Projectile = Projectile
-  { projObj :: Object,
+  { projObj  :: Object,
     effect   :: Effect
   } deriving (Show, Eq)
 
@@ -112,9 +112,9 @@ data Encounter = Encounter
 data GameGfx = GameGfx
   {
     playerGfx         :: Picture,
-    enemyStandardGfx :: Picture,
-    playerProjGfx    :: Picture,
-    enemyProjGfx     :: Picture,
+    enemyStandardGfx  :: Picture,
+    playerProjGfx     :: Picture,
+    enemyProjGfx      :: Picture,
     heartGfx          :: Picture,
     gameOverGfx       :: Picture,
     backgroundGfx     :: Picture

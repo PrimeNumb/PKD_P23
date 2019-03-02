@@ -35,7 +35,7 @@ setPos (x,y) obj@(Object {position=(xObj,yObj)}) = move (x-xObj,y-yObj) obj
    PRE: True
    RETURNS: An object based on obj, where the boundaries of the object are inside the boundaries of objBounds.
    EXAMPLES: clampToBounds (10,0) (Object (0,0) (0,0) 300.0 (10,10) Blank) ==
-   (Object (1,-11) (0,0) 300.0 (10,10) Blank)
+   (Object (0,-10) (0,0) 300.0 (10,10) Blank)
 -}
 clampToBounds :: Bounds -> Object -> Object
 clampToBounds (boundsWidth, boundsHeight) obj@(Object { position = (xPos, yPos), bounds = (objWidth, objHeight)}) =
@@ -47,10 +47,10 @@ clampToBounds (boundsWidth, boundsHeight) obj@(Object { position = (xPos, yPos),
     -- of the object isn't covered up by this border.
     newXpos
       | (xPos + objWidth) > boundsWidth = boundsWidth - objWidth
-      | (xPos - (objWidth+1)) < -boundsWidth = -boundsWidth + objWidth+1
+      | (xPos - (objWidth)) < -boundsWidth = -boundsWidth + objWidth
       | otherwise = xPos
     newYpos
-      | (yPos + (objHeight-1)) > boundsHeight = boundsHeight - objHeight-1
+      | (yPos + (objHeight)) > boundsHeight = boundsHeight - objHeight
       | (yPos - objHeight) < -boundsHeight = -boundsHeight + objHeight
       | otherwise = yPos
 
@@ -64,4 +64,20 @@ clampToBounds (boundsWidth, boundsHeight) obj@(Object { position = (xPos, yPos),
 modDirection :: Direction -> Object -> Object
 modDirection (dx, dy) obj@(Object {direction=(x,y)}) = obj { direction = (x+dx,y+dy)}
 
-
+{- shipFire arguments
+Fires a ship's projectile from its position, given a direction
+PRE: True
+RETURNS: Just projectile where the projectile appears at a ship with given direction or Nothing
+EXAMPLES:
+-}
+shipFire :: Direction -> Float -> Ship -> Maybe Projectile
+shipFire dir currentTick ship
+  | canFire && (isFiring ship) = Just newShipProj
+  | otherwise = Nothing
+  where
+    canFire = (currentTick - (lastFiredTick ship)) > (wepCooldown ship)
+    -- Construct the projectile object
+    shipPos = position $ shipObj ship
+    shipProj = (projectile ship)
+    shipProjObj = (projObj shipProj) { direction = dir, position = shipPos }
+    newShipProj = Projectile shipProjObj (effect shipProj)

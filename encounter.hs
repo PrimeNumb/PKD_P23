@@ -11,7 +11,7 @@ import Utilities
    PRE: True
    RETURNS: A 2-tuple cotaining two lists, where the first element of the tuple is the tail of list1
    and the second element of the tuple is the head of list1 prepended to list2.
-   EXAMPLES: pop [1,2] [3,4] = ([2], [1,3,4])
+   EXAMPLES: pop [1,2] [3,4] == ([2], [1,3,4])
 -}
 pop :: [a] -> [a] -> ([a],[a])
 pop [] container = ([],container)
@@ -22,7 +22,7 @@ pop (x:xs) container = (xs, x:container)
    Prepends an element to a list.
    PRE: True
    RETURNS: A list with elem prepended to list1. 
-   EXAMPLES: push [1,2] 3 = [3,1,2]
+   EXAMPLES: push [1,2] 3 == [3,1,2]
 -}
 push :: [a] -> a -> [a]
 push stack element = element:stack
@@ -45,7 +45,7 @@ shouldPopEncounter currentTick (Encounter {popInterval=popInterval,lastPop=lastP
    RETURNS: A 2-tuple where the first element is a list of generated ships based on nrOfShips and shipTemplate,
    and the second element is a new random generator based on randomGen.
    If nrOfShips == 0 then the first element is simply the empty list.
-   EXAMPLES: generateShips (mkStdGen 123) 0 == ([], 124 1)
+   EXAMPLES: generateShips (mkStdGen 123) 0 playerShipDefault == ([], 124 1)
 -}
 generateShips :: StdGen -> Int -> Ship -> ([Ship], StdGen)
 generateShips gen nrOfShips template = (ships, newGen)
@@ -57,7 +57,7 @@ generateShips gen nrOfShips template = (ships, newGen)
    PRE: nrOfShips >= 0
    RETURNS: A 2-tuple where the first element is a list of generated ships
    (based on nrOfShips & shipTemplate) prepended to acc, and the second element is a new random generator based on randomGen.
-   EXAMPLES: generateShips (mkStdGen 123) 0 [] == ([], 124 1)
+   EXAMPLES: generateShipsAux (mkStdGen 123) 0 playerShipDefault [] == ([], 124 1)
 -}
 generateShipsAux :: StdGen -> Int -> Ship -> [Ship] -> ([Ship], StdGen)
 generateShipsAux gen 0 template acc = (acc, gen)
@@ -81,3 +81,19 @@ generateShip gen shipTemplate = (shipTemplate {shipObj=setPos (xPos,yPos) (shipO
     xPos = winWidth/2 + enemyWidth
     (yPos, gen1) = randomR (-winHeight/2,winHeight/2) gen :: (Float, StdGen)
     (cooldown, gen2) = randomR (1.5, 2.0) gen1 :: (Float, StdGen)
+
+{-updateEncounter encounter currentTick enemyContainer
+  Checks if an enemy should spawn from an Encounter stack by looking at the current tick. If that is the case it is moved into a list of ships.
+  PRE: True
+  RETURNS: A 2-tuple of the updated encounter.
+  Examples:
+-}
+updateEncounter :: Encounter -> Float -> [Ship] -> (Encounter,[Ship])
+updateEncounter encounter currentTick enemyContainer
+  | shouldPopEncounter currentTick encounter = (newEncounter, newEnemyContainer)
+  | otherwise = (encounter, enemyContainer)
+  where
+    updatedEncounter = encounter {lastPop=currentTick}
+    (newStack, newEnemyContainer) =
+      pop (shipStack updatedEncounter) enemyContainer
+    newEncounter = updatedEncounter {shipStack=newStack}
