@@ -41,12 +41,11 @@ defaultGameGfx = GameGfx
 
 
 -- The initial game state
-initGameState :: Game
-initGameState = GameState {
+defaultGameState :: Game
+defaultGameState = GameState {
   objects = [],
   gameGfx = defaultGameGfx,
   enemies = [],
-  playableBounds = (winWidth/2, winHeight/2),
   randomGen = mkStdGen 1234,
   encounter = defaultEncounter,
   player = playerShipDefault,
@@ -67,7 +66,7 @@ Imports graphics and a random seed and then initializes a game state. The game s
 PRE: 
 RETURNS: 
 SIDE EFFECTS: IO ...?
-EXAMPLES: 
+EXAMPLES: main
 -}
 main :: IO ()
 main = do
@@ -77,7 +76,7 @@ main = do
   gameGfx <- loadGfx
   -- Process sprites
   let gen = mkStdGen seed
-      readyGameState = refreshGfx $ initGameState {gameGfx=gameGfx,randomGen=newGen, encounter=defaultEncounter}
+      readyGameState = refreshGfx $ defaultGameState {gameGfx=gameGfx,randomGen=newGen, encounter=defaultEncounter}
       (generatedShipStack, newGen) =
         generateShips gen 10 (enmyTemplate readyGameState)
       readyEncounter = defaultEncounter {shipStack=generatedShipStack}
@@ -359,7 +358,7 @@ processEnemyFireAux (Just x : xs) acc = processEnemyFireAux xs (x:acc)
 processEnemyFireAux (Nothing : xs) acc = processEnemyFireAux xs acc
     
 -- Test cases and test related functions go here for now
-testGameState = initGameState -- this will change to more advanced test gamestates in the future
+testGameState = defaultGameState -- this will change to more advanced test gamestates in the future
 
 testGraphic = translate (-25) 25 $ circle 30
 testObject =

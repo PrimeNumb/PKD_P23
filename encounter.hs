@@ -29,9 +29,10 @@ push stack element = element:stack
 
 
 {- shouldPopEncounter tick encounter
-   Checks if an encounter should occur based on when it last occured.
+   Checks if a ship should be loaded into the game.
    PRE: True
-   RETURNS: True if the interval between tick and the last occurence is greater than the interval of encounters, otherwise False.
+   RETURNS: True if the interval between tick and the last time a ship was loaded is equal to/greater than the minimum time required between loading ships,
+   otherwise False.
    EXAMPLES: shouldPopEncounter 15.0 defaultEncounter == True
 -}
 shouldPopEncounter :: Float -> Encounter -> Bool

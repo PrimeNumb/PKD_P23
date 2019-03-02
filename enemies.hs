@@ -41,7 +41,8 @@ enemyShipDefaultTemplate = Ship { shipObj = enemyObjTemplate,
    Updates an enemy one iteration.
    PRE: deltaTime >= 0
    RETURNS: A ship based on ship1 with updated properties based on deltaTime & gameState.
-   EXAMPLES: updateEnemy 1.0 defaultGameState enemyShipDefaultTemplate == Ship {...}
+   EXAMPLES: updateEnemy 1.0 defaultGameState enemyShipDefaultTemplate ==
+   Ship {...}
 -}
 updateEnemy :: Float -> Game -> Ship -> Ship               
 updateEnemy dt gameState@(GameState {ticker=currentTick,background=background}) enemy = newEnemy
