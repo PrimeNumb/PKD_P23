@@ -67,7 +67,7 @@ colPlyProj gameState@(GameState {enemies=enemies,background=background}) (proj:x
     {-colPlyProjAux proj ships
       Checks if a player projectile is colliding with an enemy or is out of bounds. 
       RETURNS: The projectile if it doesn't collide and isn't out of bounds, otherwise [].
-      EXAMPLES: 
+      EXAMPLES: colPlyProjAux playerDefaultProj [] == [playerDefaultProj]
      -}
     colPlyProjAux :: Projectile  -> [Ship] -> [Projectile]
     --VARIANT: length of ships
