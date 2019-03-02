@@ -20,11 +20,11 @@ window :: Display
 window = InWindow winTitle winSize winOffset
 
 {- main
-Imports graphics and a random seed and then initializes a game state. The game state is then used to start the game loop.
-PRE: 
-RETURNS: 
-SIDE EFFECTS: IO ...?
-EXAMPLES: main
+   Initializes a game state and plays the game.
+   PRE: True
+   RETURNS: return ()
+   SIDE EFFECTS: Initializes a game with a random number generator (generated with the global random number generator) and images loaded from disk.
+   EXAMPLES: main
 -}
 main :: IO ()
 main = do
@@ -41,10 +41,10 @@ main = do
   play window winBackground targetFramerate (readyGameState {randomGen=newGen, encounter=readyEncounter }) draw handleEvent update
   return ()
 
-{-newGame gameState
-  Takes in the current game state and resets it to starting values. 
-  PRE: True
-  RETURNS: a new GameState based on gameState with its values reset.
+{- newGame gameState
+   Resets parts of a game state to starting values.
+   PRE: True
+   RETURNS: a new game state based on gameState with some of its values reset.
 -}
 newGame :: Game -> Game
 newGame gameState@(GameState{randomGen=randomGen, enmyTemplate=enmyTemplate}) = gameState{encounter=initEncounter, player=(plyTemplate gameState), enemyProjectiles=[], plyProjectiles=[], ticker=0, randomGen=newGen, objects=[], enemies=[]}

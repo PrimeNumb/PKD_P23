@@ -211,3 +211,23 @@ defaultGameState = GameState {
   enmyProjTemplate = enemyDefaultProj,
   showHitbox  = False
   }
+
+--GAME OVER OBJECTS
+--The object assigned to the player while the game is over.
+gameOverObject :: Object
+gameOverObject = Object { position = (1000, 1000),
+                          direction = (0, 0),
+                          speed = 300,
+                          bounds = (0, 0),
+                          graphic = Blank
+                        }
+--The player becomes an invisible ship while the game is over.                 
+invisPlayer :: Ship
+invisPlayer = Ship { shipObj = gameOverObject,
+                     shipHealth = -1,
+                     wepCooldown = 200.0,
+                     projectile = harmlessProj,
+                     lastFiredTick = 0,
+                     isPlayer = False,
+                     isFiring = False
+                   }
