@@ -1,5 +1,4 @@
 module Presets where
-import Graphics.Gloss.Juicy
 import Graphics.Gloss
 import DataTypes
 import System.Random

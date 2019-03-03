@@ -1,10 +1,6 @@
 module Collision where
-import Graphics.Gloss
-import Graphics.Gloss.Interface.Pure.Game
 import DataTypes
 import Presets
-import Debug.Trace
-import Projectile
 
 {- checkRectCollision object1 object2
    Checks if two objects overlap (collide).

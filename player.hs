@@ -2,8 +2,6 @@ module Player where
 import DataTypes
 import Graphics.Gloss
 import Utilities
-import Projectile
-import Debug.Trace
 import Presets
 
 

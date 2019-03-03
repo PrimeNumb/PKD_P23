@@ -2,7 +2,6 @@ module DataTypes where
 import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
 import System.Random
-import Debug.Trace
 
 {- Game represents the state of a game.
    gameGfx describes a collection of game-related pictures (or images/sprites).
@@ -22,8 +21,8 @@ import Debug.Trace
    INVARIANT:
    player must be within the bounds of background
 -}
-data Game = GameState
-  { gameGfx          :: GameGfx,
+data Game = GameState {
+    gameGfx          :: GameGfx,
     enemies          :: [Ship],
     randomGen        :: StdGen,
     encounter        :: Encounter,
@@ -47,8 +46,8 @@ data Game = GameState
    graphic describes the picture, sprite or image associated with the object; how it should be drawn.
    INVARIANT: position is the center of the object
 -}
-data Object = Object
-  { position    :: Position,
+data Object = Object {
+    position    :: Position,
     direction   :: Direction,
     speed       :: Float,
     bounds      :: Bounds,
@@ -64,8 +63,8 @@ data Object = Object
    isPlayer describes whether or not the ship is a player character.
    INVARIANT: wepCooldown > 0
 -}
-data Ship = Ship
-  { shipObj        :: Object,
+data Ship = Ship {
+    shipObj        :: Object,
     shipHealth     :: Int,
     wepCooldown    :: Float,
     projectile     :: Projectile,
@@ -79,8 +78,8 @@ data Ship = Ship
    effect describes the effect that should be processed on a colliding object.
   INVARIANT: True
    -}
-data Projectile = Projectile
-  { projObj  :: Object,
+data Projectile = Projectile {
+    projObj  :: Object,
     effect   :: Effect
   } deriving (Show, Eq)
 
@@ -90,8 +89,7 @@ data Projectile = Projectile
   shipStack is the set of ships that the encounter consists of.
   INVARIANT: popInterval > 0
    -}
-data Encounter = Encounter
-  {
+data Encounter = Encounter {
     popInterval  :: Float,
     lastPop      :: Float,
     shipStack    :: [Ship]
@@ -107,8 +105,7 @@ data Encounter = Encounter
   backgroundGfx is the background image.
   INVARIANT: True
    -}
-data GameGfx = GameGfx
-  {
+data GameGfx = GameGfx {
     playerGfx         :: Picture,
     enemyStandardGfx  :: Picture,
     playerProjGfx     :: Picture,

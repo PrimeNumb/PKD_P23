@@ -1,7 +1,5 @@
 module Encounter where
-import Graphics.Gloss
 import DataTypes
-import Enemies
 import System.Random
 import Presets
 import Utilities

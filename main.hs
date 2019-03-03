@@ -3,7 +3,6 @@ import Graphics.Gloss
 import Graphics.Gloss.Juicy
 import Graphics.Gloss.Interface.Pure.Game
 import System.Random
-import Debug.Trace
 import Enemies
 import Player
 import Projectile
@@ -36,7 +35,7 @@ main = do
   let gen = mkStdGen seed
       readyGameState = refreshGfx $ defaultGameState {gameGfx=gameGfx,randomGen=newGen, encounter=defaultEncounter}
       (generatedShipStack, newGen) =
-        generateShips gen 10 (enemyTemplate readyGameState)
+        generateShips gen 50 (enemyTemplate readyGameState)
       readyEncounter = defaultEncounter {shipStack=generatedShipStack}
   play window winBackground targetFramerate (readyGameState {randomGen=newGen, encounter=readyEncounter }) draw handleEvent update
   return ()
@@ -49,7 +48,7 @@ main = do
 newGame :: Game -> Game
 newGame gameState@(GameState{randomGen=randomGen, enemyTemplate=enemyTemplate}) = gameState{encounter=initEncounter, player=(plyTemplate gameState), enemyProjectiles=[], plyProjectiles=[], ticker=0, randomGen=newGen,  enemies=[]}
   where
-  (generatedShipStack, newGen) = generateShips randomGen 10 enemyTemplate
+  (generatedShipStack, newGen) = generateShips randomGen 50 enemyTemplate
   initEncounter = defaultEncounter {shipStack=generatedShipStack}
 
 

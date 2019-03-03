@@ -1,12 +1,6 @@
 module Enemies where
-import Graphics.Gloss
-import Graphics.Gloss.Interface.Pure.Game
-import System.Random
-import Debug.Trace
-import Rendering
 import DataTypes
 import Utilities
-import Projectile
 import Presets
 import Collision
 
