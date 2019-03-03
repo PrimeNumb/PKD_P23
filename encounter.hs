@@ -3,7 +3,7 @@ import Graphics.Gloss
 import DataTypes
 import Enemies
 import System.Random
-import Globals
+import Presets
 import Utilities
 
 {- pop list1 list2

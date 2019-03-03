@@ -4,7 +4,7 @@ import Graphics.Gloss
 import Utilities
 import Projectile
 import Debug.Trace
-import Globals
+import Presets
 
 
 {-updateHealthDisplay ship heartGFX gameOverGFX
@@ -42,8 +42,7 @@ updateHealthDisplay player@(Ship{shipHealth=shipHealth}) heartGfx gameOverGfx
    EXAMPLES: updatePlayer 0.16 defaultGameState == playerDefaultShip
 -}
 updatePlayer :: Float -> Game -> Ship
-updatePlayer dt gameState@(GameState {ticker=currentTick,player=ply}) =
-  newPlayer
+updatePlayer dt gameState@(GameState {ticker=currentTick,player=ply}) = newPlayer
   where
     -- Update the last fired tick
     canFire = (currentTick - (lastFiredTick ply)) > (wepCooldown ply)
@@ -55,7 +54,9 @@ updatePlayer dt gameState@(GameState {ticker=currentTick,player=ply}) =
     -- Movement
     (dx,dy) = direction plyObj
     plySpeed = speed plyObj
-    deltaPos = (dx*plySpeed*dt,dy*plySpeed*dt) --rename this
+    traceStr1 = show (dx*sqrt(plySpeed^2 - dy^2))
+    traceStr2 = show (dy*sqrt(plySpeed^2 - dx^2))
+    deltaPos = (dx*sqrt(plySpeed^2 - dy^2)*dt,dy*sqrt(plySpeed^2 - dx^2)*dt) --rename this
     
     -- The new player 
     newPlayer =

@@ -2,7 +2,7 @@ module Collision where
 import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
 import DataTypes
-import Globals
+import Presets
 import Debug.Trace
 import Projectile
 

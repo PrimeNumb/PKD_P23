@@ -7,7 +7,7 @@ import Rendering
 import DataTypes
 import Utilities
 import Projectile
-import Globals
+import Presets
 import Collision
 
 

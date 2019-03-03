@@ -1,9 +1,8 @@
-module Globals where
+module Presets where
 import Graphics.Gloss.Juicy
 import Graphics.Gloss
 import DataTypes
 import System.Random
-
 
 
 -- Window bindings
@@ -199,7 +198,6 @@ defaultGameGfx = GameGfx
 -- The initial game state
 defaultGameState :: Game
 defaultGameState = GameState {
-  objects = [],
   gameGfx = defaultGameGfx,
   enemies = [],
   randomGen = mkStdGen 1234,
@@ -210,9 +208,9 @@ defaultGameState = GameState {
   ticker = 0,
   background = defaultBackground,
   plyTemplate = playerDefaultShip,
-  enmyTemplate = enemyShipDefaultTemplate,
+  enemyTemplate = enemyShipDefaultTemplate,
   plyProjTemplate = playerDefaultProj,
-  enmyProjTemplate = enemyDefaultProj,
+  enemyProjTemplate = enemyDefaultProj,
   showHitbox  = False
   }
 

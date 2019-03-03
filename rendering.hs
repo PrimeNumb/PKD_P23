@@ -2,7 +2,7 @@ module Rendering where
 import Graphics.Gloss
 import Graphics.Gloss.Juicy
 import DataTypes
-import Globals
+import Presets
 
 {- makeDrawable obj
    Converts a game object into a picture ready to be drawn on the screen.
@@ -58,16 +58,16 @@ refreshGfx gameState@(GameState {gameGfx=gameGfx}) = newGameState
     newPlayerTemplate =
       (player gameState) {shipObj = (shipObj $ player gameState) {graphic=(playerGfx gameGfx)}, projectile = newPlyProj}
     newEnmyProj =
-      (projectile $ enmyTemplate gameState) {projObj = (projObj $ projectile $ enmyTemplate gameState) {graphic=(enemyProjGfx gameGfx)} }
+      (projectile $ enemyTemplate gameState) {projObj = (projObj $ projectile $ enemyTemplate gameState) {graphic=(enemyProjGfx gameGfx)} }
     newEnmyTemplate =
-      (enmyTemplate gameState) {shipObj = ((shipObj $ enmyTemplate gameState){graphic=(enemyStandardGfx gameGfx)}), projectile = newEnmyProj }
+      (enemyTemplate gameState) {shipObj = ((shipObj $ enemyTemplate gameState){graphic=(enemyStandardGfx gameGfx)}), projectile = newEnmyProj }
     newGameState = gameState
       {
         player = newPlayerTemplate,
         plyTemplate = newPlayerTemplate,
-        enmyTemplate = newEnmyTemplate,
+        enemyTemplate = newEnmyTemplate,
         plyProjTemplate = (plyProjTemplate gameState) {projObj = (projObj $ plyProjTemplate gameState) {graphic=(playerProjGfx gameGfx)}},
-        enmyProjTemplate = (enmyProjTemplate gameState) {projObj = (projObj $ enmyProjTemplate gameState) {graphic=(enemyProjGfx gameGfx)}},
+        enemyProjTemplate = (enemyProjTemplate gameState) {projObj = (projObj $ enemyProjTemplate gameState) {graphic=(enemyProjGfx gameGfx)}},
         background = (background gameState) {graphic=(backgroundGfx gameGfx)}
       }
 
