@@ -17,25 +17,28 @@ import System.Random
    enemyTemplate describes a template of an enemy character.
    plyProjTemplate describes a template of a player projectile.
    enemyProjTemplate describes a template of an enemy projectile.
+   gameWon simply track whether the game has been won or not.
    showHitbox describes whether or not hitboxes (or "bounding boxes") should be drawn.
    INVARIANT:
    player must be within the bounds of background
 -}
 data Game = GameState {
-    gameGfx          :: GameGfx,
-    enemies          :: [Ship],
-    randomGen        :: StdGen,
-    encounter        :: Encounter,
-    player           :: Ship,
-    plyProjectiles   :: [Projectile],
-    enemyProjectiles :: [Projectile],
-    ticker           :: Float,
-    background       :: Object,
-    plyTemplate      :: Ship,
+    gameGfx           :: GameGfx,
+    enemies           :: [Ship],
+    randomGen         :: StdGen,
+    encounter         :: Encounter,
+    player            :: Ship,
+    plyProjectiles    :: [Projectile],
+    enemyProjectiles  :: [Projectile],
+    ticker            :: Float,
+    background        :: Object,
+    backgroundFx      :: Object,
+    plyTemplate       :: Ship,
     enemyTemplate     :: Ship,
-    plyProjTemplate  :: Projectile,
+    plyProjTemplate   :: Projectile,
     enemyProjTemplate :: Projectile,
-    showHitbox       :: Bool
+    gameWon           :: Bool,
+    showHitbox        :: Bool
   } deriving (Show, Eq)
 
 {- Object represents a physical object in the game.
@@ -102,6 +105,7 @@ data Encounter = Encounter {
   enemyProjGfx is the enemy projectile sprite
   heartGfx is the heart sprite.
   gameOverGfx is the game over sprite.
+  winScreenGfx is the winning screen sprite.
   backgroundGfx is the background image.
   INVARIANT: True
    -}
@@ -112,6 +116,7 @@ data GameGfx = GameGfx {
     enemyProjGfx      :: Picture,
     heartGfx          :: Picture,
     gameOverGfx       :: Picture,
+    winScreenGfx      :: Picture,
     backgroundGfx     :: Picture
   } deriving (Show, Eq)
 

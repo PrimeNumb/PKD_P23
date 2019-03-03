@@ -5,7 +5,6 @@ import System.Random
 
 
 -- Window bindings
-
 winTitle :: String
 winTitle = "Space Shooter"
 
@@ -27,7 +26,10 @@ winBackground = black
 targetFramerate :: Int
 targetFramerate = 60
 
-  ----------------------------------------------------------------------------
+backgroundScrollSpeed :: Float
+backgroundScrollSpeed = 200
+
+----------------------------------------------------------------------------
 -- Filepaths to sprites
 playerSpritePath :: FilePath
 playerSpritePath = "./sprites/player2.png"
@@ -46,6 +48,9 @@ heartSpritePath = "./sprites/heart.png"
 
 gameOverSpritePath :: FilePath
 gameOverSpritePath = "./sprites/gameOver.png"
+
+winScreenSpritePath :: FilePath
+winScreenSpritePath = "./sprites/winScreen.png"
 
 backgroundPath :: FilePath
 backgroundPath = "./sprites/spacebackg.png"
@@ -133,6 +138,9 @@ enemySpawnInterval = 2.0
 enemySpawnInitialDelay :: Float
 enemySpawnInitialDelay = 5.0
 
+-- The amount of enemies per game
+enemySpawnAmount :: Int
+enemySpawnAmount = 50
 
 ----------------------------------------------------------------------------
 -- Projectile bindings
@@ -192,9 +200,9 @@ defaultGameGfx = GameGfx
     enemyProjGfx = color green $ rectangleSolid 50 50,
     heartGfx = color green $ rectangleSolid 50 50,
     gameOverGfx = color green $ rectangleSolid 50 50,
+    winScreenGfx = color green $ rectangleSolid 50 50,
     backgroundGfx = color green $ rectangleSolid 50 50
   }
-
 
 -- The initial game state
 defaultGameState :: Game
@@ -208,12 +216,24 @@ defaultGameState = GameState {
   enemyProjectiles = [],
   ticker = 0,
   background = defaultBackground,
+  backgroundFx = defaultBackground,
   plyTemplate = playerDefaultShip,
   enemyTemplate = enemyShipDefaultTemplate,
   plyProjTemplate = playerDefaultProj,
   enemyProjTemplate = enemyDefaultProj,
+  gameWon = False,
   showHitbox  = False
   }
+
+-- Dummy object, more or less a template
+dummyObject :: Object
+dummyObject = Object { position = (0,0),
+                       direction = (0,0),
+                       speed = 0,
+                       bounds = (0,0),
+                       graphic = Blank
+                       }
+                       
 
 --GAME OVER OBJECTS
 --The object assigned to the player while the game is over.

@@ -38,6 +38,7 @@ processEnemyFireAux (Nothing : xs) acc = processEnemyFireAux xs acc
 updateEnemies :: Float -> Game -> [Ship]
 updateEnemies dt gameState = map (updateEnemy dt gameState) (eneHandleDmg gameState (enemies gameState))
 
+
 {- updateEnemy deltaTime gameState ship1
    Updates an enemy one iteration.
    PRE: deltaTime >= 0
@@ -53,11 +54,19 @@ updateEnemy dt gameState@(GameState {ticker=currentTick,background=background}) 
     updatedTick =
       case canFire of
         False -> lastFiredTick enemy
-        True  -> currentTick
+        True  -> currentTick        
     enemyObj = shipObj enemy
-    newEnemyObj = enemyObj
+    newEnemyObj = enemyObj -- incase we need to change the enemy, do that here
+    enemyWidth = fst $ bounds newEnemyObj
     -- Movement
+    (bgWidth, bgHeight) = bounds background
     (dx,dy) = direction newEnemyObj
     enemySpeed = speed enemyObj
     deltaPos = (dx*enemySpeed*dt,dy*enemySpeed*dt)
-    newEnemy = enemy { shipObj = (move deltaPos newEnemyObj), lastFiredTick = updatedTick, isFiring=(not $ outOfBounds newEnemyObj background) }
+    -- If the enemy moves past the left-most bounds of the screen, move them to
+    -- the opposing side of the screen.
+    finalDeltaPos =
+      if fst (position newEnemyObj) < -(bgWidth+enemyWidth)
+      then ((bgWidth*2)+(enemyWidth*2),snd deltaPos)
+      else deltaPos
+    newEnemy = enemy { shipObj = (move finalDeltaPos newEnemyObj), lastFiredTick = updatedTick, isFiring=(not $ outOfBounds newEnemyObj background) }

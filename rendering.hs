@@ -68,7 +68,7 @@ refreshGfx gameState@(GameState {gameGfx=gameGfx}) = newGameState
         enemyTemplate = newEnmyTemplate,
         plyProjTemplate = (plyProjTemplate gameState) {projObj = (projObj $ plyProjTemplate gameState) {graphic=(playerProjGfx gameGfx)}},
         enemyProjTemplate = (enemyProjTemplate gameState) {projObj = (projObj $ enemyProjTemplate gameState) {graphic=(enemyProjGfx gameGfx)}},
-        background = (background gameState) {graphic=(backgroundGfx gameGfx)}
+        backgroundFx = (backgroundFx gameState) {graphic=(backgroundGfx gameGfx)}
       }
 
 
@@ -98,6 +98,9 @@ loadGfx = do
 
   imgBuffer <- loadJuicyPNG gameOverSpritePath
   let gameOverGfx = processSprite imgBuffer
+
+  imgBuffer <- loadJuicyPNG winScreenSpritePath
+  let winScreenGfx = processSprite imgBuffer
   
   imgBuffer <- loadJuicyPNG backgroundPath
   let backgroundGfx = processSprite imgBuffer
@@ -110,6 +113,8 @@ loadGfx = do
           enemyProjGfx = enemyProjGfx,
           heartGfx = heartGfx,
           gameOverGfx = gameOverGfx,
-          backgroundGfx = backgroundGfx
+          winScreenGfx = winScreenGfx,
+          backgroundGfx =
+          pictures $ (translate (-winWidth) 0 backgroundGfx):(translate winWidth 0 backgroundGfx):backgroundGfx:[]
         }
   return gameGfx

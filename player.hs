@@ -14,12 +14,7 @@ import Presets
 updateHealthDisplay :: Ship -> Picture -> Picture -> [Object]
 --VARIANT: shipHealth ship
 updateHealthDisplay player@(Ship{shipHealth=shipHealth}) heartGfx gameOverGfx
-  |shipHealth == -1 = [Object { position = (0, 0),
-                                direction = (0, 0),
-                                speed = 0,
-                                bounds = (0, 0),
-                                graphic = gameOverGfx
-                               }]
+  |shipHealth == -1 = [dummyObject {graphic=gameOverGfx}]
   |shipHealth <= 0 = []
   |otherwise = (Object { position = (xpos, 250),
                          direction = (0, 0),
@@ -54,7 +49,7 @@ updatePlayer dt gameState@(GameState {ticker=currentTick,player=ply}) = newPlaye
     plySpeed = speed plyObj
     traceStr1 = show (dx*sqrt(plySpeed^2 - dy^2))
     traceStr2 = show (dy*sqrt(plySpeed^2 - dx^2))
-    deltaPos = (dx*sqrt(plySpeed^2 - dy^2)*dt,dy*sqrt(plySpeed^2 - dx^2)*dt) --rename this
+    deltaPos = (dx*sqrt(plySpeed^2 - dy^2)*dt,dy*sqrt(plySpeed^2 - dx^2)*dt)
     
     -- The new player
     newPlayer =

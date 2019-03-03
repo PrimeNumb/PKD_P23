@@ -85,7 +85,7 @@ generateShip gen shipTemplate = (shipTemplate {shipObj=setPos (xPos,yPos) (shipO
   Checks if an enemy should spawn from an Encounter stack by looking at the current tick. If that is the case it is moved into a list of ships.
   PRE: True
   RETURNS: A 2-tuple of the updated encounter.
-  Examples:
+  EXAMPLES:
 -}
 updateEncounter :: Encounter -> Float -> [Ship] -> (Encounter,[Ship])
 updateEncounter encounter currentTick enemyContainer
