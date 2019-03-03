@@ -56,7 +56,7 @@ updatePlayer dt gameState@(GameState {ticker=currentTick,player=ply}) = newPlaye
     traceStr2 = show (dy*sqrt(plySpeed^2 - dx^2))
     deltaPos = (dx*sqrt(plySpeed^2 - dy^2)*dt,dy*sqrt(plySpeed^2 - dx^2)*dt) --rename this
     
-    -- The new player 
+    -- The new player
     newPlayer =
       ply { shipObj =
-           (clampToBounds (bounds $ background gameState) $ move deltaPos plyObj), lastFiredTick = updatedTick }
+           (clampToBounds (background gameState) $ move deltaPos plyObj), lastFiredTick = updatedTick }

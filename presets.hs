@@ -77,7 +77,7 @@ playerDefaultProjObj =
   Object { position = (0,0),
            direction = (1,0),
            speed = projObjDefaultSpeed,
-           bounds = projObjDefaultBounds,
+           bounds = (16.5,4.5),
            graphic = projObjDefaultGfx
          }
 
@@ -162,13 +162,15 @@ harmlessProjObj = Object { position = (0,0),
 harmlessProj = Projectile harmlessProjObj (Damage 0)
 
 ----------------------------------------------------------------------------
+-- Misc bindings
 
+-- The default background object
 defaultBackground :: Object
 defaultBackground =
   Object { position = (0, 0),
            direction = (0, 0),
            speed = 0,
-           bounds = (winWidth/2, winHeight/2),
+           bounds = ((winWidth-1)/2, (winHeight-1)/2),
            graphic = Blank
          }
 
@@ -222,7 +224,7 @@ gameOverObject = Object { position = (1000, 1000),
                           bounds = (0, 0),
                           graphic = Blank
                         }
---The player becomes an invisible ship while the game is over.                 
+--The player becomes an invisible ship while the game is over.                
 invisPlayer :: Ship
 invisPlayer = Ship { shipObj = gameOverObject,
                      shipHealth = -1,

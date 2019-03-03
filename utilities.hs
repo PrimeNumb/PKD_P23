@@ -30,28 +30,25 @@ move (vx,vy) obj@(Object {position=(x,y)}) = obj { position = (x+vx,y+vy) }
 setPos :: Position -> Object -> Object
 setPos (x,y) obj@(Object {position=(xObj,yObj)}) = move (x-xObj,y-yObj) obj 
 
-{- clampToBounds objBounds obj
-   Clamp an object within given bounds.
+{- clampToBounds obj1 obj2
+   Clamp an object within the bounds of a given object.
    PRE: True
-   RETURNS: An object based on obj, where the boundaries of the object are inside the boundaries of objBounds.
+   RETURNS: An object based on obj2, where the boundaries of the object are inside the boundaries of obj1.
    EXAMPLES: clampToBounds (10,0) (Object (0,0) (0,0) 300.0 (10,10) Blank) ==
    (Object (0,-10) (0,0) 300.0 (10,10) Blank)
 -}
-clampToBounds :: Bounds -> Object -> Object
-clampToBounds (boundsWidth, boundsHeight) obj@(Object { position = (xPos, yPos), bounds = (objWidth, objHeight)}) =
+clampToBounds :: Object -> Object -> Object
+clampToBounds bObj@(Object {position = (bx,by),bounds=(boundsWidth,boundsHeight)}) obj@(Object { position = (xPos, yPos), bounds = (objWidth, objHeight)}) =
   setPos (newXpos,newYpos) obj
   where
-    -- There's a one-pixel border surrounding the game window.
-    -- This border takes up part of the playable area on the x and y axis,
-    -- hence the addition of (+1 and -1) in the declarations below to make sure part
-    -- of the object isn't covered up by this border.
+    
     newXpos
-      | (xPos + objWidth) > boundsWidth = boundsWidth - objWidth
-      | (xPos - (objWidth)) < -boundsWidth = -boundsWidth + objWidth
+      | (xPos + objWidth) > (boundsWidth+bx) = (boundsWidth+bx) - objWidth
+      | (xPos - (objWidth)) < (-boundsWidth+bx) = (-boundsWidth+bx) + objWidth
       | otherwise = xPos
     newYpos
-      | (yPos + (objHeight)) > boundsHeight = boundsHeight - objHeight
-      | (yPos - objHeight) < -boundsHeight = -boundsHeight + objHeight
+      | (yPos + (objHeight)) > (boundsHeight+by) = (boundsHeight+by) - objHeight
+      | (yPos - objHeight) < (-boundsHeight+by) = (-boundsHeight+by) + objHeight
       | otherwise = yPos
 
 {- modDirection deltaDir obj

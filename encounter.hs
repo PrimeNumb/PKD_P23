@@ -75,9 +75,10 @@ generateShipsAux gen nrOfShips template acc =
 generateShip :: StdGen -> Ship -> (Ship, StdGen)
 generateShip gen shipTemplate = (shipTemplate {shipObj=setPos (xPos,yPos) (shipObj shipTemplate),wepCooldown=cooldown}, gen2)
   where
-    enemyWidth = fst $ bounds $ shipObj shipTemplate
-    xPos = winWidth/2 + enemyWidth
-    (yPos, gen1) = randomR (-winHeight/2,winHeight/2) gen :: (Float, StdGen)
+    shipWidth = fst $ bounds $ shipObj shipTemplate
+    shipHeight = snd $ bounds $ shipObj shipTemplate
+    xPos = winWidth/2 + shipWidth
+    (yPos, gen1) = randomR ((-winHeight+shipHeight)/2,(winHeight-shipHeight)/2) gen :: (Float, StdGen)
     (cooldown, gen2) = randomR (1.5, 2.0) gen1 :: (Float, StdGen)
 
 {-updateEncounter encounter currentTick enemyContainer
