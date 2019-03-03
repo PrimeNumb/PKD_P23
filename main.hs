@@ -46,11 +46,15 @@ main = do
    RETURNS: a new game state based on gameState with some of its values reset.
 -}
 newGame :: Game -> Game
-newGame gameState@(GameState{randomGen=randomGen, enemyTemplate=enemyTemplate}) = gameState{encounter=initEncounter, player=(plyTemplate gameState), enemyProjectiles=[], plyProjectiles=[], ticker=0, randomGen=newGen,  enemies=[]}
+newGame gameState@(GameState{randomGen=randomGen, enemyTemplate=enemyTemplate, player=player}) = gameState{encounter=initEncounter, player=newPlayer, enemyProjectiles=[], plyProjectiles=[], ticker=0, randomGen=newGen, enemies=[]}
   where
   (generatedShipStack, newGen) = generateShips randomGen 50 enemyTemplate
   initEncounter = defaultEncounter {shipStack=generatedShipStack}
-
+  --Perserve player dir
+  newPlayer = (plyTemplate gameState) {shipObj = newShipObj}
+  newShipObj = (shipObj (plyTemplate gameState)) {direction = oldPlayerDir}
+  oldPlayerDir = direction (shipObj (player))
+  
 
 {- draw gameState
    Constructs a drawable picture out of drawable game objects in a given game state.
@@ -104,7 +108,6 @@ update dt gameState@(GameState {ticker=currentTick,plyProjectiles=projList, enem
     
     -- The final updated gamestate
     newGameState = (gameState {player=newPlayer, ticker=newTicker, plyProjectiles=newPlyProjList, enemies=newEnemies, enemyProjectiles=newEnemyProjList, encounter=newEncounter})
-
 
 {- handleEvent event gameState
    Modifies a game state based on an event.

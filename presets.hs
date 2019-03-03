@@ -3,7 +3,9 @@ import Graphics.Gloss
 import DataTypes
 import System.Random
 
+
 -- Window bindings
+
 winTitle :: String
 winTitle = "Space Shooter"
 
@@ -25,7 +27,7 @@ winBackground = black
 targetFramerate :: Int
 targetFramerate = 60
 
-----------------------------------------------------------------------------
+  ----------------------------------------------------------------------------
 -- Filepaths to sprites
 playerSpritePath :: FilePath
 playerSpritePath = "./sprites/player2.png"
