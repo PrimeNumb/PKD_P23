@@ -34,8 +34,7 @@ setPos (x,y) obj@(Object {position=(xObj,yObj)}) = move (x-xObj,y-yObj) obj
    Clamp an object within the bounds of a given object.
    PRE: True
    RETURNS: An object based on obj2, where the boundaries of the object are inside the boundaries of obj1.
-   EXAMPLES: clampToBounds (10,0) (Object (0,0) (0,0) 300.0 (10,10) Blank) ==
-   (Object (0,-10) (0,0) 300.0 (10,10) Blank)
+   EXAMPLES: clampToBounds (Object (0,0) (0,0) 300.0 (20,10) Blank) (Object (15,0) (0,0) 300.0 (10,10) Blank) == (Object (10,0) (0,0) 300.0 (10,10) Blank)
 -}
 clampToBounds :: Object -> Object -> Object
 clampToBounds bObj@(Object {position = (bx,by),bounds=(boundsWidth,boundsHeight)}) obj@(Object { position = (xPos, yPos), bounds = (objWidth, objHeight)}) =
