@@ -48,8 +48,8 @@ data Game = GameState
    INVARIANT: position is the center of the object
 -}
 data Object = Object
-  { position    :: (Float, Float),
-    direction   :: (Float, Float),
+  { position    :: Position,
+    direction   :: Direction,
     speed       :: Float,
     bounds      :: Bounds,
     graphic     :: Picture
