@@ -13,6 +13,7 @@ import Utilities
 import Collision
 import Encounter
 import Test.HUnit
+import Debug.Trace
 
 -- The game window
 window :: Display
