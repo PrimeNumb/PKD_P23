@@ -140,7 +140,7 @@ enemySpawnInitialDelay = 5.0
 
 -- The amount of enemies per game
 enemySpawnAmount :: Int
-enemySpawnAmount = 1
+enemySpawnAmount = 50
 
 ----------------------------------------------------------------------------
 -- Projectile bindings
