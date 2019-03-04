@@ -115,6 +115,6 @@ loadGfx = do
           gameOverGfx = gameOverGfx,
           winScreenGfx = winScreenGfx,
           backgroundGfx =
-          pictures $ (translate (-winWidth) 0 backgroundGfx):(translate winWidth 0 backgroundGfx):backgroundGfx:[]
+          pictures $ (translate (2*winWidth) 0 backgroundGfx):(translate winWidth 0 backgroundGfx):backgroundGfx:[]
         }
   return gameGfx

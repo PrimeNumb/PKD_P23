@@ -37,7 +37,6 @@ data Game = GameState {
     enemyTemplate     :: Ship,
     plyProjTemplate   :: Projectile,
     enemyProjTemplate :: Projectile,
-    gameWon           :: Bool,
     showHitbox        :: Bool
   } deriving (Show, Eq)
 

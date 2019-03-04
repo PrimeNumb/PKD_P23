@@ -27,7 +27,6 @@ window = InWindow winTitle winSize winOffset
 -}
 main :: IO ()
 main = do
-  --display window winBackground (makeDrawable playerObj)
   seed <- randomIO :: IO Int
   -- Load sprites
   gameGfx <- loadGfx
@@ -64,14 +63,12 @@ newGame gameState@(GameState{randomGen=randomGen, enemyTemplate=enemyTemplate, p
    Example omitted (can't properly represent pictures in an example).
 -}
 draw :: Game -> Picture
-draw gameState@(GameState {gameGfx=gameGfx, player=playerShip, plyProjectiles=plyProjs, enemyProjectiles=enemyProjs, enemies=enemies, showHitbox=showHitbox,backgroundFx=backgroundFx, gameWon=gameWon}) = newFrame
+draw gameState@(GameState {gameGfx=gameGfx, player=playerShip, plyProjectiles=plyProjs, enemyProjectiles=enemyProjs, enemies=enemies, showHitbox=showHitbox,backgroundFx=backgroundFx, encounter=encounter}) = newFrame
   where
     -- Everything that needs to be drawn goes here
     -- updateHealthDisplay is a bit code smelly, no time to fix it
     -- so the below is possibly the best (or least messy) solution for now.
-    heartPics
-      | gameWon = [Blank]
-      | otherwise = map makeDrawable (updateHealthDisplay playerShip (heartGfx gameGfx) (gameOverGfx gameGfx))
+    heartPics = map makeDrawable (updateHealthDisplay playerShip (heartGfx gameGfx) (gameOverGfx gameGfx))
 
     backgroundPic = makeDrawable backgroundFx
     objPics =
@@ -79,7 +76,7 @@ draw gameState@(GameState {gameGfx=gameGfx, player=playerShip, plyProjectiles=pl
     finalObjPics = if showHitbox
       then (map makeDrawable objPics) ++ (map drawBounds objPics)
       else (map makeDrawable objPics)
-    winScreenSprite = if gameWon
+    winScreenSprite = if (enemies == []) && ((shipStack encounter) == []) && (shipHealth playerShip) > 0
       then makeDrawable $ dummyObject {graphic = (winScreenGfx gameGfx)}
       else Blank
     -- The final picture frame
@@ -113,11 +110,10 @@ update dt gameState@(GameState {ticker=currentTick,plyProjectiles=projList, enem
     
     -- Game related
     newTicker = currentTick+dt
-    gameHasBeenWon = (newEnemies == []) && (shipStack newEncounter) == []
     newBackgroundFx = scrollBackground dt backgroundFx
     
     -- The final updated gamestate
-    newGameState = (gameState {player=newPlayer, ticker=newTicker, plyProjectiles=newPlyProjList, enemies=newEnemies, enemyProjectiles=newEnemyProjList, encounter=newEncounter, gameWon=gameHasBeenWon, backgroundFx=newBackgroundFx})
+    newGameState = (gameState {player=newPlayer, ticker=newTicker, plyProjectiles=newPlyProjList, enemies=newEnemies, enemyProjectiles=newEnemyProjList, encounter=newEncounter, backgroundFx=newBackgroundFx})
 
 {- handleEvent event gameState
    Modifies a game state based on an event.
@@ -166,7 +162,7 @@ scrollBackground :: Float -> Object -> Object
 scrollBackground dt bgObj@(Object {position=(x,_)}) = newBackgroundObj
   where
     newBackgroundObj
-      | x <= -winWidth = move ((-x)+winWidth,0) bgObj
+      | x <= -winWidth = move (winWidth,0) bgObj
       | otherwise = move (-dt*backgroundScrollSpeed,0) bgObj
     
 -- Test cases and test related functions go here for now

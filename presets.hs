@@ -140,7 +140,7 @@ enemySpawnInitialDelay = 5.0
 
 -- The amount of enemies per game
 enemySpawnAmount :: Int
-enemySpawnAmount = 50
+enemySpawnAmount = 1
 
 ----------------------------------------------------------------------------
 -- Projectile bindings
@@ -221,7 +221,6 @@ defaultGameState = GameState {
   enemyTemplate = enemyShipDefaultTemplate,
   plyProjTemplate = playerDefaultProj,
   enemyProjTemplate = enemyDefaultProj,
-  gameWon = False,
   showHitbox  = False
   }
 
