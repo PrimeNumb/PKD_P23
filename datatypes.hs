@@ -37,7 +37,8 @@ data Game = GameState {
     enemyTemplate     :: Ship,
     plyProjTemplate   :: Projectile,
     enemyProjTemplate :: Projectile,
-    showHitbox        :: Bool
+    showHitbox        :: Bool,
+    isPaused          :: Bool
   } deriving (Show, Eq)
 
 {- Object represents a physical object in the game.

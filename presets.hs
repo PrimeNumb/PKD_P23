@@ -221,7 +221,8 @@ defaultGameState = GameState {
   enemyTemplate = enemyShipDefaultTemplate,
   plyProjTemplate = playerDefaultProj,
   enemyProjTemplate = enemyDefaultProj,
-  showHitbox  = False
+  showHitbox  = False,
+  isPaused    = False
   }
 
 -- Dummy object, more or less a template

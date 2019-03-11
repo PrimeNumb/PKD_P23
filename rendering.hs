@@ -31,7 +31,7 @@ drawWithBounds obj@(Object {position=(x,y), bounds=(bx,by)}) =
 -}
 drawBounds :: Object -> Picture
 drawBounds (Object {position=(x,y), bounds=(bx,by)}) =
-    color red $ translate x y $ rectangleWire (2*bx) (2*by)
+    color green $ translate x y $ rectangleWire (2*bx) (2*by)
 
 {- processSprite pic
    Processes a potential picture.

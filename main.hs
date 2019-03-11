@@ -75,7 +75,7 @@ draw gameState@(GameState {gameGfx=gameGfx, player=playerShip, plyProjectiles=pl
     objPics =
       (map projObj enemyProjs) ++ (map projObj plyProjs) ++ (map shipObj enemies) ++ (shipObj playerShip):[]
     finalObjPics = if showHitbox
-      then (map makeDrawable objPics) ++ (map drawBounds objPics)
+      then (map makeDrawable objPics) ++ (drawBounds $ background gameState):(map drawBounds objPics)
       else (map makeDrawable objPics)
     winScreenSprite = if (enemies == []) && ((shipStack encounter) == []) && (shipHealth playerShip) > 0
       then makeDrawable $ dummyObject {graphic = (winScreenGfx gameGfx)}
@@ -90,7 +90,9 @@ draw gameState@(GameState {gameGfx=gameGfx, player=playerShip, plyProjectiles=pl
    EXAMPLES: update 0 defaultGameState == defaultGameState
 -}
 update :: Float -> Game -> Game
-update dt gameState@(GameState {ticker=currentTick,plyProjectiles=projList, enemies=enemies,enemyProjectiles=enemyProjList,encounter=encounter, player=player,backgroundFx=backgroundFx}) = newGameState 
+update dt gameState@(GameState {ticker=currentTick,plyProjectiles=projList, enemies=enemies,enemyProjectiles=enemyProjList,encounter=encounter, player=player,backgroundFx=backgroundFx, isPaused=isPaused})
+  | isPaused = gameState
+  | otherwise = newGameState
   where
     -- Everything that should be updated each iteration goes here
     -- Player related
@@ -123,7 +125,7 @@ update dt gameState@(GameState {ticker=currentTick,plyProjectiles=projList, enem
    EXAMPLES: handleEvent (EventResize (0,0)) defaultGameState == defaultGameState
 -}
 handleEvent :: Event -> Game -> Game
-handleEvent (EventKey key Down mod _) gameState@(GameState {player=player}) =
+handleEvent (EventKey key Down mod _) gameState@(GameState {player=player}) = 
   case key of
     (SpecialKey KeyUp)    -> gameState { player = player {shipObj = modDirection (0,1) (shipObj player)}}
     (SpecialKey KeyDown)  -> gameState { player = player {shipObj = modDirection (0,-1) (shipObj player)}}
@@ -138,7 +140,8 @@ handleEvent (EventKey key Down mod _) gameState@(GameState {player=player}) =
             Just x  -> x:plyProjList
             Nothing -> plyProjList
     (SpecialKey KeyF1)    -> gameState { showHitbox = (not $ showHitbox gameState)}
-    (SpecialKey KeyF2)            -> newGame gameState
+    (SpecialKey KeyF2)    -> newGame gameState
+    (SpecialKey KeyF3)    -> gameState { isPaused = (not $ isPaused gameState) }
     _ -> gameState
 handleEvent (EventKey key Up _ _) gameState@(GameState {player=player}) =
   case key of
